@@ -1,6 +1,6 @@
 {
   "name": "rn-structure",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "",
   "main": "rn-init.js",
   "scripts": {
@@ -19,7 +19,7 @@
     "rn-init",
     "init react native"
   ],
-  "author": "",
+  "author": "luanluu",
   "license": "ISC",
   "bugs": {
     "url": "https://gitlab.com/luanluuhaui/rn-init/issues"
