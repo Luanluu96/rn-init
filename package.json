@@ -9,9 +9,12 @@
   "rn-init": {
     "rn-init": "./bin/rn-init.js"
   },
+  "bin": {
+    "rn-init": "./bin/rn-init.js"
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/luanluuhaui/rn-init.git"
+    "url": "https://gitlab.com/luanluuhaui/rn-init.git"
   },
   "keywords": [
     "react native init",
