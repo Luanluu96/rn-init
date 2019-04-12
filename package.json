@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "rn-init": {
-    "rn-init": "./rn-init.js"
+    "rn-init": "./bin/rn-init.js"
   },
   "repository": {
     "type": "git",
