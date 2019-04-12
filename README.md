@@ -1,6 +1,6 @@
-# rn-structure
+### rn-structure
 
-## Installation
+### Installation
 
 Get started with rn-structure by installing the node module with yarn or npm:
 ```
@@ -11,83 +11,85 @@ or
 yarn add global rn-structure
 ```
 
-## Usage
+### Usage
 
 ```
 rn-init project-name
 ```
 
-## Structure
-Projectname.
+### Structure
+
+  .
   ├──package.json
   ├──index.js
   ├──debugging:
-  │   ├──ReactotronConfig.js
-  ├──src:
-  │   ├──assets:
-  │   │   ├──package.json
-  │   │   ├──index.js
-  │   │   ├──data:
-  │   │   │   ├── ...
-  │   │   │   ├──index.js
-  │   │   ├──fonts:
-  │   │   │   ├── ...
-  │   │   ├──icons:
-  │   │   │   ├── ...
-  │   │   │   ├──index.js
-  │   │   ├──images:
-  │   │   │   ├── ...
-  │   │   │   ├──index.js
-  │   ├──common:
-  │   │   ├── ...
-  │   │   ├──components:
-  │   │   │   ├──package.json
-  │   │   │   ├──index.js
-  │   │   │   ├──Button
-  │   │   │   │   ├──index.js
-  │   │   │   ├──Header:
-  │   │   │   │   ├──index.js
-  │   │   │   ├──List:
-  │   │   │   │   ├──index.js
-  │   ├──configs:
-  │   │   ├──Animations.js
-  │   │   ├──index.js
-  │   ├──containers:
-  │   │   ├──package.json
-  │   │   ├──index.js
-  │   │   ├──HomePage:
-  │   │   │   ├──styles.js
-  │   │   │   ├──index.js
-  │   ├──routers:
-  │   │   ├──index.js
-  │   ├──stores:
-  │   │   ├──package.json
-  │   │   ├──index.js
-  │   │   ├──actions:
-  │   │   │   ├── ...
-  │   │   │   ├──index.js
-  │   │   ├──reducers:
-  │   │   │   ├── ...
-  │   │   │   ├──init.js
-  │   │   │   ├──index.js
-  │   │   ├──sagas:
-  │   │   │   ├── ...
-  │   │   │   ├──init.js
-  │   │   │   ├──index.js
-  │   ├──utils:
-  │   │   ├──package.json
-  │   │   ├──index.js
-  │   │   ├──styles.js
-  │   │   ├──colors.js
-  │   │   ├──strings.js
-  │   │   ├──constants.js
-  │   │   ├──functions.js
-  │   │   ├──fetchs.js
-  │   │   ├──asyncStorage.js
-  │   │   ├──types.js
-  │   ├──App.js
-  │
-## Libs
+  │   └──ReactotronConfig.js
+  └──src:
+      ├──assets:
+      │   ├──package.json
+      │   ├──index.js
+      │   ├──data:
+      │   │   ├── ...
+      │   │   └──index.js
+      │   ├──fonts:
+      │   │   └── ...
+      │   ├──icons:
+      │   │   ├── ...
+      │   │   └──index.js
+      │   └──images:
+      │       ├── ...
+      │       └──index.js
+      ├──common:
+      │   ├── ...
+      │   └──components:
+      │       ├──package.json
+      │       ├──index.js
+      │       ├──Button
+      │       │   └──index.js
+      │       ├──Header:
+      │       │   └──index.js
+      │       └──List:
+      │           └──index.js
+      ├──configs:
+      │   ├──Animations.js
+      │   └──index.js
+      ├──containers:
+      │   ├──package.json
+      │   ├──index.js
+      │   └──HomePage:
+      │       ├──styles.js
+      │       └──index.js
+      ├──routers:
+      │   └───index.js
+      ├──stores:
+      │   ├──package.json
+      │   ├──index.js
+      │   ├──actions:
+      │   │   ├── ...
+      │   │   └──index.js
+      │   ├──reducers:
+      │   │   ├── ...
+      │   │   ├──init.js
+      │   │   └──index.js
+      │   └──sagas:
+      │       ├── ...
+      │       ├──init.js
+      │       └──index.js
+      ├──utils:
+      │   ├──package.json
+      │   ├──index.js
+      │   ├──styles.js
+      │   ├──colors.js
+      │   ├──strings.js
+      │   ├──constants.js
+      │   ├──functions.js
+      │   ├──fetchs.js
+      │   ├──asyncStorage.js
+      │   └──types.js
+      └──App.js
+
+
+### Libs
 
 For UI:
 
