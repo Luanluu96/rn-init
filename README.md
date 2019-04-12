@@ -17,7 +17,7 @@ yarn add global rn-structure
 rn-init project-name
 ```
 
-#Structure
+## Structure
 Projectname.
   ├──package.json
   ├──index.js
