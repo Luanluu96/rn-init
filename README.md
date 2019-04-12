@@ -17,6 +17,31 @@ yarn add global rn-structure
 rn-init project-name
 ```
 
+### Scripts
+
+```
+npm start
+
+npm run android                                             # <=> react-native run-android
+npm run ios                                                 # <=> react-native run-ios
+npm run SE                                                  # <=> react-native run-ios --simulator='iPhone SE'
+
+npm run reload                                              # <=> adb shell input text 'rr' working reload android build debuging
+npm run toggle                                              # <=> adb shell input keyevent 82 show toggle
+
+npm run restart                                             # <=> react-native start --reset-cache
+
+npm run build-android                                       # compile source code
+npm run build-ios                                           # compile source code 
+
+npm run build-release-android                               # build file APK release
+npm run sync-android                                        # clean project android
+
+npm test
+npm run coverage
+
+```
+
 ### Structure
 ```bash
   .
