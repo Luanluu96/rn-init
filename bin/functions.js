@@ -1,5 +1,6 @@
 
-export const rmdirAsync = function (path, callback = Function()) {
+var fs = require('fs');
+const rmdirAsync = function (path, callback = Function()) {
   fs.readdir(path, function (err, files) {
     if (err) {
       // Pass the error on to callback
@@ -39,3 +40,7 @@ export const rmdirAsync = function (path, callback = Function()) {
     });
   });
 };
+
+module.exports = {
+  rmdirAsync
+}

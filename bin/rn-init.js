@@ -20,6 +20,7 @@ const {
   initSagas,
   indexSagas,
   indexStores,
+  indexRouter,
   indexUtils,
   styles,
   colors,
@@ -32,7 +33,7 @@ const {
   ReactotronConfig,
   appRoot,
   indexApp
-} = require('./defined')';
+} = require('./defined');
 
 const { rmdirAsync } = require('./functions')
 
@@ -46,12 +47,11 @@ if (sh.which('expo')) {
 sh.exec(`react-native init ${name}`);
 sh.cd(name);
 
-
 // edit root package.json
 
 var packageJson = {}
 try {
-  packageJson = JSON.parse(fs.readFileSync(path.resolve('package.json'), 'utf8'));
+  packageJson = JSON.parse(fs.readFileSync(sh.pwd().stdout + "/" +('package.json'), 'utf8'));
 } catch (err) {
   console.error(err);
 }
@@ -95,55 +95,55 @@ packageJson['devDependencies']['reactotron-redux-saga'] = '^4.0.1';
 
 console.log("======================== Root src ========================");
 try {
-  fs.mkdirSync(path.resolve('src'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src'), { recursive: true })
 } catch (err) {
   console.warn(err)
 }
 console.log("======================== assets ========================");
 // assets
 try {
-  fs.mkdirSync(path.resolve('src'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src'), { recursive: true })
 } catch (err) {
   console.warn(err)
 }
 try {
-  fs.mkdirSync(path.resolve('src/assets'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/assets'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.mkdirSync(path.resolve('src/assets/fonts'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/assets/fonts'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.mkdirSync(path.resolve('src/assets/icons'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/assets/icons'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.mkdirSync(path.resolve('src/assets/images'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/assets/images'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.mkdirSync(path.resolve('src/assets/data'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/assets/data'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 
 try {
-  fs.writeFileSync(path.resolve('src/assets/icons/index.js'), indexIcons)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/assets/icons/index.js'), indexIcons)
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/assets/images/index.js'), indexImages)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/assets/images/index.js'), indexImages)
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/assets/index.js'), indexAssets)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/assets/index.js'), indexAssets)
 } catch (error) {
   console.warn(error)
 }
@@ -151,47 +151,47 @@ try {
 console.log("======================== common ========================");
 // common
 try {
-  fs.mkdirSync(path.resolve('src/common'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/common'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.mkdirSync(path.resolve('src/common/components'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/common/components'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.mkdirSync(path.resolve('src/common/components/Button'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/common/components/Button'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.mkdirSync(path.resolve('src/common/components/Header'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/common/components/Header'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.mkdirSync(path.resolve('src/common/components/List'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/common/components/List'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/common/components/Button/index.js'), buttonComponents)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/common/components/Button/index.js'), buttonComponents)
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/common/components/Header/index.js'), headerComponents)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/common/components/Header/index.js'), headerComponents)
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/common/components/List/index.js'), listComponents)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/common/components/List/index.js'), listComponents)
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/common/components/index.js'), indexComponents)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/common/components/index.js'), indexComponents)
 } catch (error) {
   console.warn(error)
 }
@@ -199,27 +199,27 @@ try {
 console.log("======================== containers ========================");
 // containers
 try {
-  fs.mkdirSync(path.resolve('src/containers'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/containers'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.mkdirSync(path.resolve('src/containers/HomePage'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/containers/HomePage'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/containers/HomePage/index.js'), indexHomePage)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/containers/HomePage/index.js'), indexHomePage)
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/containers/HomePage/styles.js'), stylesHomePage)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/containers/HomePage/styles.js'), stylesHomePage)
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/containers/index.js'), indexContainers)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/containers/index.js'), indexContainers)
 } catch (error) {
   console.warn(error)
 }
@@ -227,17 +227,17 @@ try {
 console.log("======================== configs ========================");
 // configs
 try {
-  fs.mkdirSync(path.resolve('src/configs'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/configs'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/configs/Animations.js'), configAnimations)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/configs/Animations.js'), configAnimations)
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/configs/index.js'), indexConfigs)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/configs/index.js'), indexConfigs)
 } catch (error) {
   console.warn(error)
 }
@@ -245,50 +245,50 @@ try {
 console.log("======================== stores ========================");
 // stores
 try {
-  fs.mkdirSync(path.resolve('src/stores'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/stores'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.mkdirSync(path.resolve('src/stores/actions'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/stores/actions'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.mkdirSync(path.resolve('src/stores/reducers'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/stores/reducers'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.mkdirSync(path.resolve('src/stores/sagas'), { recursive: true })
-} catch (error) {
-  console.warn(error)
-}
-
-try {
-  fs.writeFileSync(path.resolve('src/stores/reducers/init.js'), initReducers)
-} catch (error) {
-  console.warn(error)
-}
-try {
-  fs.writeFileSync(path.resolve('src/stores/reducers/index.js'), indexReducers)
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/stores/sagas'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 
 try {
-  fs.writeFileSync(path.resolve('src/stores/sagas/init.js'), initSagas)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/stores/reducers/init.js'), initReducers)
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/stores/sagas/index.js'), indexSagas)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/stores/reducers/index.js'), indexReducers)
 } catch (error) {
   console.warn(error)
 }
 
 try {
-  fs.writeFileSync(path.resolve('src/stores/index.js'), indexStores)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/stores/sagas/init.js'), initSagas)
+} catch (error) {
+  console.warn(error)
+}
+try {
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/stores/sagas/index.js'), indexSagas)
+} catch (error) {
+  console.warn(error)
+}
+
+try {
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/stores/index.js'), indexStores)
 } catch (error) {
   console.warn(error)
 }
@@ -297,12 +297,12 @@ try {
 console.log("======================== routers ========================");
 // routers
 try {
-  fs.mkdirSync(path.resolve('src/routers'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/routers'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/routers/index.js'), indexRouter)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/routers/index.js'), indexRouter)
 } catch (error) {
   console.warn(error)
 }
@@ -310,57 +310,57 @@ try {
 console.log("======================== utils ========================");
 // utils
 try {
-  fs.mkdirSync(path.resolve('src/utils'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/utils'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/utils/index.js'), indexUtils)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/utils/index.js'), indexUtils)
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/utils/styles.js'), styles)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/utils/styles.js'), styles)
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/utils/colors.js'), colors)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/utils/colors.js'), colors)
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/utils/strings.js'), strings)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/utils/strings.js'), strings)
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/utils/constants.js'), constants)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/utils/constants.js'), constants)
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/utils/functions.js'), functions)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/utils/functions.js'), functions)
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/utils/fetchs.js'), fetchs)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/utils/fetchs.js'), fetchs)
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/utils/asyncStorage.js'), asyncStorage)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/utils/asyncStorage.js'), asyncStorage)
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/utils/types.js'), types)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/utils/types.js'), types)
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('src/utils/package.json'), JSON.stringify({ name: '@utils' }))
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/utils/package.json'), JSON.stringify({ name: '@utils' }))
 } catch (error) {
   console.warn(error)
 }
@@ -368,12 +368,12 @@ try {
 console.log("======================== debugging ========================");
 // debugging
 try {
-  fs.mkdirSync(path.resolve('debugging'), { recursive: true })
+  fs.mkdirSync(sh.pwd().stdout + "/" +('debugging'), { recursive: true })
 } catch (error) {
   console.warn(error)
 }
 try {
-  fs.writeFileSync(path.resolve('debugging/ReactotronConfig.js'), ReactotronConfig)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('debugging/ReactotronConfig.js'), ReactotronConfig)
 } catch (error) {
   console.warn(error)
 }
@@ -381,7 +381,7 @@ try {
 console.log("======================== App ========================");
 // App
 try {
-  fs.writeFileSync(path.resolve('src/App.js'), appRoot)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/App.js'), appRoot)
 } catch (error) {
   console.warn(error)
 }
@@ -389,18 +389,18 @@ try {
 console.log("======================== delete ========================");
 // delete
 try {
-  fs.unlinkSync(path.resolve('App.js'))
+  fs.unlinkSync(sh.pwd().stdout + "/" +('App.js'))
 } catch (err) {
   console.warn(err)
 }
-rmdirAsync(path.resolve('ios/' + projectName + '-tvOS'))
-rmdirAsync(path.resolve('ios/' + projectName + '-tvOSTests'))
-rmdirAsync(path.resolve('ios/' + projectName + 'Tests'))
+rmdirAsync(sh.pwd().stdout + "/" +('ios/' + projectName + '-tvOS'))
+rmdirAsync(sh.pwd().stdout + "/" +('ios/' + projectName + '-tvOSTests'))
+rmdirAsync(sh.pwd().stdout + "/" +('ios/' + projectName + 'Tests'))
 
 console.log("======================== root app ========================");
 // root app
 try {
-  fs.writeFileSync(path.resolve('index.js'), indexApp)
+  fs.writeFileSync(sh.pwd().stdout + "/" +('index.js'), indexApp)
 } catch (error) {
   console.warn(error)
 }
@@ -408,7 +408,7 @@ try {
 console.log("======================== update package.json ========================");
 // update package.json
 try {
-  fs.writeFileSync(path.resolve('package.json'), JSON.stringify(packageJson))
+  fs.writeFileSync(sh.pwd().stdout + "/" +('package.json'), JSON.stringify(packageJson))
 } catch (error) {
   console.warn(error)
 }

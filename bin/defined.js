@@ -1,5 +1,4 @@
-
-export const asyncStorage = `
+const asyncStorage = `
 import { AsyncStorage } from "react-native";
 /**
  *
@@ -81,7 +80,7 @@ export default {
 };
 `
 
-export const colors = `
+const colors = `
 
 const COLORS_MOCK = [
   { color: '#2D4EF5', title: 'Primary' },
@@ -121,7 +120,7 @@ const COLORS = {
 export default COLORS;
 `
 
-export const styles = `import { Dimensions, Platform, PixelRatio } from "react-native";
+const styles = `import { Dimensions, Platform, PixelRatio } from "react-native";
 
 import { normalize } from './function';
 import COLORS from "./colors";
@@ -347,7 +346,7 @@ const STYLES = {
 
 export default STYLES;`
 
-export const constants = `const url_root = 'localhost:9091'
+const constants = `const url_root = 'localhost:9091'
 
 const URLS = {
   login: url_root + '/api/login',
@@ -381,7 +380,7 @@ export {
   SCREEN_NAME,
 }
 `
-export const fetchs = `import "abortcontroller-polyfill/dist/polyfill-patch-fetch";
+const fetchs = `import "abortcontroller-polyfill/dist/polyfill-patch-fetch";
 import { STATUS_CODE } from "./constants";
 import strings from "./strings";
 
@@ -1076,7 +1075,7 @@ export function FetchProfileImageWait(
 }
 `
 
-export const functions = `import { Dimensions, Platform, PixelRatio, PermissionsAndroid } from 'react-native';
+const functions = `import { Dimensions, Platform, PixelRatio, PermissionsAndroid } from 'react-native';
 const IOS = Platform.OS === "ios";
 
 const {
@@ -1137,7 +1136,7 @@ export const ArrayUtils = {
 	}
 }`
 
-export const indexUtils = `import STYLES from './styles';
+const indexUtils = `import STYLES from './styles';
 import COLORS from './colors';
 import { IconTypes } from './types';
 import strings from './strings';
@@ -1151,14 +1150,14 @@ export {
 	ArrayUtils
 }`
 
-export const strings = `const strings = {
+const strings = `const strings = {
   REQUEST_TIME_OUT: 'request time out',
   SOMETHING_WENT_WRONG_ON_API_SERVER: 'something went wrong on api server',
 }
 
 export default strings;`
 
-export const types = `const IconTypes = {
+const types = `const IconTypes = {
   zocial: 'zocial',
   octicon: 'octicon',
   material: 'material',
@@ -1176,7 +1175,7 @@ export {
   IconTypes,
 }`
 
-export const indexHomePage = `import React, { PureComponent } from 'react';
+const indexHomePage = `import React, { PureComponent } from 'react';
 import {  View, Text } from 'react-native';
 
 export default class HomePage extends PureComponent {
@@ -1196,7 +1195,7 @@ export default class HomePage extends PureComponent {
 }
 `
 
-export const stylesHomePage = `
+const stylesHomePage = `
 import { StyleSheet } from 'react-native';
 import STYLES from '../../utils/styles';
 import COLORS from '../../utils/colors';
@@ -1208,13 +1207,13 @@ const styles = StyleSheet.create({
 
 export default styles;`
 
-export const indexContainers = `import HomePage from './HomePage';
+const indexContainers = `import HomePage from './HomePage';
 
 export {
   HomePage,
 }`
 
-export const indexRouter = `import { NavigationActions, createStackNavigator, createAppContainer } from 'react-navigation';
+const indexRouter = `import { NavigationActions, createStackNavigator, createAppContainer } from 'react-navigation';
 import { Animated, Easing } from 'react-native';
 import { SCREEN_NAME } from '../utils/constants';
 
@@ -1274,7 +1273,7 @@ export default createAppContainer(Router);
 
 `
 
-export const appRoot = `import React, { Component } from 'react';
+const appRoot = `import React, { Component } from 'react';
 import { StyleSheet, Text, StatusBar, View } from 'react-native';
 import '../debugging/ReactotronConfig';
 import { Provider } from "react-redux";
@@ -1315,7 +1314,7 @@ const styles = StyleSheet.create({
 });
 `
 
-export const initReducers = `const initialState = {
+const initReducers = `const initialState = {
   ids: ['id_1','id_2', 'id_3','id_4'],
   data:{
     'id_1': {},
@@ -1333,7 +1332,7 @@ export default (state = initialState, action) => {
 };
 `
 
-export const indexReducers = `import { combineReducers } from 'redux';
+const indexReducers = `import { combineReducers } from 'redux';
 import init from './init';
 
 const reducer = combineReducers({
@@ -1343,7 +1342,7 @@ const reducer = combineReducers({
 export default reducer;
 `
 
-export const indexStores = `import { createStore, applyMiddleware, combineReducers } from 'redux';
+const indexStores = `import { createStore, applyMiddleware, combineReducers } from 'redux';
 import createSagaMiddleware from 'redux-saga';
 // import Reactotron from 'reactotron-react-native';
 import Reactotron from '../../debugging/ReactotronConfig';
@@ -1372,11 +1371,11 @@ sagaMiddleware.run(rootSaga);
 export default Store;
 `
 
-export const initSagas = `function* loginSaga() {
+const initSagas = `function* loginSaga() {
   
 }`
 
-export const indexSagas = `import { all } from 'redux-saga/effects';
+const indexSagas = `import { all } from 'redux-saga/effects';
 
 
 function* rootSaga() {
@@ -1387,7 +1386,7 @@ function* rootSaga() {
 export default rootSaga;
 `
 
-export const indexAssets = `import {
+const indexAssets = `import {
 } from './data';
 
 import ICONS from "./icons";
@@ -1398,14 +1397,14 @@ export {
   IMAGES,
 }`
 
-export const indexImages = `const IMAGES = {
+const indexImages = `const IMAGES = {
 }
 export default IMAGES;`
-export const indexIcons = `const ICONS = {
+const indexIcons = `const ICONS = {
 }
 export default IMAGES;`
 
-export const indexComponents = `import Button from './Button';
+const indexComponents = `import Button from './Button';
 import Header from './Header';
 import List from './List';
 
@@ -1415,7 +1414,7 @@ export {
   List,
 }`
 
-export const buttonComponents = `import React from 'react';
+const buttonComponents = `import React from 'react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet, TouchableOpacity, Text, Image, Animated } from 'react-native';
 
@@ -1515,13 +1514,13 @@ const styles = StyleSheet.create({
   }
 });`
 
-export const headerComponents = `import React from 'react';
+const headerComponents = `import React from 'react';
 import PropTypes from 'prop-types';
 import { SafeAreaView } from 'react-navigation';
 import { View, StyleSheet } from 'react-native';
 import STYLES from '../../../utils/styles';
 
-export const Header = (props) => {
+const Header = (props) => {
   return (
     <SafeAreaView style={[styles.container, props.style]}>
       {props.children}
@@ -1551,7 +1550,7 @@ const styles = StyleSheet.create({
   },
 });`
 
-export const listComponents = `import React, { PureComponent } from 'react';
+const listComponents = `import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import STYLES from '../../../utils/styles';
@@ -1614,7 +1613,7 @@ const styles = StyleSheet.create({
   },
 });`
 
-export const configAnimations = `import { Animated, Easing } from 'react-native';
+const configAnimations = `import { Animated, Easing } from 'react-native';
 
 
 function getSpringAnimations(animatedValKeys, toValue, speed = 2, bounciness = 2) {
@@ -1630,14 +1629,14 @@ export {
   getTimingAnimations
 }`
 
-export const indexConfigs = `import * as Animations from './Animations';
+const indexConfigs = `import * as Animations from './Animations';
 
 
 export {
   Animations,
 }`
 
-export const ReactotronConfig = `import Reactotron, {
+const ReactotronConfig = `import Reactotron, {
   trackGlobalErrors,
   asyncStorage,
   networking
@@ -1664,7 +1663,7 @@ const reactotron = Reactotron.configure({
 export default reactotron;
 `
 
-export const indexApp = `/**
+const indexApp = `/**
 * @format
 */
 
@@ -1674,3 +1673,36 @@ import {name as appName} from './app.json';
 
 AppRegistry.registerComponent(appName, () => App);
 `
+
+module.exports = {
+  indexIcons,
+  indexImages,
+  indexAssets,
+  buttonComponents,
+  headerComponents,
+  listComponents,
+  indexComponents,
+  indexHomePage,
+  stylesHomePage,
+  indexContainers,
+  configAnimations,
+  indexConfigs,
+  initReducers,
+  indexReducers,
+  initSagas,
+  indexSagas,
+  indexStores,
+  indexRouter,
+  indexUtils,
+  styles,
+  colors,
+  strings,
+  constants,
+  functions,
+  fetchs,
+  asyncStorage,
+  types,
+  ReactotronConfig,
+  appRoot,
+  indexApp
+}
