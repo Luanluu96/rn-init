@@ -18,7 +18,7 @@ rn-init project-name
 ```
 
 ### Structure
-
+```bash
   .
   ├──package.json
   ├──index.js
@@ -87,7 +87,7 @@ rn-init project-name
       │   ├──asyncStorage.js
       │   └──types.js
       └──App.js
-
+```
 
 ### Libs
 
