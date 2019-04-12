@@ -1,9 +1,9 @@
-# rn-init
+# rn-structure
 
 ## Installation
 
 ```
-npm install -g rn-init
+npm install -g rn-structure
 ```
 
 ## Usage
