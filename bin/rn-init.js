@@ -394,9 +394,9 @@ try {
 } catch (err) {
   console.warn(err)
 }
-rmdirAsync(sh.pwd().stdout + "/" +('ios/' + projectName + '-tvOS'))
-rmdirAsync(sh.pwd().stdout + "/" +('ios/' + projectName + '-tvOSTests'))
-rmdirAsync(sh.pwd().stdout + "/" +('ios/' + projectName + 'Tests'))
+// rmdirAsync(sh.pwd().stdout + "/" +('ios/' + projectName + '-tvOS'))
+// rmdirAsync(sh.pwd().stdout + "/" +('ios/' + projectName + '-tvOSTests'))
+// rmdirAsync(sh.pwd().stdout + "/" +('ios/' + projectName + 'Tests'))
 
 console.log("======================== root app ========================");
 // root app

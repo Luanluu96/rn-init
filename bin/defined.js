@@ -1134,6 +1134,19 @@ export const ArrayUtils = {
 	isEmpty: (arrays) => {
 		return !(arrays && arrays.length > 0);
 	}
+}
+
+export const groupStyle = (arrays: Array<any>) => {
+	if (ArrayUtils.isEmpty(arrays) && !Array.isArray(arrays) && arrays.length <= 1) return arrays;
+	let newStyle = [arrays[0]];
+	arrays.slice(1, arrays.length).forEach(value => {
+		if (Array.isArray(value)) {
+			newStyle = [...newStyle, ...value];
+		} else {
+			newStyle.push(value);
+		}
+	});
+	return newStyle;
 }`
 
 const indexUtils = `import STYLES from './styles';
@@ -1417,38 +1430,26 @@ export {
 const buttonComponents = `import React from 'react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet, TouchableOpacity, Text, Image, Animated } from 'react-native';
+import { groupStyle } from '../../../utils/functions';
 
 const TouchableOpacityAnimated = Animated.createAnimatedComponent(TouchableOpacity)
 
 const Button = (props) => {
-
-  let NewStyle = [styles.container];
-  if (Array.isArray(props.style)) {
-    NewStyle = [styles.container, ...props.style];
-  } else {
-    NewStyle.push(props.style);
-  }
-  let buttonImageNewStyle = [styles.buttonImage];
-  if (Array.isArray(props.buttonImageStyle)) {
-    buttonImageNewStyle = [styles.buttonImage, ...props.buttonImageStyle];
-  } else {
-    buttonImageNewStyle.push(props.buttonImageStyle);
-  }
   return (
     <TouchableOpacityAnimated
       onLongPress={() => props.onLongPress()}
       onPressIn={() => props.onPressIn()}
       onPressOut={() => props.onPressOut()}
       onPress={() => props.onPress()}
-      style={NewStyle}
+      style={groupStyle([styles.container, props.style])}
       {...props.touchableProps}>
       {
         (!props.children) && (
-          <View style={[styles.buttonContentStyle, props.buttonContentStyle]}>
+          <View style={groupStyle([styles.buttonContentStyle, props.buttonContentStyle])}>
             {
               (props.buttonText) && (
                 <Text
-                  style={[styles.buttonTextContent, props.buttonTextContentStyle]}
+                  style={groupStyle([styles.buttonTextContent, props.buttonTextContentStyle])}
                   numberOfLines={props.numberOfLines}>
                   {props.buttonText}
                 </Text>
@@ -1457,7 +1458,7 @@ const Button = (props) => {
             {
               (props.source) && (
                 <Animated.Image
-                  style={buttonImageNewStyle}
+                  style={groupStyle([styles.buttonImage, props.buttonImageStyle])}
                   source={props.source}
                   resizeMode={props.resizeMode} />
               )
@@ -1519,10 +1520,11 @@ import PropTypes from 'prop-types';
 import { SafeAreaView } from 'react-navigation';
 import { View, StyleSheet } from 'react-native';
 import STYLES from '../../../utils/styles';
+import { groupStyle } from '../../../utils/functions';
 
 const Header = (props) => {
   return (
-    <SafeAreaView style={[styles.container, props.style]}>
+    <SafeAreaView style={groupStyle([styles.container, props.style])}>
       {props.children}
     </SafeAreaView>
   );
@@ -1555,6 +1557,7 @@ import PropTypes from 'prop-types';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import STYLES from '../../../utils/styles';
 import COLORS from '../../../utils/colors';
+import { groupStyle } from '../../../utils/functions';
 
 export default class List extends PureComponent {
   render() {
@@ -1569,9 +1572,9 @@ export default class List extends PureComponent {
       listProps,
     } = this.props;
     return (
-      <View style={[styles.container, style]}>
-        {titleList && <Text style={[styles.titleListStyle, titleListStyle]}>{titleList}</Text>}
-        <View style={[styles.listContainer, listContainer]}>
+      <View style={groupStyle([styles.container, style])}>
+        {titleList && <Text style={groupStyle([styles.titleListStyle, titleListStyle])}>{titleList}</Text>}
+        <View style={groupStyle([styles.listContainer, listContainer])}>
           <ScrollView
             showsHorizontalScrollIndicator={false}
             showsVerticalScrollIndicator={false}
