@@ -419,241 +419,6 @@ async function outputError(response) {
   return error;
 }
 
-export function requestGetJsonContent(
-  url,
-  accessToken,
-  timeOut: number = timeOutDefault
-) {
-  return new Promise((resolve, reject) => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    let handleTimeOut = setTimeout(() => {
-      controller.abort();
-      reject({ status: false, statusCode: 500, error: strings.REQUEST_TIME_OUT });
-    }, timeOut);
-    const myRequest = new Request(url, {
-      method: "GET",
-      headers: accessToken
-        ? {
-          Authorization: "Bearer " + accessToken,
-          "Content-Type": "application/json"
-        }
-        : {
-          "Content-Type": "application/json"
-        }
-      ,
-      signal: signal,
-    });
-    fetch(myRequest)
-      .then(async (response) => {
-        if (STATUS_CODE[response.status].status) {
-          let jsonObject = await response.json();
-          if (typeof jsonObject == "string") {
-            jsonObject = { message: jsonObject };
-          }
-          jsonObject["status"] = true;
-          jsonObject["statusCode"] = response.status;
-          return jsonObject;
-        } else if (!STATUS_CODE[response.status].status) {
-          return outputError(response);
-        }
-      })
-      .then(responseJson => {
-        clearTimeout(handleTimeOut);
-        if (responseJson.status) { resolve(responseJson); } else { reject(responseJson) }
-      })
-      .catch(error => {
-        clearTimeout(handleTimeOut);
-        reject({
-          status: false,
-          statusCode: 500,
-          error: strings.SOMETHING_WENT_WRONG_ON_API_SERVER
-        });
-      });
-  });
-}
-
-export function requestGetPagingContent(
-  url,
-  accessToken,
-  timeOut: number = timeOutDefault
-) {
-  return new Promise((resolve, reject) => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    let handleTimeOut = setTimeout(() => {
-      controller.abort();
-      reject({ status: false, statusCode: 500, error: strings.REQUEST_TIME_OUT });
-    }, timeOut);
-    const myRequest = new Request(url, {
-      method: "GET",
-      headers: accessToken
-        ? {
-          Authorization: "Bearer " + accessToken,
-          "Content-Type": "application/json"
-        }
-        : {
-          "Content-Type": "application/json"
-        }
-      ,
-      signal: signal,
-    });
-    fetch(myRequest)
-      .then(async (response) => {
-        if (STATUS_CODE[response.status].status) {
-          const headers = response.headers
-          let jsonObject = await response.json();
-          if (typeof jsonObject == "string") {
-            jsonObject = { message: jsonObject };
-          }
-          jsonObject["status"] = true;
-          jsonObject["statusCode"] = response.status;
-
-          var responseResult = { status: true, jsonContent: jsonObject, headers: headers }
-          return responseResult;
-
-        } else if (!STATUS_CODE[response.status].status) {
-          return outputError(response);
-        }
-      })
-      .then(responseJson => {
-        clearTimeout(handleTimeOut);
-        if (responseJson.status) {
-          resolve(responseJson);
-        }
-        else {
-          reject(responseJson)
-        }
-      })
-      .catch(error => {
-        clearTimeout(handleTimeOut);
-        reject({
-          status: false,
-          statusCode: 500,
-          error: strings.SOMETHING_WENT_WRONG_ON_API_SERVER
-        });
-      });
-  });
-}
-
-export function requestPutJsonContent(
-  url,
-  jsonContent,
-  accessToken,
-  timeOut = timeOutDefault
-) {
-  return new Promise((resolve, reject) => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    let handleTimeOut = setTimeout(() => {
-      controller.abort();
-      reject({ status: false, statusCode: 500, error: strings.REQUEST_TIME_OUT });
-    }, timeOut);
-    const myRequest = new Request(url, {
-      method: "PUT",
-      headers: accessToken
-        ? {
-          Authorization: "Bearer " + accessToken,
-          Accept: "application/json",
-          "Content-Type": "application/json"
-        }
-        : {
-          Accept: "application/json",
-          "Content-Type": "application/json"
-        },
-      body: jsonContent ? JSON.stringify(jsonContent) : null,
-      signal: signal
-    });
-    fetch(myRequest)
-      .then(async (response) => {
-        if (STATUS_CODE[response.status].status) {
-          let jsonObject = await response.json();
-          if (typeof jsonObject == "string") {
-            jsonObject = { message: jsonObject };
-          }
-          jsonObject["status"] = true;
-          jsonObject["statusCode"] = response.status;
-          return jsonObject;
-        } else if (!STATUS_CODE[response.status].status) {
-          return outputError(response);
-        }
-      })
-      .then(responseJson => {
-        clearTimeout(handleTimeOut);
-        if (responseJson.status) {
-          resolve(responseJson);
-        } else {
-          reject(responseJson)
-        }
-      })
-      .catch(error => {
-        clearTimeout(handleTimeOut);
-        reject({
-          status: false,
-          statusCode: 500,
-          error: strings.SOMETHING_WENT_WRONG_ON_API_SERVER
-        });
-      });
-  });
-}
-
-export function requestPostJsonContent(
-  url,
-  jsonContent,
-  accessToken,
-  timeOut = timeOutDefault
-) {
-  return new Promise((resolve, reject) => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    let handleTimeOut = setTimeout(() => {
-      controller.abort();
-      reject({ status: false, statusCode: 500, error: strings.REQUEST_TIME_OUT });
-    }, timeOut);
-    const myRequest = new Request(url, {
-      method: "POST",
-      headers: accessToken
-        ? {
-          Authorization: "Bearer " + accessToken,
-          Accept: "application/json",
-          "Content-Type": "application/json"
-        }
-        : {
-          Accept: "application/json",
-          "Content-Type": "application/json"
-        },
-      body: jsonContent ? JSON.stringify(jsonContent) : null,
-      signal: signal
-    });
-    fetch(myRequest)
-      .then(async response => {
-        if (STATUS_CODE[response.status].status) {
-          let jsonObject = await response.json();
-          if (typeof jsonObject == "string") {
-            jsonObject = { message: jsonObject };
-          }
-          jsonObject["status"] = true;
-          jsonObject["statusCode"] = response.status;
-          return jsonObject;
-        } else if (!STATUS_CODE[response.status].status) {
-          return outputError(response);
-        }
-      })
-      .then(responseJson => {
-        clearTimeout(handleTimeOut);
-        resolve(responseJson);
-      })
-      .catch(error => {
-        clearTimeout(handleTimeOut);
-        reject({
-          status: false,
-          statusCode: 500,
-          error: strings.SOMETHING_WENT_WRONG_ON_API_SERVER
-        });
-      });
-  });
-}
-
 export function FetchJsonGet(url, timeOut = timeOutDefault) {
   return new Promise((resolve, reject) => {
     const controller = new AbortController();
@@ -1420,12 +1185,85 @@ export default IMAGES;`
 const indexComponents = `import Button from './Button';
 import Header from './Header';
 import List from './List';
+import Spinner from './Spinner';
 
 export {
   Button,
   Header,
   List,
+  Spinner,
 }`
+
+const spinnerComponents = `import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
+import { StyleSheet, View, Text, Modal, ActivityIndicator } from 'react-native';
+import Dialog, { DialogContent } from 'react-native-popup-dialog';
+import STYLES from '../../utils/styles';
+
+const transparent = 'transparent';
+const styles = StyleSheet.create({
+  container: {
+    flex: 0,
+    ...STYLES.centerItem,
+  },
+  textContent: {
+    height: 50,
+    fontSize: 20,
+    fontWeight: 'bold'
+  },
+  activityIndicator: {
+    height: 50,
+    width: 50,
+  }
+});
+
+const SIZES = ['small', 'normal', 'large'];
+
+export default class Spinner extends PureComponent {
+  static propTypes = {
+    color: PropTypes.string,
+    size: PropTypes.oneOf(SIZES),
+    textContent: PropTypes.string,
+    textStyle: PropTypes.object,
+    visible: PropTypes.bool,
+    indicatorStyle: PropTypes.object,
+  };
+
+  static defaultProps = {
+    visible: false,
+    color: 'white',
+    size: 'large', // 'normal',
+  };
+
+  _renderDefaultContent() {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator
+          color={this.props.color}
+          size={this.props.size}
+          style={[styles.activityIndicator, { ...this.props.indicatorStyle }]}
+        />
+        {(this.props.textContent) && (
+          <Text style={[styles.textContent, this.props.textStyle]}>
+            {this.props.textContent}
+          </Text>
+        )}
+      </View>
+    );
+  }
+
+  render() {
+    return (
+      <Dialog
+        dialogStyle={{ backgroundColor: transparent }}
+        visible={this.props.visible}
+      >
+        {this._renderDefaultContent()}
+      </Dialog>
+    );
+  }
+}
+`
 
 const buttonComponents = `import React from 'react';
 import PropTypes from 'prop-types';
@@ -1684,6 +1522,7 @@ module.exports = {
   buttonComponents,
   headerComponents,
   listComponents,
+  spinnerComponents,
   indexComponents,
   indexHomePage,
   stylesHomePage,

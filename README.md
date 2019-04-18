@@ -145,8 +145,8 @@ Fetch:
 abortcontroller-polyfill@1.2.1
 ```
 
-Loging:
-
+Logging:
+[installing reactotron](https://github.com/infinitered/reactotron)
 ```
 reactotron-react-native@2.1.0
 reactotron-redux@2.1.0

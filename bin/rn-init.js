@@ -10,6 +10,7 @@ const {
   buttonComponents,
   headerComponents,
   listComponents,
+  spinnerComponents,
   indexComponents,
   indexHomePage,
   stylesHomePage,
@@ -88,6 +89,7 @@ packageJson['dependencies']['react-navigation'] = '^3.3.2';
 packageJson['dependencies']['react-redux'] = '^6.0.1';
 packageJson['dependencies']['redux'] = '^4.0.0';
 packageJson['dependencies']['redux-saga'] = '^1.0.2';
+packageJson['dependencies']['react-native-popup-dialog'] = '^0.17.0';
 
 // devDependencies 
 packageJson['devDependencies']['reactotron-react-native'] = '^2.1.0';
@@ -177,6 +179,11 @@ try {
   console.warn(error)
 }
 try {
+  fs.mkdirSync(sh.pwd().stdout + "/" +('src/common/components/Spinner'), { recursive: true })
+} catch (error) {
+  console.warn(error)
+}
+try {
   fs.writeFileSync(sh.pwd().stdout + "/" +('src/common/components/Button/index.js'), buttonComponents)
 } catch (error) {
   console.warn(error)
@@ -188,6 +195,11 @@ try {
 }
 try {
   fs.writeFileSync(sh.pwd().stdout + "/" +('src/common/components/List/index.js'), listComponents)
+} catch (error) {
+  console.warn(error)
+}
+try {
+  fs.writeFileSync(sh.pwd().stdout + "/" +('src/common/components/Spinner/index.js'), spinnerComponents)
 } catch (error) {
   console.warn(error)
 }
