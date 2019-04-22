@@ -2,7 +2,7 @@
   "name": "rn-structure",
   "version": "0.0.8",
   "description": "",
-  "main": "rn-init.js",
+  "main": "rn-init.js",  
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -28,6 +28,8 @@
   },
   "homepage": "https://gitlab.com/luanluuhaui/rn-init#readme",
   "dependencies": {
+    "colors": "^1.3.3",
+    "inquirer": "^6.3.1",
     "path": "^0.12.7",
     "shelljs": "^0.8.3"
   }

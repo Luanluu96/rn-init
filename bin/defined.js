@@ -80,6 +80,121 @@ export default {
 };
 `
 
+const audioPlayer = `import Sound from 'react-native-sound';
+
+class AudioPlayer {
+  player: Sound;
+  currentUrl: string;
+  loops: number = 0;
+  isPlaying: Boolean;
+  sliderEditing: Boolean;
+  duration: Number;
+
+  constructor() {
+    this.player = null;
+    this.currentUrl = null;
+    this.isPlaying = false;
+    this.sliderEditing = false;
+    this.duration = 0.0;
+  }
+  init(url: String, callback: Function = Function()) {
+    if (!url) return callback(false);
+    this.player = new Sound(url, null, (error: Error) => {
+      if (error) {
+        return callback(false);
+      }
+      this.duration = this.player.getDuration();
+      this.currentUrl = url;
+      callback(true);
+    });
+  }
+  play(url: string, callback: Function = Function()) {
+    if (!this.player) {
+      this.init(url, (status: boolean) => {
+        if (status) {
+          if (this.player !== null) {
+            this.isPlaying = true;
+            this.player.setNumberOfLoops(this.loops)
+            this.player.play((success) => { this.player.release(); callback(status && success); });
+          }
+        }
+      })
+      return;
+    }
+    this.player.stop().release();
+    this.player = null;
+    this.play(url, callback);
+  }
+  pause() {
+    this.isPlaying = false;
+    if (this.player == null) return;
+    this.player.pause();
+  }
+  resume(callback: Function = Function()) {
+    this.isPlaying = true;
+    if (this.player === null) return;
+    this.player.setNumberOfLoops(this.loops);
+    this.player.play((success: boolean) => {
+      if (success) {
+        this.player.reset();
+      }
+      if (this.player === null) return
+      this.player.pause().release();
+      callback(success);
+    });
+  }
+  realse() {
+    this.isPlaying = false;
+    clearInterval(this.interval);
+    if (this.player === null) return;
+    this.player.setNumberOfLoops(0);
+    this.player.stop();
+    this.loops = 0;
+    this.currentUrl = null;
+  }
+  setLoops(loops: number) {
+    this.loops = loops;
+  }
+  onSliderEditStart() {
+    this.sliderEditing = true;
+  }
+  onSliderEditEnd() {
+    this.sliderEditing = false;
+  }
+  onSliderEditing(value) {
+    if (this.player) {
+      this.player.setCurrentTime(value);
+    }
+  }
+  getCurrentTime(callback: Function = Function()) {
+    this.interval = setInterval(() => {
+      if (this.player && this.player.isLoaded() && this.isPlaying && !this.sliderEditing) {
+        this.player.getCurrentTime((seconds, isPlaying) => {
+          callback(seconds);
+        })
+      }
+    }, 100);
+  }
+  jumpPrev30Seconds = (callback: Function = Function()) => { this.jumpSeconds(-30, callback); }
+  jumpNext30Seconds = (callback: Function = Function()) => { this.jumpSeconds(30, callback); }
+  jumpPrev15Seconds = (callback: Function = Function()) => { this.jumpSeconds(-15, callback); }
+  jumpNext15Seconds = (callback: Function = Function()) => { this.jumpSeconds(15, callback); }
+  jumpSeconds = (secsDelta: Number, callback: Function) => {
+    if (this.player) {
+      this.player.getCurrentTime((secs, isPlaying) => {
+        let nextSecs = secs + secsDelta;
+        if (nextSecs < 0) nextSecs = 0;
+        else if (nextSecs > this.duration) nextSecs = this.duration;
+        this.player.setCurrentTime(nextSecs);
+        callback(nextSecs);
+      })
+    }
+  }
+}
+const audioPlayer = new AudioPlayer();
+export default audioPlayer;
+`
+
 const colors = `
 
 const COLORS_MOCK = [
@@ -953,6 +1068,39 @@ export {
   IconTypes,
 }`
 
+const networkTracker = `import React, { Component } from "react";
+import { updateInternetConnectionState } from '../stores/actions/network';
+import {
+  NetInfo
+} from "react-native";
+
+export default class NetworkTracker {
+  constructor(store) {
+    this.reduxStore = store
+  }
+
+  startTracking() {
+    NetInfo.getConnectionInfo().then((connectionInfo) => {
+      console.log('Initial, type: ' + connectionInfo.type + ', effectiveType: ' + connectionInfo.effectiveType);
+    });
+
+    NetInfo.isConnected.addEventListener(
+      'connectionChange',
+      this._handleConnectivityChange
+    );
+  }
+
+  stopTracking() {
+    NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
+  }
+
+  _handleConnectivityChange = isConnected => {
+    console.log("_handleConnectivityChange isConnected: " + isConnected)
+    this.reduxStore.dispatch(updateInternetConnectionState(isConnected))
+  };
+}
+`
+
 const indexHomePage = `import React, { PureComponent } from 'react';
 import {  View, Text } from 'react-native';
 
@@ -1051,10 +1199,13 @@ export default createAppContainer(Router);
 
 `
 
-const appRoot = `import React, { Component } from 'react';
-import { StyleSheet, Text, StatusBar, View } from 'react-native';
-import '../debugging/ReactotronConfig';
+const appRoot = ({ networkTrackerEnable } = { networkTrackerEnable: true }) => `import React, { Component } from 'react';
+import { StyleSheet, Text, StatusBar, View, AppState } from 'react-native';
 import { Provider } from "react-redux";
+
+import '../debugging/ReactotronConfig';
+${networkTrackerEnable ? `import NetworkTracker from './utils/networkTracker';` : ``}
+
 import Router from './routers';
 import Store from './stores';
 
@@ -1071,9 +1222,36 @@ type Props = {};
 type State = {};
 
 export default class App extends Component<Props, State> {
-
-  componentDidMount() {
+  constructor(props) {
+    super(props);
+    ${{ networkTrackerEnable: true } ? `this.networkTracker = new NetworkTracker(Store);` : ''}
+    this.state = { appState: AppState.currentState };
   }
+  componentDidMount() {
+    AppState.addEventListener("change", this.handleAppStateChange);
+    ${{ networkTrackerEnable: true } ? `this.networkTracker.startTracking();` : ''}
+  }
+
+  componentWillUnmount() {
+    AppState.removeEventListener("change", this.handleAppStateChange);
+    ${{ networkTrackerEnable: true } ? `this.networkTracker.stopTracking();` : ''}
+  }
+
+  handleAppStateChange = nextAppState => {
+    if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
+      // TODO:
+      if(Platform.OS === "android"){
+        
+      }
+
+    } else if (nextAppState.match(/inactive|background/) && this.state.appState === 'active') {
+      // TODO:
+      if(Platform.OS === "android"){
+        
+      }
+    }
+    this.setState({ appState: nextAppState });
+  };
   render() {
     return (
       <Provider store={Store}>
@@ -1110,17 +1288,58 @@ export default (state = initialState, action) => {
 };
 `
 
-const indexReducers = `import { combineReducers } from 'redux';
+const networkAction = `import { KEY_REDUX_STORE } from "../../utils/constants";
+
+export const updateInternetConnectionState = (isConnected) => ({
+  type: KEY_REDUX_STORE.UPDATE_INTERNET_CONNECTION_STATE,
+  payload: isConnected
+});
+`
+
+const networkReducers = `import { KEY_REDUX_STORE } from "../../utils/constants";
+
+export const isInternetConnected = (state = true, action) => {
+  switch (action.type) {
+    case KEY_REDUX_STORE.UPDATE_INTERNET_CONNECTION_STATE:
+      return action.payload;
+    default:
+      return state;
+  }
+};`
+
+const indexReducers = ({ networkTrackerEnable } = { networkTrackerEnable: true }) => `import { combineReducers } from 'redux';
 import init from './init';
+import { isInternetConnected } from './network';
 
 const reducer = combineReducers({
   init,
+  ${networkTrackerEnable ? `isInternetConnected, ` : ``}
 })
 
 export default reducer;
 `
 
-const indexStores = `import { createStore, applyMiddleware, combineReducers } from 'redux';
+const indexStoresThunk = `import { createStore, applyMiddleware } from "redux";
+import thunk from "redux-thunk";
+import Reactotron from "../../../debugging/ReactotronConfig";
+
+import reducer from './reducers';
+
+const middlewares = applyMiddleware(thunk);
+
+// mount it on the Store
+const Store = __DEV__ ?
+  Reactotron.createStore(
+    reducer,
+    middlewares
+  ) : createStore(
+    reducer,
+    middlewares
+  )
+
+export default Store;`
+
+const indexStoresSaga = `import { createStore, applyMiddleware, combineReducers } from 'redux';
 import createSagaMiddleware from 'redux-saga';
 // import Reactotron from 'reactotron-react-native';
 import Reactotron from '../../debugging/ReactotronConfig';
@@ -1476,8 +1695,29 @@ const indexConfigs = `import * as Animations from './Animations';
 export {
   Animations,
 }`
+const ReactotronConfigThunk = `import Reactotron, {
+  trackGlobalErrors,
+  asyncStorage,
+  networking
+} from "reactotron-react-native";
+import { reactotronRedux } from "reactotron-redux";
 
-const ReactotronConfig = `import Reactotron, {
+// replace console.log
+log = Reactotron.log
+
+// configure
+const reactotron = Reactotron.configure({
+  host: "localhost"
+})
+  .use(reactotronRedux())
+  .use(trackGlobalErrors())
+  .use(networking())
+  .use(asyncStorage())
+  .connect();
+
+export default reactotron;
+`;
+const ReactotronConfigSaga = `import Reactotron, {
   trackGlobalErrors,
   asyncStorage,
   networking
@@ -1530,10 +1770,13 @@ module.exports = {
   configAnimations,
   indexConfigs,
   initReducers,
+  networkAction,
+  networkReducers,
   indexReducers,
   initSagas,
   indexSagas,
-  indexStores,
+  indexStoresSaga,
+  indexStoresThunk,
   indexRouter,
   indexUtils,
   styles,
@@ -1543,8 +1786,11 @@ module.exports = {
   functions,
   fetchs,
   asyncStorage,
+  audioPlayer,
+  networkTracker,
   types,
-  ReactotronConfig,
+  ReactotronConfigSaga,
+  ReactotronConfigThunk,
   appRoot,
   indexApp
 }
