@@ -128,6 +128,10 @@ class AudioPlayer {
   pause() {
     this.isPlaying = false;
     if (this.player == null) return;
+    if (!this.player.isLoaded()){
+      this.player.stop();
+      return;
+    }
     this.player.pause();
   }
   resume(callback: Function = Function()) {

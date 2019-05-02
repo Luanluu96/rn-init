@@ -14,7 +14,7 @@ yarn add global rn-structure
 ### Usage
 
 ```
-rn-init project-name
+rn-init <project-name>
 ```
 
 ### Scripts
