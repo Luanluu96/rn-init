@@ -421,15 +421,6 @@ const STYLES = {
   widthButtonCategory: (width * 0.85) / 2.5,
   heightButtonCategory,
 
-  // button film view
-  widthButtonFilmView: (width * 0.85) / 2,
-  heightButtonFilmView: height * 1 / 3.5,
-  sizeButtonFilmView: {
-    width: (width * 0.85) / 2,
-    height: height * 1 / 3.5,
-  },
-
-
   textJustify: {
     textAlign: IOS ? 'justify' : 'left'
   },
@@ -481,6 +472,9 @@ const KEY_REDUX_STORE = {
   LOGIN_SUCCESS: '@LOGIN_SUCCESS',
   LOGIN_FAILD: '@LOGIN_FAILD',
   CLEAR_ACCOUNT: '@CLEAR_ACCOUNT',
+
+  // internet status
+  UPDATE_INTERNET_CONNECTION_STATE: '@UPDATE_INTERNET_CONNECTION_STATE',
 }
 
 const SCREEN_NAME = {
@@ -499,6 +493,7 @@ export {
   SCREEN_NAME,
 }
 `
+
 const fetchs = `import "abortcontroller-polyfill/dist/polyfill-patch-fetch";
 import { STATUS_CODE } from "./constants";
 import strings from "./strings";
@@ -510,10 +505,10 @@ export const STATUS_CODE = {
   0: { status: false, message: 'skipped' },
   200: { status: true, message: 'OK' },
   201: { status: true, message: 'Created' },
-  400: { status: false, message: '作成成功' },
-  403: { status: false, message: '認証エラー(トークン不正)' },
+  400: { status: false, message: 'Bad Request response status code' },
+  403: { status: false, message: 'Forbidden' },
   404: { status: false, message: 'Not found' },
-  500: { status: false, message: 'Internal Server ErrorHTTPヘッダー' },
+  500: { status: false, message: 'Internal Server ErrorHTTP' },
 }
 
 async function outputError(response) {
@@ -1001,12 +996,6 @@ function formatDate() {
 	return [year, month, day].join('-');
 }
 
-export function millisecondToTimeProgress(second) {
-
-	const minute = Math.floor(second / 60);
-	const secondBalance = Math.floor(second % 60);
-	return minute + ':' + secondBalance;
-}
 export const FormatMoney = (number) => {
 	if (number < 0) {
 		number = 0;
@@ -1031,6 +1020,25 @@ export const groupStyle = (arrays: Array<any>) => {
 		}
 	});
 	return newStyle;
+}
+
+export function millisecondToTimeProgress(second) {
+
+	const minute = Math.floor(second / 60);
+	const secondBalance = Math.floor(second % 60);
+	return minute + ':' + secondBalance;
+}
+// or
+export function getAudioTimeString(seconds) {
+	const h = parseInt(seconds / (60 * 60));
+	const m = parseInt(seconds % (60 * 60) / 60);
+	const s = parseInt(seconds % 60);
+	let timeString = '';
+	if (h) {
+		timeString += (h < 10 ? '0' + h : h) + ':';
+	}
+	timeString += ((m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s));
+	return timeString;
 }`
 
 const indexUtils = `import STYLES from './styles';
