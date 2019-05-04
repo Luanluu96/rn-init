@@ -31,20 +31,20 @@ rn-init <project-name>
 ```
 npm start
 
-npm run android                                             # <=> react-native run-android
-npm run ios                                                 # <=> react-native run-ios
-npm run SE                                                  # <=> react-native run-ios --simulator='iPhone SE'
+npm run android                         # <=> react-native run-android
+npm run ios                             # <=> react-native run-ios
+npm run SE                              # <=> react-native run-ios --simulator='iPhone SE'
 
-npm run reload                                              # <=> adb shell input text 'rr' working reload android build debuging
-npm run toggle                                              # <=> adb shell input keyevent 82 show toggle
+npm run reload                          # <=> adb shell input text 'rr' working reload android build debuging
+npm run toggle                          # <=> adb shell input keyevent 82 show toggle
 
-npm run restart                                             # <=> react-native start --reset-cache
+npm run restart                         # <=> react-native start --reset-cache
 
-npm run build-android                                       # compile source code
-npm run build-ios                                           # compile source code 
+npm run build-android                   # compile source code
+npm run build-ios                       # compile source code 
 
-npm run build-release-android                               # build file APK release
-npm run sync-android                                        # clean project android
+npm run build-release-android           # build file APK release
+npm run sync-android                    # clean project android
 
 npm test
 npm run coverage
@@ -108,7 +108,7 @@ npm run coverage
       │   │   ├── ...
       │   │   ├──init.js
       │   │   └──index.js
-      │   └──sagas:
+      │   └──sagas:                    # If you choose redux-saga
       │       ├── ...
       │       ├──init.js
       │       └──index.js
@@ -152,8 +152,17 @@ Stores:
 ```
 redux@4.0.0
 react-redux@6.0.1
+
+```
+
+Middleware
+```
 redux-saga@1.0.2
 @redux-saga/is@1.0.2
+```
+or
+```
+redux-thunk
 ```
 
 Navigations

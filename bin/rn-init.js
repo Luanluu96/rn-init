@@ -113,13 +113,13 @@ async function main() {
   sh.exec(installLibDevCommandLine);
   sh.exec('react-native link');
 
-  console.log("[Source] Root src");
+  console.log(colorsTerminal.green('[Source]'), "Root src");
   try {
     fs.mkdirSync(sh.pwd().stdout + "/" + ('src'), { recursive: true })
   } catch (err) {
     console.warn(err)
   }
-  console.log("[Source] assets");
+  console.log(colorsTerminal.green('[Source]'), "assets");
   // assets
   try {
     fs.mkdirSync(sh.pwd().stdout + "/" + ('src/assets'), { recursive: true })
@@ -163,7 +163,7 @@ async function main() {
     console.warn(error)
   }
 
-  console.log("[Source] api");
+  console.log(colorsTerminal.green('[Source]'), "api");
   // assets
   try {
     fs.mkdirSync(sh.pwd().stdout + "/" + ('src/api'), { recursive: true })
@@ -176,7 +176,7 @@ async function main() {
     console.warn(error)
   }
 
-  console.log("[Source] common");
+  console.log(colorsTerminal.green('[Source]'), "common");
   // common
   try {
     fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common'), { recursive: true })
@@ -234,7 +234,7 @@ async function main() {
     console.warn(error)
   }
 
-  console.log("[Source] containers");
+  console.log(colorsTerminal.green('[Source]'), "containers");
   // containers
   try {
     fs.mkdirSync(sh.pwd().stdout + "/" + ('src/containers'), { recursive: true })
@@ -262,7 +262,7 @@ async function main() {
     console.warn(error)
   }
 
-  console.log("[Source] configs");
+  console.log(colorsTerminal.green('[Source]'), "configs");
   // configs
   try {
     fs.mkdirSync(sh.pwd().stdout + "/" + ('src/configs'), { recursive: true })
@@ -280,7 +280,7 @@ async function main() {
     console.warn(error)
   }
 
-  console.log("[Source] stores");
+  console.log(colorsTerminal.green('[Source]'), "stores");
   // stores
   try {
     fs.mkdirSync(sh.pwd().stdout + "/" + ('src/stores'), { recursive: true })
@@ -343,7 +343,7 @@ async function main() {
   }
 
 
-  console.log("[Source] routers");
+  console.log(colorsTerminal.green('[Source]'), "routers");
   // routers
   try {
     fs.mkdirSync(sh.pwd().stdout + "/" + ('src/routers'), { recursive: true })
@@ -356,7 +356,7 @@ async function main() {
     console.warn(error)
   }
 
-  console.log("[Source] utils");
+  console.log(colorsTerminal.green('[Source]'), "utils");
   // utils
   try {
     fs.mkdirSync(sh.pwd().stdout + "/" + ('src/utils'), { recursive: true })
@@ -424,7 +424,7 @@ async function main() {
     console.warn(error)
   }
 
-  console.log("[Source] debugging");
+  console.log(colorsTerminal.green('[Source]'), "debugging");
   // debugging
   try {
     fs.mkdirSync(sh.pwd().stdout + "/" + ('debugging'), { recursive: true })
@@ -437,7 +437,7 @@ async function main() {
     console.warn(error)
   }
 
-  console.log("[Source] App");
+  console.log(colorsTerminal.green('[Source]'), "App");
   // App
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/App.js'), appRoot())
@@ -445,7 +445,7 @@ async function main() {
     console.warn(error)
   }
 
-  console.log("[Source] delete");
+  console.log(colorsTerminal.green('[Source]'), "delete");
   // delete
   try {
     fs.unlinkSync(sh.pwd().stdout + "/" + ('App.js'))
@@ -456,7 +456,7 @@ async function main() {
   // rmdirAsync(sh.pwd().stdout + "/" +('ios/' + projectName + '-tvOSTests'))
   // rmdirAsync(sh.pwd().stdout + "/" +('ios/' + projectName + 'Tests'))
 
-  console.log("[Source] root app");
+  console.log(colorsTerminal.green('[Source]'), "root app");
   // root app
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('index.js'), indexApp)
