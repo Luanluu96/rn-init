@@ -40,6 +40,7 @@ const {
   styles,
   colors,
   strings,
+  getIconType,
   constants,
   functions,
   fetchs,
@@ -99,7 +100,8 @@ async function main() {
       type: 'checkbox',
       name: 'Select libraries',
       choices: [
-        "react-native-sound"
+        "react-native-sound",
+        "react-native-vector-icons",
       ]
     })
     .then(libraries => {
@@ -409,10 +411,12 @@ async function main() {
   } catch (error) {
     console.warn(error)
   }
-  try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/audioPlayer.js'), audioPlayer)
-  } catch (error) {
-    console.warn(error)
+  if (installLibCommandLine.includes('react-native-sound')) {
+    try {
+      fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/audioPlayer.js'), audioPlayer)
+    } catch (error) {
+      console.warn(error)
+    }
   }
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/asyncStorage.js'), asyncStorage)
@@ -420,9 +424,16 @@ async function main() {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/types.js'), types)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/types.js'), types(installLibCommandLine.includes('react-native-vector-icons')))
   } catch (error) {
     console.warn(error)
+  }
+  if (installLibCommandLine.includes('react-native-vector-icons')) {
+    try {
+      fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/getIconType.js'), getIconType)
+    } catch (error) {
+      console.warn(error)
+    }
   }
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/networkTracker.js'), networkTracker)
