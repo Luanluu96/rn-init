@@ -4,10 +4,11 @@
 1.  [Installation](#installation)
 2.  [Usage](#usage)
 4.  [Structure](#structure)
+5.  [Stores](#stores)
 5.  [Utils](#utils)
 6.  [Libraries](#libs)
 
-### Installation
+## [Installation](#installation)
 
 <a name="installation"></a>
 
@@ -20,7 +21,7 @@ or
 yarn add global rn-structure
 ```
 
-### Usage
+## [Usage](#usage)
 
 <a name="usage"></a>
 
@@ -31,6 +32,7 @@ rn-init <project-name>
 ```
 rn-bundle <newBundleIdentifier> <project-path>
 ```
+> **Note:**  If you don't enter a specific **project-path**, the **project-path** will take the path to the current directory
 
 ```
 npm start
@@ -55,7 +57,7 @@ npm run coverage
 
 ```
 
-### Structure
+## [Structure](#structure)
 
 <a name="structure"></a>
 
@@ -89,6 +91,10 @@ npm run coverage
       │       │   └──index.js
       │       ├──Header:
       │       │   └──index.js
+      │       ├──Label:
+      │       │   └──index.js
+      │       ├──Spinner:
+      │       │   └──index.js
       │       └──List:
       │           └──index.js
       ├──configs:
@@ -108,11 +114,7 @@ npm run coverage
       │   ├──actions:
       │   │   ├── ...
       │   │   └──index.js
-      │   ├──reducers:
-      │   │   ├── ...
-      │   │   ├──init.js
-      │   │   └──index.js
-      │   └──sagas:                    # If you choose redux-saga
+      │   └──reducers:
       │       ├── ...
       │       ├──init.js
       │       └──index.js
@@ -125,20 +127,50 @@ npm run coverage
       │   ├──constants.js
       │   ├──functions.js
       │   ├──fetchs.js
-      │   ├──asyncStorage.js
+      │   ├──asyncStorage.js       
       │   └──types.js
       └──App.js
 ```
 
 
+## [Stores](#stores)
 
+### sagas
 
-### Utils
+  ```bash
+      .
+      ├──stores:
+          ├──package.json
+          ├──index.js
+          ├──actions:
+          │   ├── ...
+          │   └──index.js
+          ├──reducers:
+          │   ├── ...
+          │   ├──init.js
+          │   └──index.js
+          └──sagas:
+              ├── ...
+              ├──init.js
+              └──index.js
+  ```
+
+## [Utils](#utils)
 
 <a name="utils"></a>
 
+### Sound 
+  ```bash
+      .
+      ├──utils:
+      │   ├──...
+      │   ├──audioPlayer.js            
+      │   └──...
+      └──...
+  ```
+[#Demo](https://gitlab.com/luanluuhaui/listeningbook)
 
-### Libraries
+## [Libraries](#libs)
 
 <a name="libs"></a>
 
