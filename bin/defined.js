@@ -1674,7 +1674,7 @@ const styles = StyleSheet.create({
 const lableComponents = `import React from 'react';
 import PropTypes from 'prop-types';
 import { SafeAreaView } from 'react-navigation';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 
 import STYLES from '../../../utils/styles';
 
@@ -1683,56 +1683,56 @@ import { groupStyle } from '../../../utils/function';
 const H = ({
   children, style, textStyle, color
 }) => (
-    <View style={groupStyle([styles.container, props.style])}>
-      <Text style={groupStyle([styles.textStyle, textStyle, color])}>{props.children}</Text>
+    <View style={groupStyle([styles.container, style])}>
+      <Text style={groupStyle([styles.textStyle, textStyle, color])}>{children}</Text>
     </View>
   );
 
 const H1 = ({
   children, style, textStyle, color
 }) => (
-    <View style={groupStyle([styles.container, props.style])}>
-      <Text style={groupStyle([styles.textStyle1, textStyle, color])}>{props.children}</Text>
+    <View style={groupStyle([styles.container, style])}>
+      <Text style={groupStyle([styles.textStyle1, textStyle, color])}>{children}</Text>
     </View>
   );
 
 const H2 = ({
   children, style, textStyle, color
 }) => (
-    <View style={groupStyle([styles.container, props.style])}>
-      <Text style={groupStyle([styles.textStyle2, textStyle, color])}>{props.children}</Text>
+    <View style={groupStyle([styles.container, style])}>
+      <Text style={groupStyle([styles.textStyle2, textStyle, color])}>{children}</Text>
     </View>
   );
 
 const H3 = ({
   children, style, textStyle, color
 }) => (
-    <View style={groupStyle([styles.container, props.style])}>
-      <Text style={groupStyle([styles.textStyle3, textStyle, color])}>{props.children}</Text>
+    <View style={groupStyle([styles.container, style])}>
+      <Text style={groupStyle([styles.textStyle3, textStyle, color])}>{children}</Text>
     </View>
   );
 
 const H4 = ({
   children, style, textStyle, color
 }) => (
-    <View style={groupStyle([styles.container, props.style])}>
-      <Text style={groupStyle([styles.textStyle4, textStyle, color])}>{props.children}</Text>
+    <View style={groupStyle([styles.container, style])}>
+      <Text style={groupStyle([styles.textStyle4, textStyle, color])}>{children}</Text>
     </View>
   );
 
 const H5 = ({
   children, style, textStyle, color
 }) => (
-    <View style={groupStyle([styles.container, props.style])}>
-      <Text style={groupStyle([styles.textStyle5, textStyle, color])}>{props.children}</Text>
+    <View style={groupStyle([styles.container, style])}>
+      <Text style={groupStyle([styles.textStyle5, textStyle, color])}>{children}</Text>
     </View>
   );
 
 const H6 = ({
   children, style, textStyle, color
 }) => (
-    <View style={groupStyle([styles.container, props.style])}>
-      <Text style={groupStyle([styles.textStyle6, textStyle, color])}>{props.children}</Text>
+    <View style={groupStyle([styles.container, style])}>
+      <Text style={groupStyle([styles.textStyle6, textStyle, color])}>{children}</Text>
     </View>
   );
 
