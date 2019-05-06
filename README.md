@@ -170,6 +170,64 @@ npm run coverage
   ```
 [#Demo](https://gitlab.com/luanluuhaui/listeningbook)
 
+### react-native-vector-icons 
+  ```bash
+      .
+      ├──utils:
+      │   ├──...
+      │   ├──getIconType.js            
+      │   └──types.js
+      └──...
+  ```
+
+example
+```
+type ButtonProps = {
+  style: any,
+  textStyle: any,
+  source: any,
+  onPress: Function,
+  iconType: string,
+  iconName: string,
+  iconColor: string,
+  iconSize: number,
+  children: string,
+}
+
+const Button = (props: ButtonIconProps) => {
+  const {
+    style,
+    textStyle,
+    source,
+    onPress,
+    iconType,
+    iconName,
+    iconColor,
+    iconSize,
+    children,
+  } = props;
+  let Icon = getIconType(iconType || 'material');
+  return (
+    <TouchableOpacity activeOpacity={0.7} onPress={() => onPress()} style={[styles.container, style]}>
+      {
+        (source) && <Image {...source} style={[styles.icon, { width: iconSize, height: iconSize }]} />
+      }
+      {
+        (iconName) && <Icon name={iconName} size={iconSize} color={iconColor} />
+      }
+      {
+        (children) && <Text style={[styles.text, textStyle]}>{children}</Text>
+      }
+    </TouchableOpacity>
+  );
+};
+
+import { IconTypes } from '../types';
+
+<Button iconType={IconTypes.ionicon} iconName={'md-search'} iconColor={'#2D4EF5'} onPress={() => console.log('test')} />
+```
+
+
 ## [Libraries](#libs)
 
 <a name="libs"></a>
