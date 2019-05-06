@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
-    "rn-init": "./bin/rn-init.js"
+    "rn-init": "./bin/rn-init.js",
+    "rn-bundle": "./bin/rn-bundle.js"
   },
   "repository": {
     "type": "git",

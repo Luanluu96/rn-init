@@ -27,6 +27,10 @@ yarn add global rn-structure
 ```
 rn-init <project-name>
 ```
+> With custom Bundle Identifier (IOS only. For Android is coming soon or you can use [react-native-rename](https://github.com/junedomingo/react-native-rename))
+```
+rn-bundle <newBundleIdentifier> <project-path>
+```
 
 ```
 npm start
