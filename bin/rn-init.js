@@ -18,6 +18,7 @@ const {
   indexAssets,
   buttonComponents,
   headerComponents,
+  lableComponents,
   listComponents,
   spinnerComponents,
   indexComponents,
@@ -199,6 +200,11 @@ async function main() {
     console.warn(error)
   }
   try {
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Label'), { recursive: true })
+  } catch (error) {
+    console.warn(error)
+  }
+  try {
     fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/List'), { recursive: true })
   } catch (error) {
     console.warn(error)
@@ -215,6 +221,11 @@ async function main() {
   }
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Header/index.js'), headerComponents)
+  } catch (error) {
+    console.warn(error)
+  }
+  try {
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Label/index.js'), lableComponents)
   } catch (error) {
     console.warn(error)
   }
