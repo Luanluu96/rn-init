@@ -1476,7 +1476,7 @@ const spinnerComponents = `import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, View, Text, Modal, ActivityIndicator } from 'react-native';
 import Dialog, { DialogContent } from 'react-native-popup-dialog';
-import STYLES from '../../utils/styles';
+import STYLES from '../../../utils/styles';
 
 const transparent = 'transparent';
 const styles = StyleSheet.create({
