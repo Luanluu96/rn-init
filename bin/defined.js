@@ -1383,7 +1383,7 @@ export default reducer;
 
 const indexStoresThunk = `import { createStore, applyMiddleware } from "redux";
 import thunk from "redux-thunk";
-import Reactotron from "../../../debugging/ReactotronConfig";
+import Reactotron from "../../debugging/ReactotronConfig";
 
 import reducer from './reducers';
 

@@ -310,10 +310,12 @@ async function main() {
   } catch (error) {
     console.warn(error)
   }
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/stores/sagas'), { recursive: true })
-  } catch (error) {
-    console.warn(error)
+  if (installLibCommandLine.includes('redux-saga')) {
+    try {
+      fs.mkdirSync(sh.pwd().stdout + "/" + ('src/stores/sagas'), { recursive: true })
+    } catch (error) {
+      console.warn(error)
+    }
   }
 
   try {
@@ -337,16 +339,17 @@ async function main() {
   } catch (error) {
     console.warn(error)
   }
-
-  try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/sagas/init.js'), initSagas)
-  } catch (error) {
-    console.warn(error)
-  }
-  try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/sagas/index.js'), indexSagas)
-  } catch (error) {
-    console.warn(error)
+  if (installLibCommandLine.includes('redux-saga')) {
+    try {
+      fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/sagas/init.js'), initSagas)
+    } catch (error) {
+      console.warn(error)
+    }
+    try {
+      fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/sagas/index.js'), indexSagas)
+    } catch (error) {
+      console.warn(error)
+    }
   }
 
   try {
