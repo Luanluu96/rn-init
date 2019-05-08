@@ -241,7 +241,7 @@ export default COLORS;
 
 const styles = `import { Dimensions, Platform, PixelRatio } from "react-native";
 
-import { normalize } from './function';
+import { normalize } from './functions';
 import COLORS from "./colors";
 const { width } = Dimensions.get('window');
 const IOS = Platform.OS === "ios";
@@ -1445,10 +1445,7 @@ function* rootSaga() {
 export default rootSaga;
 `
 
-const indexAssets = `import {
-} from './data';
-
-import ICONS from "./icons";
+const indexAssets = `import ICONS from "./icons";
 import IMAGES from "./images";
 
 export {
@@ -1461,7 +1458,7 @@ const indexImages = `const IMAGES = {
 export default IMAGES;`
 const indexIcons = `const ICONS = {
 }
-export default IMAGES;`
+export default ICONS;`
 
 const indexComponents = `import Button from './Button';
 import Header from './Header';
