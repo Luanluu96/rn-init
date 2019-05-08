@@ -1383,7 +1383,7 @@ export default reducer;
 
 const indexStoresThunk = `import { createStore, applyMiddleware } from "redux";
 import thunk from "redux-thunk";
-import Reactotron from "../../../debugging/ReactotronConfig";
+import Reactotron from "../../debugging/ReactotronConfig";
 
 import reducer from './reducers';
 
@@ -1681,42 +1681,42 @@ import STYLES from '../../../utils/styles';
 import { groupStyle } from '../../../utils/function';
 
 const H = ({
-  children, style, textStyle, color
+  children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text style={groupStyle([styles.textStyle, textStyle, color])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle, textStyle, color])}>{children}</Text>
     </View>
   );
 
 const H1 = ({
-  children, style, textStyle, color
+  children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text style={groupStyle([styles.textStyle1, textStyle, color])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle1, textStyle, color])}>{children}</Text>
     </View>
   );
 
 const H2 = ({
-  children, style, textStyle, color
+  children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text style={groupStyle([styles.textStyle2, textStyle, color])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle2, textStyle, color])}>{children}</Text>
     </View>
   );
 
 const H3 = ({
-  children, style, textStyle, color
+  children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text style={groupStyle([styles.textStyle3, textStyle, color])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle3, textStyle, color])}>{children}</Text>
     </View>
   );
 
 const H4 = ({
-  children, style, textStyle, color
+  children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text style={groupStyle([styles.textStyle4, textStyle, color])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle4, textStyle, color])}>{children}</Text>
     </View>
   );
 
@@ -1724,15 +1724,15 @@ const H5 = ({
   children, style, textStyle, color
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text style={groupStyle([styles.textStyle5, textStyle, color])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle5, textStyle, color])}>{children}</Text>
     </View>
   );
 
 const H6 = ({
-  children, style, textStyle, color
+  children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text style={groupStyle([styles.textStyle6, textStyle, color])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle6, textStyle, color])}>{children}</Text>
     </View>
   );
 
