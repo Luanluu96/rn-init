@@ -140,6 +140,8 @@ npm run coverage
 
 ## [Components](#Components)
 
+<a name="Components"></a>
+
 1.  [Button](#Button)
 2.  [Header](#Header)
 4.  [Label](#Label)
@@ -148,6 +150,7 @@ npm run coverage
 5.  [Switch](#Switch)
 
 ### [Button](#Button)
+<a name="Button"></a>
 
 example
 ```
@@ -161,12 +164,14 @@ example
   />
 ```
 ### [Label](#Label)
+<a name="Label"></a>
 
 example
 ```
   <Label.H5 numberOfLines={1} style={styles.titleHeaderContainerStyle} color={'#FFFFFF'}>{`Home`}</Label.H5>
 ```
 ### [Header](#Header)
+<a name="Header"></a>
 
 example
 ```
@@ -177,8 +182,10 @@ example
   </Header>
 ```
 ### [List](#List)
+<a name="List"></a>
 
 ### [Spinner](#Spinner)
+<a name="Spinner"></a>
 
 example
 ```
@@ -186,6 +193,7 @@ example
 ```
 
 ### [Switch](#Switch)
+<a name="Switch"></a>
 
 example
 ```
