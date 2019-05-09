@@ -20,6 +20,7 @@ const {
   headerComponents,
   lableComponents,
   listComponents,
+  switchComponents
   spinnerComponents,
   indexComponents,
   indexHomePage,
@@ -212,6 +213,11 @@ async function main() {
     console.warn(error)
   }
   try {
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Switch'), { recursive: true })
+  } catch (error) {
+    console.warn(error)
+  }
+  try {
     fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Spinner'), { recursive: true })
   } catch (error) {
     console.warn(error)
@@ -233,6 +239,11 @@ async function main() {
   }
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/List/index.js'), listComponents)
+  } catch (error) {
+    console.warn(error)
+  }
+  try {
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Switch/index.js'), switchComponents)
   } catch (error) {
     console.warn(error)
   }

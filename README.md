@@ -4,6 +4,7 @@
 1.  [Installation](#installation)
 2.  [Usage](#usage)
 4.  [Structure](#structure)
+5.  [Components](#Components)
 5.  [Stores](#stores)
 5.  [Utils](#utils)
 6.  [Libraries](#libs)
@@ -84,6 +85,9 @@ npm run coverage
       │       └──index.js
       ├──common:
       │   ├── ...
+      │   ├──elements:
+      │   │   ├── ...
+      │   │   └──index.js
       │   └──components:
       │       ├──package.json
       │       ├──index.js
@@ -94,6 +98,8 @@ npm run coverage
       │       ├──Label:
       │       │   └──index.js
       │       ├──Spinner:
+      │       │   └──index.js
+      │       ├──Switch:
       │       │   └──index.js
       │       └──List:
       │           └──index.js
@@ -132,6 +138,66 @@ npm run coverage
       └──App.js
 ```
 
+## [Components](#Components)
+
+1.  [Button](#Button)
+2.  [Header](#Header)
+4.  [Label](#Label)
+5.  [List](#List)
+5.  [Spinner](#Spinner)
+5.  [Switch](#Switch)
+
+### [Button](#Button)
+
+example
+```
+  <Button
+    onPress={()=>{}}
+    buttonText={item.title}
+    source={ICONS.ic_chevron_right_black}
+    buttonContentStyle={styles.buttonContentStyle}
+    buttonTextContentStyle={styles.buttonTextContentStyle}
+    buttonImageStyle={styles.buttonImageStyle}
+  />
+```
+### [Label](#Label)
+
+example
+```
+  <Label.H5 numberOfLines={1} style={styles.titleHeaderContainerStyle} color={'#FFFFFF'}>{`Home`}</Label.H5>
+```
+### [Header](#Header)
+
+example
+```
+  <Header style={styles.header}>
+    <Button onPress={this.goback} source={ICONS.ic_back_white} style={styles.buttonBack} buttonImageStyle={styles.iconButtonBack} />
+    <Label.H5 numberOfLines={1} style={styles.titleHeaderContainerStyle} color={'#FFFFFF'}>{`Home`}</Label.H5>
+    <Button onPress={this.onPressSetting} source={ICONS.ic_setting_white} style={styles.buttonSetting} buttonImageStyle={styles.iconButtonSetting} />
+  </Header>
+```
+### [List](#List)
+
+### [Spinner](#Spinner)
+
+example
+```
+  <Spinner visible={isSpinning} />
+```
+
+### [Switch](#Switch)
+
+example
+```
+  <Switch
+    switchAnimationTime={0}
+    value={data[id].isTurnOn}
+    onValueChange={(value) => this.onSwitchValueChange(value)}
+    switchHeight={24}
+    buttonRadius={10}
+    buttonOffset={2.5}
+  />
+```
 
 ## [Stores](#stores)
 
