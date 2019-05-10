@@ -1267,7 +1267,7 @@ export default createAppContainer(Router);
 `
 
 const appRoot = ({ networkTrackerEnable } = { networkTrackerEnable: true }) => `import React, { Component } from 'react';
-import { StyleSheet, Text, StatusBar, View, AppState } from 'react-native';
+import { StyleSheet, Text, StatusBar, View, AppState, Platform } from 'react-native';
 import { Provider } from "react-redux";
 
 import '../debugging/ReactotronConfig';
