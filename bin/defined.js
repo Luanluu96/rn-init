@@ -286,6 +286,10 @@ const H = {
 
 const widthRatio = (value) => value / widthDesignApp * width
 const heightRatio = (value) => value / heightDesignApp * height;
+const widthHeightRatio = (width, height) => ({
+  width: widthRatio(width),
+  height: heightRatio(height)
+});
 const centerScreen = (padding) => (width - padding) / 2;
 
 const STYLES = {
@@ -303,6 +307,7 @@ const STYLES = {
   widthDesignApp,
   widthRatio,
   heightRatio,
+  widthHeightRatio,
 
   manubarBottomHeight,
   centerScreen,
@@ -1262,7 +1267,7 @@ export default createAppContainer(Router);
 `
 
 const appRoot = ({ networkTrackerEnable } = { networkTrackerEnable: true }) => `import React, { Component } from 'react';
-import { StyleSheet, Text, StatusBar, View, AppState } from 'react-native';
+import { StyleSheet, Text, StatusBar, View, AppState, Platform } from 'react-native';
 import { Provider } from "react-redux";
 
 import '../debugging/ReactotronConfig';
@@ -1464,19 +1469,308 @@ const indexComponents = `import Button from './Button';
 import Header from './Header';
 import List from './List';
 import Spinner from './Spinner';
+import * as Label from './Label';
+import Switch from './Switch';
 
 export {
   Button,
   Header,
   List,
   Spinner,
+  Label,
+  Switch,
 }`
+
+const switchComponents = `var React = require('react');
+var ReactNative = require('react-native');
+var PropTypes = require('prop-types');
+var createReactClass = require('create-react-class');
+
+var {
+  PanResponder,
+  View,
+  TouchableHighlight,
+  Animated,
+  ViewPropTypes,
+} = ReactNative;
+
+var Switch = createReactClass({
+  padding: 8,
+
+  propTypes: {
+    value: PropTypes.bool,
+    style: ViewPropTypes.style,
+    inactiveButtonColor: PropTypes.string,
+    inactiveButtonPressedColor: PropTypes.string,
+    activeButtonColor: PropTypes.string,
+    activeButtonPressedColor: PropTypes.string,
+    buttonShadow: ViewPropTypes.style,
+    activeBackgroundColor: PropTypes.string,
+    inactiveBackgroundColor: PropTypes.string,
+    buttonRadius: PropTypes.number,
+    switchWidth: PropTypes.number,
+    switchHeight: PropTypes.number,
+    buttonContent: PropTypes.element,
+    enableSlide: PropTypes.bool,
+    enableSlideDragging: PropTypes.bool,
+    switchAnimationTime: PropTypes.number,
+    onActivate: PropTypes.func,
+    onDeactivate: PropTypes.func,
+    onValueChange: PropTypes.func,
+  },
+
+  getDefaultProps() {
+    return {
+      value: false,
+      style: {},
+      inactiveButtonColor: '#FFFFFF',
+      inactiveButtonPressedColor: '#FFFFFF',
+      activeButtonColor: '#FFFFFF',
+      activeButtonPressedColor: '#FFFFFF',
+      buttonShadow: {
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOpacity: 0.3,
+        shadowRadius: 1,
+        shadowOffset: { height: 1, width: 0 },
+      },
+      activeBackgroundColor: '#118303',
+      inactiveBackgroundColor: '#9E9FA3',
+      buttonRadius: 14,
+      switchWidth: 50,
+      switchHeight: 29,
+      buttonContent: null,
+      buttonOffset: 0,
+      enableSlide: true,
+      enableSlideDragging: true,
+      switchAnimationTime: 200,
+      onActivate: function () { },
+      onDeactivate: function () { },
+      onValueChange: function () { },
+    };
+  },
+
+  getInitialState() {
+    var w = (this.props.switchWidth - Math.min(this.props.switchHeight, this.props.buttonRadius * 2) - this.props.buttonOffset);
+
+    return {
+      width: w,
+      state: this.props.value,
+      position: new Animated.Value(this.props.value ? w : this.props.buttonOffset),
+    };
+  },
+
+  start: {},
+
+  componentWillMount: function () {
+    this._panResponder = PanResponder.create({
+      onStartShouldSetPanResponder: (evt, gestureState) => true,
+      onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
+      onMoveShouldSetPanResponder: (evt, gestureState) => true,
+      onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
+
+      onPanResponderGrant: (evt, gestureState) => {
+        if (!this.props.enableSlide) return;
+
+        this.setState({ pressed: true });
+        this.start.x0 = gestureState.x0;
+        this.start.pos = this.state.position._value;
+        this.start.moved = false;
+        this.start.state = this.state.state;
+        this.start.stateChanged = false;
+      },
+      onPanResponderMove: (evt, gestureState) => {
+        if (!this.props.enableSlide) return;
+
+        this.start.moved = true;
+        if (this.start.pos == 0) {
+          if (gestureState.dx <= this.state.width && gestureState.dx >= 0) {
+            this.state.position.setValue(gestureState.dx);
+          }
+          if (gestureState.dx > this.state.width) {
+            this.state.position.setValue(this.state.width);
+          }
+          if (gestureState.dx < 0) {
+            this.state.position.setValue(0);
+          }
+        }
+        if (this.start.pos == this.state.width) {
+          if (gestureState.dx >= -this.state.width && gestureState.dx <= 0) {
+            this.state.position.setValue(this.state.width + gestureState.dx);
+          }
+          if (gestureState.dx > 0) {
+            this.state.position.setValue(this.state.width);
+          }
+          if (gestureState.dx < -this.state.width) {
+            this.state.position.setValue(0);
+          }
+        }
+        var currentPos = this.state.position._value;
+        this.onSwipe(currentPos, this.start.pos,
+          () => {
+            if (!this.start.state) this.start.stateChanged = true;
+            this.setState({ state: true })
+          },
+          () => {
+            if (this.start.state) this.start.stateChanged = true;
+            this.setState({ state: false })
+          });
+      },
+      onPanResponderTerminationRequest: (evt, gestureState) => true,
+      onPanResponderRelease: (evt, gestureState) => {
+        this.setState({ pressed: false });
+        var currentPos = this.state.position._value;
+        if (!this.start.moved || (Math.abs(currentPos - this.start.pos) < 5 && !this.start.stateChanged)) {
+          this.toggle();
+          return;
+        }
+        this.onSwipe(currentPos, this.start.pos, this.activate, this.deactivate);
+      },
+      onPanResponderTerminate: (evt, gestureState) => {
+        var currentPos = this.state.position._value;
+        this.setState({ pressed: false });
+        this.onSwipe(currentPos, this.start.pos, this.activate, this.deactivate);
+      },
+      onShouldBlockNativeResponder: (evt, gestureState) => true,
+    });
+  },
+
+  componentWillReceiveProps: function (nextProps) {
+    if (this.state.state !== nextProps.value) {
+      nextProps.value ? this.activate() : this.deactivate()
+    }
+  },
+
+  onSwipe(currentPosition, startingPosition, onChange, onTerminate) {
+    if (currentPosition - startingPosition >= 0) {
+      if (currentPosition - startingPosition > this.state.width / 2 || startingPosition == this.state.width) {
+        onChange();
+      } else {
+        onTerminate();
+      }
+    } else {
+      if (currentPosition - startingPosition < -this.state.width / 2) {
+        onTerminate();
+      } else {
+        onChange();
+      }
+    }
+  },
+
+  activate() {
+    Animated.timing(
+      this.state.position,
+      {
+        toValue: this.state.width,
+        duration: this.props.switchAnimationTime,
+        useNativeDriver: true,
+      }
+    ).start();
+    this.changeState(true);
+  },
+
+  deactivate() {
+    Animated.timing(
+      this.state.position,
+      {
+        toValue: this.props.buttonOffset,
+        duration: this.props.switchAnimationTime,
+        useNativeDriver: true,
+      }
+    ).start();
+    this.changeState(false);
+  },
+
+  changeState(state) {
+    var callHandlers = this.start.state != state;
+    setTimeout(() => {
+      this.setState({ state: state });
+      if (callHandlers) {
+        this.callback();
+      }
+    }, this.props.switchAnimationTime / 2);
+  },
+
+  callback() {
+    var state = this.state.state;
+    if (state) {
+      this.props.onActivate();
+    } else {
+      this.props.onDeactivate();
+    }
+    this.props.onValueChange(state);
+  },
+
+  toggle() {
+    if (!this.props.enableSlide) return;
+
+    if (this.state.state) {
+      this.deactivate();
+    } else {
+      this.activate();
+    }
+  },
+
+  render() {
+    var doublePadding = this.padding * 2 - 2;
+    var halfPadding = doublePadding / 2;
+
+    let panHandlers = this.props.enableSlideDragging ? this._panResponder.panHandlers : null
+    let pressHandlers = !this.props.enableSlideDragging ? { onPress: () => this.toggle() } : null
+
+    return (
+      <View
+        {...panHandlers}
+        style={[{ padding: this.padding, position: 'relative' }, this.props.style]}>
+        <View
+          style={{
+            backgroundColor: this.state.state ? this.props.activeBackgroundColor : this.props.inactiveBackgroundColor,
+            height: this.props.switchHeight,
+            width: this.props.switchWidth,
+            borderRadius: this.props.switchHeight / 2,
+            borderColor: this.state.state ? "#118303" : '#118303',
+            borderWidth: this.state.state ? 0 : 1
+          }} />
+        <TouchableHighlight {...pressHandlers} underlayColor='transparent' activeOpacity={1} style={{
+          height: Math.max(this.props.buttonRadius * 2 + doublePadding, this.props.switchHeight + doublePadding),
+          width: this.props.switchWidth + doublePadding,
+          position: 'absolute',
+          top: 1,
+          left: 1
+        }}>
+          <Animated.View style={[{
+            backgroundColor:
+              this.state.state
+                ? (this.state.pressed ? this.props.activeButtonPressedColor : this.props.activeButtonColor)
+                : (this.state.pressed ? this.props.inactiveButtonPressedColor : this.props.inactiveButtonColor),
+            height: this.props.buttonRadius * 2,
+            width: this.props.buttonRadius * 2,
+            borderRadius: this.props.buttonRadius,
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'row',
+            position: 'absolute',
+            top: halfPadding + this.props.switchHeight / 2 - this.props.buttonRadius,
+            left: this.props.switchHeight / 2 > this.props.buttonRadius ? halfPadding : halfPadding + this.props.switchHeight / 2 - this.props.buttonRadius,
+            transform: [{ translateX: this.state.position }]
+          },
+          this.props.buttonShadow]}
+          >
+            {this.props.buttonContent}
+          </Animated.View>
+        </TouchableHighlight>
+      </View>
+    )
+  }
+});
+
+module.exports = Switch;`
 
 const spinnerComponents = `import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, View, Text, Modal, ActivityIndicator } from 'react-native';
 import Dialog, { DialogContent } from 'react-native-popup-dialog';
-import STYLES from '../../utils/styles';
+import STYLES from '../../../utils/styles';
 
 const transparent = 'transparent';
 const styles = StyleSheet.create({
@@ -1675,45 +1969,46 @@ import { View, StyleSheet, Text } from 'react-native';
 
 import STYLES from '../../../utils/styles';
 
-import { groupStyle } from '../../../utils/function';
+import { groupStyle } from '../../../utils/functions';
+
 
 const H = ({
-  children, style, textStyle, color, numberOfLines
+  children, style, textStyle, color
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle, textStyle, color])}>{children}</Text>
+      <Text style={groupStyle([styles.textStyle, textStyle, { color }])}>{children}</Text>
     </View>
   );
 
 const H1 = ({
-  children, style, textStyle, color, numberOfLines
+  children, style, textStyle, color
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle1, textStyle, color])}>{children}</Text>
+      <Text style={groupStyle([styles.textStyle1, textStyle, { color }])}>{children}</Text>
     </View>
   );
 
 const H2 = ({
-  children, style, textStyle, color, numberOfLines
+  children, style, textStyle, color
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle2, textStyle, color])}>{children}</Text>
+      <Text style={groupStyle([styles.textStyle2, textStyle, { color }])}>{children}</Text>
     </View>
   );
 
 const H3 = ({
-  children, style, textStyle, color, numberOfLines
+  children, style, textStyle, color
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle3, textStyle, color])}>{children}</Text>
+      <Text style={groupStyle([styles.textStyle3, textStyle, { color }])}>{children}</Text>
     </View>
   );
 
 const H4 = ({
-  children, style, textStyle, color, numberOfLines
+  children, style, textStyle, color
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle4, textStyle, color])}>{children}</Text>
+      <Text style={groupStyle([styles.textStyle4, textStyle, { color }])}>{children}</Text>
     </View>
   );
 
@@ -1721,15 +2016,15 @@ const H5 = ({
   children, style, textStyle, color
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle5, textStyle, color])}>{children}</Text>
+      <Text style={groupStyle([styles.textStyle5, textStyle, { color }])}>{children}</Text>
     </View>
   );
 
 const H6 = ({
-  children, style, textStyle, color, numberOfLines
+  children, style, textStyle, color
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle6, textStyle, color])}>{children}</Text>
+      <Text style={groupStyle([styles.textStyle6, textStyle, { color }])}>{children}</Text>
     </View>
   );
 
@@ -1918,6 +2213,7 @@ module.exports = {
   headerComponents,
   lableComponents,
   listComponents,
+  switchComponents,
   spinnerComponents,
   indexComponents,
   indexHomePage,

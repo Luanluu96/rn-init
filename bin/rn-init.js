@@ -20,6 +20,7 @@ const {
   headerComponents,
   lableComponents,
   listComponents,
+  switchComponents
   spinnerComponents,
   indexComponents,
   indexHomePage,
@@ -61,7 +62,7 @@ let ReactotronConfig = "";
 let indexStores = "";
 const name = process.argv.slice(-1)[0];
 
-let installLibCommandLine = `npm install --save abortcontroller-polyfill@^1.2.1 react-native-gesture-handler accounting@^0.4.1 moment@^2.22.2 react-native-extra-dimensions-android@^1.2.1 react-native-iphone-x-helper@^1.2.0 react-native-linear-gradient@^2.5.3 react-navigation@^3.3.2 react-redux redux `
+let installLibCommandLine = `npm install --save abortcontroller-polyfill@^1.2.1 react-native-popup-dialog react-native-gesture-handler accounting@^0.4.1 moment@^2.22.2 react-native-extra-dimensions-android@^1.2.1 react-native-iphone-x-helper@^1.2.0 react-native-linear-gradient@^2.5.3 react-navigation@^3.3.2 react-redux redux `
 let installLibDevCommandLine = `npm install --save-dev reactotron-redux@^2.1.0 reactotron-react-native@^2.1.0 `
 async function main() {
 
@@ -212,6 +213,11 @@ async function main() {
     console.warn(error)
   }
   try {
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Switch'), { recursive: true })
+  } catch (error) {
+    console.warn(error)
+  }
+  try {
     fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Spinner'), { recursive: true })
   } catch (error) {
     console.warn(error)
@@ -233,6 +239,11 @@ async function main() {
   }
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/List/index.js'), listComponents)
+  } catch (error) {
+    console.warn(error)
+  }
+  try {
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Switch/index.js'), switchComponents)
   } catch (error) {
     console.warn(error)
   }
