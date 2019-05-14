@@ -20,7 +20,7 @@ const {
   headerComponents,
   lableComponents,
   listComponents,
-  switchComponents
+  switchComponents,
   spinnerComponents,
   indexComponents,
   indexHomePage,
