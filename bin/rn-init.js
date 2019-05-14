@@ -44,7 +44,7 @@ const {
   getIconType,
   constants,
   functions,
-  fetchs,
+  fetches,
   asyncStorage,
   audioPlayer,
   networkTracker,
@@ -421,7 +421,7 @@ async function main() {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/fetchs.js'), fetchs)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/fetches.js'), fetches)
   } catch (error) {
     console.warn(error)
   }

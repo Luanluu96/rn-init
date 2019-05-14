@@ -281,7 +281,7 @@ const H = {
   'heading 3': { size: customFontSize(60), temp: 'Cc', title: 'heading 3' },
   'heading 4': { size: customFontSize(40), temp: 'Dd', title: 'heading 4' },
   'heading 5': { size: customFontSize(30), temp: 'Dd', title: 'heading 5' },
-  'heading 6': { size: customFontSize(20), temp: 'Dd', title: 'heading 6' }
+  'heading 6': { size: customFontSize(22), temp: 'Dd', title: 'heading 6' }
 }
 
 const widthRatio = (value) => value / widthDesignApp * width
@@ -499,8 +499,7 @@ export {
 }
 `
 
-const fetchs = `import "abortcontroller-polyfill/dist/polyfill-patch-fetch";
-import { STATUS_CODE } from "./constants";
+const fetches = `import "abortcontroller-polyfill/dist/polyfill-patch-fetch";
 import strings from "./strings";
 
 const timeOutDefault = 20000;
@@ -1209,6 +1208,7 @@ export {
 const indexRouter = `import { NavigationActions, createStackNavigator, createAppContainer } from 'react-navigation';
 import { Animated, Easing } from 'react-native';
 import { SCREEN_NAME } from '../utils/constants';
+import { Animations } from '../configs';
 
 import { 
 	HomePage
@@ -1230,24 +1230,17 @@ const Router = createStackNavigator({
 			opacity: 1
 		},
 		transitionConfig: () => ({
-			transitionSpec: {
-				duration: 100,
-				easing: Easing.out(Easing.poly(4)),
-				timing: Animated.timing
-			},
 			screenInterpolator: (sceneProps) => {
-				const { layout, position, scene } = sceneProps;
-				const { index } = scene;
-				const height = layout.initHeight;
-				const translateX = 0;
-				const translateY = 0;
-				const opacity = position.interpolate({
-					inputRange: [index - 0.5, index],
-					outputRange: [0.5, 1],
-					extrapolate: 'clamp'
-				});
-				return { opacity, transform: [{ translateY }, { translateX }] };
-			}
+				const { scene } = sceneProps;
+				const thisSceneIndex = scene.index;
+				if (thisSceneIndex != 1) {
+					return Animations.slideFromRight(sceneProps);
+				}
+				return Animations.fade(sceneProps)
+			},
+			containerStyle: {
+				backgroundColor: 'transparent',
+			},
 		})
 	});
 const navigateOnce = (getStateForAction) => (action, state) => {
@@ -1973,58 +1966,58 @@ import { groupStyle } from '../../../utils/functions';
 
 
 const H = ({
-  children, style, textStyle, color
+  children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text style={groupStyle([styles.textStyle, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle, textStyle, { color }])}>{children}</Text>
     </View>
   );
 
 const H1 = ({
-  children, style, textStyle, color
+  children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text style={groupStyle([styles.textStyle1, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle1, textStyle, { color }])}>{children}</Text>
     </View>
   );
 
 const H2 = ({
-  children, style, textStyle, color
+  children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text style={groupStyle([styles.textStyle2, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle2, textStyle, { color }])}>{children}</Text>
     </View>
   );
 
 const H3 = ({
-  children, style, textStyle, color
+  children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text style={groupStyle([styles.textStyle3, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle3, textStyle, { color }])}>{children}</Text>
     </View>
   );
 
 const H4 = ({
-  children, style, textStyle, color
+  children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text style={groupStyle([styles.textStyle4, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle4, textStyle, { color }])}>{children}</Text>
     </View>
   );
 
 const H5 = ({
-  children, style, textStyle, color
+  children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text style={groupStyle([styles.textStyle5, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle5, textStyle, { color }])}>{children}</Text>
     </View>
   );
 
 const H6 = ({
-  children, style, textStyle, color
+  children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text style={groupStyle([styles.textStyle6, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle6, textStyle, { color }])}>{children}</Text>
     </View>
   );
 
@@ -2041,21 +2034,27 @@ const styles = StyleSheet.create({
   },
   textStyle1: {
     ...STYLES.H1,
+    fontWeight: '400',
   },
   textStyle2: {
     ...STYLES.H2,
+    fontWeight: '500',
   },
   textStyle3: {
     ...STYLES.H3,
+    fontWeight: '500',
   },
   textStyle4: {
     ...STYLES.H4,
+    fontWeight: '500',
   },
   textStyle5: {
     ...STYLES.H5,
+    fontWeight: '500',
   },
   textStyle6: {
     ...STYLES.H6,
+    fontWeight: '600',
   },
 });`
 
@@ -2134,9 +2133,47 @@ function getTimingAnimations(animatedValKeys, toValue, duration = 1000) {
   return animatedValKeys.map(value => Animated.timing(value, { toValue, duration, easing: Easing.out(Easing.linear) }));
 }
 
+
+const fade = (props) => {
+  const { position, scene } = props
+
+  const index = scene.index
+
+  const translateX = 0
+  const translateY = 0
+
+  const opacity = position.interpolate({
+    inputRange: [index - 0.7, index, index + 0.7],
+    outputRange: [0.3, 1, 0.3]
+  })
+
+  return {
+    opacity,
+    transform: [{ translateX }, { translateY }]
+  }
+}
+
+const slideFromRight = (props) => {
+  const { position, layout, scene } = props;
+
+  const thisSceneIndex = scene.index;
+  const width = layout.initWidth
+  const translateX = position.interpolate({
+    inputRange: [thisSceneIndex - 1, thisSceneIndex, thisSceneIndex + 1],
+    outputRange: [width, 0, 0]
+  })
+
+  return {
+    transform: [{ translateX }]
+  }
+}
+
+
 export {
   getSpringAnimations,
-  getTimingAnimations
+  getTimingAnimations,
+  fade,
+  slideFromRight,
 }`
 
 const indexConfigs = `import * as Animations from './Animations';
@@ -2237,7 +2274,7 @@ module.exports = {
   getIconType,
   constants,
   functions,
-  fetchs,
+  fetches,
   asyncStorage,
   audioPlayer,
   networkTracker,
