@@ -500,7 +500,6 @@ export {
 `
 
 const fetches = `import "abortcontroller-polyfill/dist/polyfill-patch-fetch";
-import { STATUS_CODE } from "./constants";
 import strings from "./strings";
 
 const timeOutDefault = 20000;
