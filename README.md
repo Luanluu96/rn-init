@@ -132,7 +132,7 @@ npm run coverage
       │   ├──strings.js
       │   ├──constants.js
       │   ├──functions.js
-      │   ├──fetchs.js
+      │   ├──fetches.js
       │   ├──asyncStorage.js       
       │   └──types.js
       └──App.js
