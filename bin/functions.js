@@ -1,6 +1,6 @@
 
 var fs = require('fs');
-const rmdirAsync = function (path, callback = Function()) {
+const rmdirSync = function (path, callback = Function()) {
   fs.readdir(path, function (err, files) {
     if (err) {
       // Pass the error on to callback
@@ -32,7 +32,7 @@ const rmdirAsync = function (path, callback = Function()) {
           return;
         }
         if (stats.isDirectory()) {
-          rmdirAsync(curPath, folderDone);
+          rmdirSync(curPath, folderDone);
         } else {
           fs.unlink(curPath, folderDone);
         }
@@ -42,5 +42,5 @@ const rmdirAsync = function (path, callback = Function()) {
 };
 
 module.exports = {
-  rmdirAsync
+  rmdirSync
 }

@@ -2,14 +2,8 @@
 var sh = require('shelljs');
 var path = require('path');
 var fs = require('fs');
-var readline = require('readline');
 var inquirer = require('inquirer');
 var colorsTerminal = require('colors');
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
 
 const { updatePackageJson } = require('./package');
 const {
@@ -20,7 +14,7 @@ const {
   headerComponents,
   lableComponents,
   listComponents,
-  switchComponents
+  switchComponents,
   spinnerComponents,
   indexComponents,
   indexHomePage,
@@ -55,16 +49,31 @@ const {
   indexApp
 } = require('./defined');
 
-const { rmdirAsync } = require('./functions')
-
+const { rmdirSync } = require('./functions')
 
 let ReactotronConfig = "";
 let indexStores = "";
 const name = process.argv.slice(-1)[0];
 
-let installLibCommandLine = `npm install --save abortcontroller-polyfill@^1.2.1 react-native-popup-dialog react-native-gesture-handler accounting@^0.4.1 moment@^2.22.2 react-native-extra-dimensions-android@^1.2.1 react-native-iphone-x-helper@^1.2.0 react-native-linear-gradient@^2.5.3 react-navigation@^3.3.2 react-redux redux `
-let installLibDevCommandLine = `npm install --save-dev reactotron-redux@^2.1.0 reactotron-react-native@^2.1.0 `
+let installLibCommandLine = `npm install --save abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux `
+let installLibDevCommandLine = `npm install --save-dev reactotron-redux reactotron-react-native `;
+
 async function main() {
+  if (fs.existsSync(sh.pwd().stdout + "/" + name)) {
+    await inquirer
+      .prompt({
+        type: 'confirm',
+        name: 'DirectoryExist',
+        message: 'Directory test already exists. Continue?',
+        default: false
+      }).then(answers => {
+        if (!answers['DirectoryExist']) {
+          sh.exit();
+        } else {
+          sh.exec(`rm -rf ${sh.pwd().stdout + "/" + name}`);
+        }
+      });
+  }
 
   sh.exec(`react-native init ${name}`);
   sh.cd(name);
@@ -92,7 +101,7 @@ async function main() {
         ReactotronConfig = ReactotronConfigSaga;
         indexStores = indexStoresSaga;
         installLibCommandLine += `redux-saga @redux-saga/is `
-        installLibDevCommandLine += 'reactotron-redux-saga ';
+        installLibDevCommandLine += `reactotron-redux-saga `;
       }
     });
 
@@ -113,8 +122,9 @@ async function main() {
 
   updatePackageJson(sh.pwd().stdout);
   console.log(colorsTerminal.green('"Intalling => linking libraries..."'));
-  sh.exec(installLibCommandLine);
   sh.exec(installLibDevCommandLine);
+  sh.exec(installLibCommandLine);
+  console.log(installLibDevCommandLine)
   sh.exec('react-native link');
 
   console.log(colorsTerminal.green('[Source]'), "Root src");

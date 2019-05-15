@@ -1168,7 +1168,10 @@ export default class NetworkTracker {
 `
 
 const indexHomePage = `import React, { PureComponent } from 'react';
-import {  View, Text } from 'react-native';
+import { View, Text } from 'react-native';
+
+// styles
+import styles from './styles';
 
 export default class HomePage extends PureComponent {
   constructor(props) {
@@ -1179,7 +1182,7 @@ export default class HomePage extends PureComponent {
 
   render() {
     return (
-      <View>
+      <View style={styles.container}>
         <Text> HomePage </Text>
       </View>
     );
@@ -1187,13 +1190,13 @@ export default class HomePage extends PureComponent {
 }
 `
 
-const stylesHomePage = `
-import { StyleSheet } from 'react-native';
+const stylesHomePage = `import { StyleSheet } from 'react-native';
 import STYLES from '../../utils/styles';
 import COLORS from '../../utils/colors';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    ...STYLES.centerItem,
   },
 });
 
@@ -1379,7 +1382,7 @@ const reducer = combineReducers({
 export default reducer;
 `
 
-const indexStoresThunk = `import { createStore, applyMiddleware } from "redux";
+const indexStoresThunk = `import { createStore, applyMiddleware, compose } from "redux";
 import thunk from "redux-thunk";
 import Reactotron from "../../debugging/ReactotronConfig";
 
@@ -1389,9 +1392,12 @@ const middlewares = applyMiddleware(thunk);
 
 // mount it on the Store
 const Store = __DEV__ ?
-  Reactotron.createStore(
+  createStore(
     reducer,
-    middlewares
+    compose(
+      middlewares,
+      Reactotron.createEnhancer(),
+    )
   ) : createStore(
     reducer,
     middlewares
@@ -1521,15 +1527,15 @@ var Switch = createReactClass({
       activeButtonColor: '#FFFFFF',
       activeButtonPressedColor: '#FFFFFF',
       buttonShadow: {
-        elevation: 2,
+        elevation: 5,
         shadowColor: '#000',
         shadowOpacity: 0.3,
         shadowRadius: 1,
         shadowOffset: { height: 1, width: 0 },
       },
       activeBackgroundColor: '#118303',
-      inactiveBackgroundColor: '#9E9FA3',
-      buttonRadius: 14,
+      inactiveBackgroundColor: '#FFFFFF',
+      buttonRadius: 29 / 2,
       switchWidth: 50,
       switchHeight: 29,
       buttonContent: null,
@@ -1721,7 +1727,7 @@ var Switch = createReactClass({
             height: this.props.switchHeight,
             width: this.props.switchWidth,
             borderRadius: this.props.switchHeight / 2,
-            borderColor: this.state.state ? "#118303" : '#118303',
+            borderColor: this.state.state ? "#b2b2b2" : '#b2b2b2',
             borderWidth: this.state.state ? 0 : 1
           }} />
         <TouchableHighlight {...pressHandlers} underlayColor='transparent' activeOpacity={1} style={{
