@@ -1168,7 +1168,10 @@ export default class NetworkTracker {
 `
 
 const indexHomePage = `import React, { PureComponent } from 'react';
-import {  View, Text } from 'react-native';
+import { View, Text } from 'react-native';
+
+// styles
+import styles from './styles';
 
 export default class HomePage extends PureComponent {
   constructor(props) {
@@ -1179,7 +1182,7 @@ export default class HomePage extends PureComponent {
 
   render() {
     return (
-      <View>
+      <View style={styles.container}>
         <Text> HomePage </Text>
       </View>
     );
@@ -1187,13 +1190,13 @@ export default class HomePage extends PureComponent {
 }
 `
 
-const stylesHomePage = `
-import { StyleSheet } from 'react-native';
+const stylesHomePage = `import { StyleSheet } from 'react-native';
 import STYLES from '../../utils/styles';
 import COLORS from '../../utils/colors';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    ...STYLES.centerItem,
   },
 });
 
@@ -1379,7 +1382,7 @@ const reducer = combineReducers({
 export default reducer;
 `
 
-const indexStoresThunk = `import { createStore, applyMiddleware } from "redux";
+const indexStoresThunk = `import { createStore, applyMiddleware, compose } from "redux";
 import thunk from "redux-thunk";
 import Reactotron from "../../debugging/ReactotronConfig";
 
@@ -1389,9 +1392,12 @@ const middlewares = applyMiddleware(thunk);
 
 // mount it on the Store
 const Store = __DEV__ ?
-  Reactotron.createStore(
+  createStore(
     reducer,
-    middlewares
+    compose(
+      middlewares,
+      Reactotron.createEnhancer(),
+    )
   ) : createStore(
     reducer,
     middlewares

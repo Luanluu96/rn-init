@@ -1,0 +1,5 @@
+.idea
+.eslintrc
+.travis.yml
+package-lock.json
+test/
