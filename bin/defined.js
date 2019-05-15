@@ -1521,15 +1521,15 @@ var Switch = createReactClass({
       activeButtonColor: '#FFFFFF',
       activeButtonPressedColor: '#FFFFFF',
       buttonShadow: {
-        elevation: 2,
+        elevation: 5,
         shadowColor: '#000',
         shadowOpacity: 0.3,
         shadowRadius: 1,
         shadowOffset: { height: 1, width: 0 },
       },
       activeBackgroundColor: '#118303',
-      inactiveBackgroundColor: '#9E9FA3',
-      buttonRadius: 14,
+      inactiveBackgroundColor: '#FFFFFF',
+      buttonRadius: 29 / 2,
       switchWidth: 50,
       switchHeight: 29,
       buttonContent: null,
@@ -1721,7 +1721,7 @@ var Switch = createReactClass({
             height: this.props.switchHeight,
             width: this.props.switchWidth,
             borderRadius: this.props.switchHeight / 2,
-            borderColor: this.state.state ? "#118303" : '#118303',
+            borderColor: this.state.state ? "#b2b2b2" : '#b2b2b2',
             borderWidth: this.state.state ? 0 : 1
           }} />
         <TouchableHighlight {...pressHandlers} underlayColor='transparent' activeOpacity={1} style={{
