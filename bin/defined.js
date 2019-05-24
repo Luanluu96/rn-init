@@ -147,7 +147,7 @@ class AudioPlayer {
       callback(success);
     });
   }
-  realse() {
+  release() {
     this.isPlaying = false;
     clearInterval(this.interval);
     if (this.player === null) return;
