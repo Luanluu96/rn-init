@@ -1246,21 +1246,7 @@ const Router = createStackNavigator({
 			},
 		})
 	});
-const navigateOnce = (getStateForAction) => (action, state) => {
-	const { type, routeName } = action;
-	if (state &&
-		type === NavigationActions.NAVIGATE &&
-		routeName === state.routes[state.routes.length - 1].routeName) {
-		const newRoutes = state.routes.slice(0, state.routes.length - 1);
-		const newIndex = newRoutes.length - 1;
-		return getStateForAction(action, { index: newIndex, routes: newRoutes });
-	}
-	return getStateForAction(action, state);
-};
-Router.router.getStateForAction = navigateOnce(Router.router.getStateForAction);
-export default createAppContainer(Router);
-
-`
+export default createAppContainer(Router);`
 
 const appRoot = ({ networkTrackerEnable } = { networkTrackerEnable: true }) => `import React, { Component } from 'react';
 import { StyleSheet, Text, StatusBar, View, AppState, Platform } from 'react-native';
@@ -1856,6 +1842,14 @@ const Button = (props) => {
         (!props.children) && (
           <View style={groupStyle([styles.buttonContentStyle, props.buttonContentStyle])}>
             {
+              (props.imageLeft) && (
+                <Animated.Image
+                  style={groupStyle([styles.buttonImage, props.buttonImageStyle])}
+                  source={props.imageLeft}
+                  resizeMode={props.resizeMode} />
+              )
+            }
+            {
               (props.buttonText) && (
                 <Text
                   style={groupStyle([styles.buttonTextContent, props.buttonTextContentStyle])}
@@ -1865,10 +1859,10 @@ const Button = (props) => {
               )
             }
             {
-              (props.source) && (
+              (props.source || props.imageRight) && (
                 <Animated.Image
                   style={groupStyle([styles.buttonImage, props.buttonImageStyle])}
-                  source={props.source}
+                  source={props.source | props.imageRight}
                   resizeMode={props.resizeMode} />
               )
             }
@@ -1961,7 +1955,7 @@ const styles = StyleSheet.create({
   },
 });`
 
-const lableComponents = `import React from 'react';
+const labelComponents = `import React from 'react';
 import PropTypes from 'prop-types';
 import { SafeAreaView } from 'react-navigation';
 import { View, StyleSheet, Text } from 'react-native';
@@ -2200,13 +2194,14 @@ log = Reactotron.log
 
 // configure
 const reactotron = Reactotron.configure({
-  host: "localhost"
+  host: "192.168.0.143"
 })
   .use(reactotronRedux())
   .use(trackGlobalErrors())
   .use(networking())
   .use(asyncStorage())
-  .connect();
+
+if (__DEV__) reactotron.connect();
 
 export default reactotron;
 `;
@@ -2230,9 +2225,8 @@ const reactotron = Reactotron.configure({
   .use(trackGlobalErrors())
   .use(networking())
   .use(asyncStorage())
-  .connect();
-
-
+ 
+if (__DEV__) reactotron.connect();
 
 export default reactotron;
 `
@@ -2254,7 +2248,7 @@ module.exports = {
   indexAssets,
   buttonComponents,
   headerComponents,
-  lableComponents,
+  labelComponents,
   listComponents,
   switchComponents,
   spinnerComponents,

@@ -176,7 +176,7 @@ example
 example
 ```
   <Header style={styles.header}>
-    <Button onPress={this.goback} source={ICONS.ic_back_white} style={styles.buttonBack} buttonImageStyle={styles.iconButtonBack} />
+    <Button onPress={this.goBack} source={ICONS.ic_back_white} style={styles.buttonBack} buttonImageStyle={styles.iconButtonBack} />
     <Label.H5 numberOfLines={1} style={styles.titleHeaderContainerStyle} color={'#FFFFFF'}>{`Home`}</Label.H5>
     <Button onPress={this.onPressSetting} source={ICONS.ic_setting_white} style={styles.buttonSetting} buttonImageStyle={styles.iconButtonSetting} />
   </Header>
@@ -309,24 +309,24 @@ import { IconTypes } from '../types';
 For UI:
 
 ```
-react-native-linear-gradient@2.5.3
-react-native-extra-dimensions-android@1.2.1
-react-native-gesture-handler@1.1.0
-react-native-iphone-x-helper@1.2.0
+react-native-linear-gradient
+react-native-extra-dimensions-android
+react-native-gesture-handler
+react-native-iphone-x-helper
 ```
 
 Stores:
 
 ```
-redux@4.0.0
-react-redux@6.0.1
+redux
+react-redux
 
 ```
 
 Middleware
 ```
-redux-saga@1.0.2
-@redux-saga/is@1.0.2
+redux-saga
+@redux-saga/is
 ```
 or
 ```
@@ -335,26 +335,26 @@ redux-thunk
 
 Navigations
 ```
-react-navigation@3.3.2
+react-navigation
 ```
 
 Fetch:
 
 ```
-abortcontroller-polyfill@1.2.1
+abortcontroller-polyfill
 ```
 
 Logging:
 [installing reactotron](https://github.com/infinitered/reactotron)
 ```
-reactotron-react-native@2.1.0
-reactotron-redux@2.1.0
-reactotron-redux-saga@4.0.1
+reactotron-react-native
+reactotron-redux
+reactotron-redux-saga
 ```
 
 Utils:
 
 ```
-accounting@0.4.1
-moment@2.22.2
+accounting
+moment
 ```
