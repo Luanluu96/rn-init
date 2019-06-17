@@ -12,7 +12,7 @@ const {
   indexAssets,
   buttonComponents,
   headerComponents,
-  lableComponents,
+  labelComponents,
   listComponents,
   switchComponents,
   spinnerComponents,
@@ -55,7 +55,7 @@ let ReactotronConfig = "";
 let indexStores = "";
 const name = process.argv.slice(-1)[0];
 
-let installLibCommandLine = `npm install --save abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux `
+let installLibCommandLine = `npm install --save react-native-webview abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux `
 let installLibDevCommandLine = `npm install --save-dev reactotron-redux reactotron-react-native `;
 
 async function main() {
@@ -112,6 +112,22 @@ async function main() {
       choices: [
         "react-native-sound",
         "react-native-vector-icons",
+        "react-native-hyperlink",
+        "react-native-firebase",
+        "react-native-phone-call",
+        "react-native-splash-screen",
+        "react-native-maps",
+        "react-native-permissions",
+        "lottie-react-native",
+        "react-native-scrollable-tab-view",
+        "react-native-gifted-chat",
+        "react-native-snap-carousel",
+        "react-native-svg",
+        "react-native-image-picker",
+        "react-native-image-crop-picker",
+        "react-native-typography",
+        "react-native-offline",
+        "ramda",
       ]
     })
     .then(libraries => {
@@ -121,7 +137,7 @@ async function main() {
     });
 
   updatePackageJson(sh.pwd().stdout);
-  console.log(colorsTerminal.green('"Intalling => linking libraries..."'));
+  console.log(colorsTerminal.green('"Installing => linking libraries..."'));
   sh.exec(installLibDevCommandLine);
   sh.exec(installLibCommandLine);
   console.log(installLibDevCommandLine)
@@ -243,7 +259,7 @@ async function main() {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Label/index.js'), lableComponents)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Label/index.js'), labelComponents)
   } catch (error) {
     console.warn(error)
   }
