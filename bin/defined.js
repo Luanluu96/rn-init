@@ -958,7 +958,7 @@ export function FetchProfileImageWait(
 }
 `
 
-const functions = `import { Dimensions, Platform, PixelRatio, PermissionsAndroid } from 'react-native';
+const functions = `import { Dimensions, Platform, PixelRatio } from 'react-native';
 const IOS = Platform.OS === "ios";
 
 const {
@@ -968,25 +968,16 @@ const {
 
 const pixelRatio = PixelRatio.get();
 
-// based on iphone X scale
-const scale = SCREEN_WIDTH / (IOS ? 375 : 384);
+// Use iPhone6 as base size which is 375 x 667
+const baseWidth = 375;
+const baseHeight = 667;
+
+const scaleWidth = SCREEN_WIDTH / baseWidth;
+const scaleHeight = SCREEN_HEIGHT / baseHeight;
+const scale = Math.min(scaleWidth, scaleHeight);
 
 export function normalize(size) {
-	const newSize = size * scale
-	if (Platform.OS === 'ios') {
-		return Math.round(PixelRatio.roundToNearestPixel(newSize))
-	} else {
-		return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 3
-	}
-}
-export async function requestRecordPermission() {
-	try {
-		const granted = await PermissionsAndroid.request(
-			PermissionsAndroid.PERMISSIONS.RECORD_AUDIO
-		)
-	} catch (err) {
-		console.warn(err)
-	}
+	return Math.ceil((size * scale));
 }
 function formatDate() {
 	var d = new Date(),
@@ -1043,20 +1034,15 @@ export function getAudioTimeString(seconds) {
 	}
 	timeString += ((m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s));
 	return timeString;
-}`
+}
 
-const indexUtils = `import STYLES from './styles';
-import COLORS from './colors';
-import { IconTypes } from './types';
-import strings from './strings';
-import { ArrayUtils } from './function';
-
-export {
-	STYLES,
-	COLORS,
-	IconTypes,
-	strings,
-	ArrayUtils
+export function exportTabRouteConfigsToArray(routeConfigs) {
+	return Object.keys((key) => {
+		return {
+			key,
+			...routeConfigs[key],
+		}
+	})
 }`
 
 const strings = `const strings = {

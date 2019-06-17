@@ -137,7 +137,7 @@ async function main() {
     });
 
   updatePackageJson(sh.pwd().stdout);
-  console.log(colorsTerminal.green('"Intalling => linking libraries..."'));
+  console.log(colorsTerminal.green('"Installing => linking libraries..."'));
   sh.exec(installLibDevCommandLine);
   sh.exec(installLibCommandLine);
   console.log(installLibDevCommandLine)
