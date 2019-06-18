@@ -2277,7 +2277,7 @@ platform :ios, '10.0'
 target '${appName}' do
   # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
   # use_frameworks!
-  ${isMaps && `rn_maps_path = '../node_modules/react-native-maps'`}
+  ${isMaps ? `rn_maps_path = '../node_modules/react-native-maps'` : ``}
 
   pod 'React', :path => '../node_modules/react-native', :subspecs => [
     'Core',
@@ -2298,24 +2298,25 @@ target '${appName}' do
   pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
-  ${isFirebase && `pod 'Firebase/Core', '~> 5.0.0'`}
-  ${isFirebase && `pod 'Firebase/Messaging', '~> 5.0.0'`}
+  ${isFirebase ? `pod 'Firebase/Core', '~> 5.0.0'` : ``}
+  ${isFirebase ? `pod 'Firebase/Messaging', '~> 5.0.0'` : ``}
 
-  ${isMaps && `
+  ${isMaps ? `
   pod 'react-native-maps', path: rn_maps_path
   pod 'react-native-google-maps', path: rn_maps_path  # Uncomment this line if you want to support GoogleMaps on iOS
   pod 'GoogleMaps'  # Uncomment this line if you want to support GoogleMaps on iOS
-  pod 'Google-Maps-iOS-Utils' # Uncomment this line if you want to support GoogleMaps on iOS`}
+  pod 'Google-Maps-iOS-Utils' # Uncomment this line if you want to support GoogleMaps on iOS`: ``}
   
 
 end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
+  ${isMaps ? `
     if target.name == 'react-native-google-maps'
       target.build_configurations.each do |config|
         config.build_settings['CLANG_ENABLE_MODULES'] = 'No'
       end
-    end
+    end`: ``}
     if target.name == "React"
       target.remove_from_project
     end

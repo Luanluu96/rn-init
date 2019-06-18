@@ -1,6 +1,6 @@
 {
   "name": "rn-structure",
-  "version": "0.2.4",
+  "version": "0.2.5-beta",
   "description": "",
   "main": "rn-init.js",
   "scripts": {

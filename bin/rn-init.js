@@ -87,7 +87,6 @@ async function main() {
 
 
   console.log(colorsTerminal.green('======================== Initalizing... ======================== '));
-  console.log('test', os.platform, os.platform == 'darwin');
   if (os.platform == 'darwin') {
     await inquirer
       .prompt({
@@ -155,13 +154,13 @@ async function main() {
         isMaps: false,
       }
       libraries['Select libraries'].forEach(lib => {
-        if (os.platform === 'darwin') {
+        if (os.platform == 'darwin') {
           switch (lib) {
             case 'react-native-firebase':
               podFileOption['isFirebase'] = true;
               break;
             case 'react-native-maps':
-              podFileOption['isFirebase'] = true;
+              podFileOption['isMaps'] = true;
               break;
           }
         }
@@ -171,23 +170,25 @@ async function main() {
     });
 
   updatePackageJson(sh.pwd().stdout);
+  console.log(colorsTerminal.green('Installing => linking libraries...'));
+  sh.exec(installLibDevCommandLine);
+  sh.exec(installLibCommandLine);
+  sh.exec('react-native link');
+
   // write pod file
-  if (os.platform === 'darwin' && podStringFile !== '') {
+  if (os.platform == 'darwin' && podStringFile !== '') {
+    console.log(colorsTerminal.green('Installing => CocoaPods...'));
     try {
       fs.writeFileSync(sh.pwd().stdout + "/" + ('ios/Podfile'), podStringFile);
+      sh.exec('cd ./ios && pod install');
     } catch (error) {
       console.warn(error)
     }
   }
-  console.log(colorsTerminal.green('"Installing => linking libraries..."'));
-  sh.exec(installLibDevCommandLine);
-  sh.exec(installLibCommandLine);
-  console.log(installLibDevCommandLine)
-  sh.exec('react-native link');
-
+  console.log(colorsTerminal.green('Generate => Project Structure...'));
   console.log(colorsTerminal.green('[Source]'), "Root src");
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src'), { recursive: true });
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src'), { recursive: true });
   } catch (err) {
     console.warn(err)
   }
