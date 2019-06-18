@@ -1234,6 +1234,21 @@ const Router = createStackNavigator({
 	});
 export default createAppContainer(Router);`
 
+const indexUtils = (vectorIcon) => `import STYLES from './styles';
+import COLORS from './colors';
+${vectorIcon ? `import { IconTypes } from './types';` : ``}
+import strings from './strings';
+import { ArrayUtils } from './function';
+
+export {
+	STYLES,
+	COLORS,
+  ${vectorIcon ? `IconTypes,` : ``}
+	IconTypes,
+	strings,
+	ArrayUtils
+}`
+
 const appRoot = ({ networkTrackerEnable } = { networkTrackerEnable: true }) => `import React, { Component } from 'react';
 import { StyleSheet, Text, StatusBar, View, AppState, Platform } from 'react-native';
 import { Provider } from "react-redux";
@@ -2228,6 +2243,93 @@ import {name as appName} from './app.json';
 AppRegistry.registerComponent(appName, () => App);
 `
 
+const exportOptionsDevelopment = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>method</key>
+	<string>development</string>
+	<key>compileBitcode</key>
+	<false/>
+	<key>stripSwiftSymbols</key>
+	<true/>
+</dict>
+</plist>
+`
+
+const buildScript = (appName) => `#!/usr/bin/env bash
+npm run build-ios
+cd ios
+xcrun xcodebuild -workspace ${appName}.xcworkspace -scheme ${appName} -configuration Release archive -archivePath build/${appName}.xcarchive
+xcrun xcodebuild -exportArchive -exportPath build/${appName}IPA -archivePath build/${appName}.xcarchive/ -exportOptionsPlist exportOptionsDevelopment.plist
+
+cd ..
+npm run build-android && npm run build-release-android && open android/app/build/outputs/apk
+`
+
+const podFile = ({
+  appName,
+  isFirebase,
+  isMaps,
+} = { isFirebase: false, isMaps: false, }) => `# Uncomment the next line to define a global platform for your project
+platform :ios, '10.0'
+
+target '${appName}' do
+  # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
+  # use_frameworks!
+  ${isMaps && `rn_maps_path = '../node_modules/react-native-maps'`}
+
+  pod 'React', :path => '../node_modules/react-native', :subspecs => [
+    'Core',
+    'CxxBridge',
+    'DevSupport',
+    'RCTActionSheet',
+    'RCTAnimation',
+    'RCTGeolocation',
+    'RCTImage',
+    'RCTLinkingIOS',
+    'RCTNetwork',
+    'RCTSettings',
+    'RCTText',
+    'RCTVibration',
+    'RCTWebSocket',
+  ]
+  pod 'yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
+  pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
+  pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
+  pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
+  ${isFirebase && `pod 'Firebase/Core', '~> 5.0.0'`}
+  ${isFirebase && `pod 'Firebase/Messaging', '~> 5.0.0'`}
+
+  ${isMaps && `
+  pod 'react-native-maps', path: rn_maps_path
+  pod 'react-native-google-maps', path: rn_maps_path  # Uncomment this line if you want to support GoogleMaps on iOS
+  pod 'GoogleMaps'  # Uncomment this line if you want to support GoogleMaps on iOS
+  pod 'Google-Maps-iOS-Utils' # Uncomment this line if you want to support GoogleMaps on iOS`}
+  
+
+end
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    if target.name == 'react-native-google-maps'
+      target.build_configurations.each do |config|
+        config.build_settings['CLANG_ENABLE_MODULES'] = 'No'
+      end
+    end
+    if target.name == "React"
+      target.remove_from_project
+    end
+    if target.name == 'yoga'
+      target.remove_from_project
+      target.build_configurations.each do |config|
+          config.build_settings['GCC_TREAT_WARNINGS_AS_ERRORS'] = 'NO'
+          config.build_settings['GCC_WARN_64_TO_32_BIT_CONVERSION'] = 'NO'
+      end
+    end
+  end
+end
+`
+
 module.exports = {
   indexIcons,
   indexImages,
@@ -2268,5 +2370,8 @@ module.exports = {
   ReactotronConfigSaga,
   ReactotronConfigThunk,
   appRoot,
-  indexApp
+  indexApp,
+  exportOptionsDevelopment,
+  buildScript,
+  podFile,
 }

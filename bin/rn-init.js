@@ -4,6 +4,7 @@ var path = require('path');
 var fs = require('fs');
 var inquirer = require('inquirer');
 var colorsTerminal = require('colors');
+var os = require('os');
 
 const { updatePackageJson } = require('./package');
 const {
@@ -46,13 +47,17 @@ const {
   ReactotronConfigSaga,
   ReactotronConfigThunk,
   appRoot,
-  indexApp
+  indexApp,
+  exportOptionsDevelopment,
+  buildScript,
+  podFile,
 } = require('./defined');
 
 const { rmdirSync } = require('./functions')
 
 let ReactotronConfig = "";
 let indexStores = "";
+let podStringFile = "";
 const name = process.argv.slice(-1)[0];
 
 let installLibCommandLine = `npm install --save react-native-webview abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux `
@@ -82,6 +87,20 @@ async function main() {
 
 
   console.log(colorsTerminal.green('======================== Initalizing... ======================== '));
+  console.log('test', os.platform, os.platform == 'darwin');
+  if (os.platform == 'darwin') {
+    await inquirer
+      .prompt({
+        type: 'confirm',
+        name: 'CocoaPods',
+        message: 'Do you want to use CocoaPods for project?',
+        default: false
+      }).then(answers => {
+        if (answers['CocoaPods']) {
+          podStringFile = podFile({ appName: name });
+        }
+      });
+  }
   //edit root package.json
   await inquirer
     .prompt({
@@ -131,12 +150,35 @@ async function main() {
       ]
     })
     .then(libraries => {
+      let podFileOption = {
+        isFirebase: false,
+        isMaps: false,
+      }
       libraries['Select libraries'].forEach(lib => {
+        if (os.platform === 'darwin') {
+          switch (lib) {
+            case 'react-native-firebase':
+              podFileOption['isFirebase'] = true;
+              break;
+            case 'react-native-maps':
+              podFileOption['isFirebase'] = true;
+              break;
+          }
+        }
         installLibCommandLine += lib + ` `
       });
+      podStringFile = podFile({ appName: name, ...podFileOption });
     });
 
   updatePackageJson(sh.pwd().stdout);
+  // write pod file
+  if (os.platform === 'darwin' && podStringFile !== '') {
+    try {
+      fs.writeFileSync(sh.pwd().stdout + "/" + ('ios/Podfile'), podStringFile);
+    } catch (error) {
+      console.warn(error)
+    }
+  }
   console.log(colorsTerminal.green('"Installing => linking libraries..."'));
   sh.exec(installLibDevCommandLine);
   sh.exec(installLibCommandLine);
@@ -145,50 +187,50 @@ async function main() {
 
   console.log(colorsTerminal.green('[Source]'), "Root src");
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src'), { recursive: true })
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src'), { recursive: true });
   } catch (err) {
     console.warn(err)
   }
   console.log(colorsTerminal.green('[Source]'), "assets");
   // assets
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/assets'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/assets'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/assets/fonts'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/assets/fonts'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/assets/icons'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/assets/icons'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/assets/images'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/assets/images'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/assets/data'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/assets/data'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
 
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/assets/icons/index.js'), indexIcons)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/assets/icons/index.js'), indexIcons);
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/assets/images/index.js'), indexImages)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/assets/images/index.js'), indexImages);
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/assets/index.js'), indexAssets)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/assets/index.js'), indexAssets);
   } catch (error) {
     console.warn(error)
   }
@@ -196,7 +238,7 @@ async function main() {
   console.log(colorsTerminal.green('[Source]'), "api");
   // assets
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/api'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/api'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
@@ -209,77 +251,77 @@ async function main() {
   console.log(colorsTerminal.green('[Source]'), "common");
   // common
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Button'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Button'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Header'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Header'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Label'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Label'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/List'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/List'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Switch'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Switch'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Spinner'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Spinner'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Button/index.js'), buttonComponents)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Button/index.js'), buttonComponents);
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Header/index.js'), headerComponents)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Header/index.js'), headerComponents);
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Label/index.js'), labelComponents)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Label/index.js'), labelComponents);
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/List/index.js'), listComponents)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/List/index.js'), listComponents);
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Switch/index.js'), switchComponents)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Switch/index.js'), switchComponents);
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Spinner/index.js'), spinnerComponents)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Spinner/index.js'), spinnerComponents);
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/index.js'), indexComponents)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/index.js'), indexComponents);
   } catch (error) {
     console.warn(error)
   }
@@ -287,27 +329,27 @@ async function main() {
   console.log(colorsTerminal.green('[Source]'), "containers");
   // containers
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/containers'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/containers'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/containers/HomePage'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/containers/HomePage'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/containers/HomePage/index.js'), indexHomePage)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/containers/HomePage/index.js'), indexHomePage);
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/containers/HomePage/styles.js'), stylesHomePage)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/containers/HomePage/styles.js'), stylesHomePage);
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/containers/index.js'), indexContainers)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/containers/index.js'), indexContainers);
   } catch (error) {
     console.warn(error)
   }
@@ -320,12 +362,12 @@ async function main() {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/configs/Animations.js'), configAnimations)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/configs/Animations.js'), configAnimations);
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/configs/index.js'), indexConfigs)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/configs/index.js'), indexConfigs);
   } catch (error) {
     console.warn(error)
   }
@@ -333,64 +375,64 @@ async function main() {
   console.log(colorsTerminal.green('[Source]'), "stores");
   // stores
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/stores'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/stores'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/stores/actions'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/stores/actions'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/stores/reducers'), { recursive: true })
-  } catch (error) {
-    console.warn(error)
-  }
-  if (installLibCommandLine.includes('redux-saga')) {
-    try {
-      fs.mkdirSync(sh.pwd().stdout + "/" + ('src/stores/sagas'), { recursive: true })
-    } catch (error) {
-      console.warn(error)
-    }
-  }
-
-  try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/actions/network.js'), networkAction)
-  } catch (error) {
-    console.warn(error)
-  }
-
-  try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/reducers/init.js'), initReducers)
-  } catch (error) {
-    console.warn(error)
-  }
-  try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/reducers/network.js'), networkReducers)
-  } catch (error) {
-    console.warn(error)
-  }
-  try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/reducers/index.js'), indexReducers())
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/stores/reducers'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   if (installLibCommandLine.includes('redux-saga')) {
     try {
-      fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/sagas/init.js'), initSagas)
-    } catch (error) {
-      console.warn(error)
-    }
-    try {
-      fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/sagas/index.js'), indexSagas)
+      fs.mkdirSync(sh.pwd().stdout + "/" + ('src/stores/sagas'), { recursive: true });
     } catch (error) {
       console.warn(error)
     }
   }
 
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/index.js'), indexStores)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/actions/network.js'), networkAction);
+  } catch (error) {
+    console.warn(error)
+  }
+
+  try {
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/reducers/init.js'), initReducers);
+  } catch (error) {
+    console.warn(error)
+  }
+  try {
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/reducers/network.js'), networkReducers);
+  } catch (error) {
+    console.warn(error)
+  }
+  try {
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/reducers/index.js'), indexReducers());
+  } catch (error) {
+    console.warn(error)
+  }
+  if (installLibCommandLine.includes('redux-saga')) {
+    try {
+      fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/sagas/init.js'), initSagas);
+    } catch (error) {
+      console.warn(error)
+    }
+    try {
+      fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/sagas/index.js'), indexSagas);
+    } catch (error) {
+      console.warn(error)
+    }
+  }
+
+  try {
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/index.js'), indexStores);
   } catch (error) {
     console.warn(error)
   }
@@ -399,12 +441,12 @@ async function main() {
   console.log(colorsTerminal.green('[Source]'), "routers");
   // routers
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/routers'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/routers'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/routers/index.js'), indexRouter)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/routers/index.js'), indexRouter);
   } catch (error) {
     console.warn(error)
   }
@@ -412,76 +454,76 @@ async function main() {
   console.log(colorsTerminal.green('[Source]'), "utils");
   // utils
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/utils'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/utils'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/index.js'), indexUtils)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/index.js'), indexUtils(installLibCommandLine.includes('react-native-vector-icons')));
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/styles.js'), styles)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/styles.js'), styles);
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/colors.js'), colors)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/colors.js'), colors);
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/strings.js'), strings)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/strings.js'), strings);
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/constants.js'), constants)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/constants.js'), constants);
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/functions.js'), functions)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/functions.js'), functions);
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/fetches.js'), fetches)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/fetches.js'), fetches);
   } catch (error) {
     console.warn(error)
   }
   if (installLibCommandLine.includes('react-native-sound')) {
     try {
-      fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/audioPlayer.js'), audioPlayer)
+      fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/audioPlayer.js'), audioPlayer);
     } catch (error) {
       console.warn(error)
     }
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/asyncStorage.js'), asyncStorage)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/asyncStorage.js'), asyncStorage);
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/types.js'), types(installLibCommandLine.includes('react-native-vector-icons')))
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/types.js'), types(installLibCommandLine.includes('react-native-vector-icons')));
   } catch (error) {
     console.warn(error)
   }
   if (installLibCommandLine.includes('react-native-vector-icons')) {
     try {
-      fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/getIconType.js'), getIconType)
+      fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/getIconType.js'), getIconType);
     } catch (error) {
       console.warn(error)
     }
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/networkTracker.js'), networkTracker)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/networkTracker.js'), networkTracker);
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/package.json'), JSON.stringify({ name: '@utils' }))
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/package.json'), JSON.stringify({ name: '@utils' }));
   } catch (error) {
     console.warn(error)
   }
@@ -489,12 +531,12 @@ async function main() {
   console.log(colorsTerminal.green('[Source]'), "debugging");
   // debugging
   try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('debugging'), { recursive: true })
+    fs.mkdirSync(sh.pwd().stdout + "/" + ('debugging'), { recursive: true });
   } catch (error) {
     console.warn(error)
   }
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('debugging/ReactotronConfig.js'), ReactotronConfig)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('debugging/ReactotronConfig.js'), ReactotronConfig);
   } catch (error) {
     console.warn(error)
   }
@@ -502,7 +544,7 @@ async function main() {
   console.log(colorsTerminal.green('[Source]'), "App");
   // App
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/App.js'), appRoot())
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/App.js'), appRoot());
   } catch (error) {
     console.warn(error)
   }
@@ -514,6 +556,20 @@ async function main() {
   } catch (err) {
     console.warn(err)
   }
+  console.log(colorsTerminal.green('[Source]'), "exportOptionsDevelopment.plist");
+  // exportOptions.plist
+  try {
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('ios/exportOptionsDevelopment.plist'), exportOptionsDevelopment);
+  } catch (error) {
+    console.warn(error)
+  }
+  console.log(colorsTerminal.green('[Source]'), 'build.sh');
+  // build.sh.plist
+  try {
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('build.sh'), buildScript(name));
+  } catch (error) {
+    console.warn(error)
+  }
   // rmdirAsync(sh.pwd().stdout + "/" +('ios/' + projectName + '-tvOS'))
   // rmdirAsync(sh.pwd().stdout + "/" +('ios/' + projectName + '-tvOSTests'))
   // rmdirAsync(sh.pwd().stdout + "/" +('ios/' + projectName + 'Tests'))
@@ -521,7 +577,7 @@ async function main() {
   console.log(colorsTerminal.green('[Source]'), "root app");
   // root app
   try {
-    fs.writeFileSync(sh.pwd().stdout + "/" + ('index.js'), indexApp)
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('index.js'), indexApp);
   } catch (error) {
     console.warn(error)
   }
