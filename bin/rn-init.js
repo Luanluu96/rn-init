@@ -186,40 +186,56 @@ async function main() {
     }
   }
   console.log(colorsTerminal.green('Generate => Project Structure...'));
-  console.log(colorsTerminal.green('[Source]'), "Root src");
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src'), { recursive: true });
-  } catch (err) {
-    console.warn(err)
-  }
-  console.log(colorsTerminal.green('[Source]'), "assets");
-  // assets
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/assets'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/assets/fonts'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/assets/icons'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/assets/images'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/assets/data'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
+  const listFolders = [
+    { label: 'Root src', path: `${sh.pwd().stdout}/src`, options: { recursive: true }, isCreate: true },
 
+    { label: 'assets', path: `${sh.pwd().stdout}/src/assets`, options: { recursive: true }, isCreate: true },
+    { label: 'assets', path: `${sh.pwd().stdout}/src/assets/fonts`, options: { recursive: true }, isCreate: true },
+    { label: 'assets', path: `${sh.pwd().stdout}/src/assets/icons`, options: { recursive: true }, isCreate: true },
+    { label: 'assets', path: `${sh.pwd().stdout}/src/assets/images`, options: { recursive: true }, isCreate: true },
+    { label: 'assets', path: `${sh.pwd().stdout}/src/assets/data`, options: { recursive: true }, isCreate: true },
+
+    { label: 'api', path: `${sh.pwd().stdout}/src/api`, options: { recursive: true }, isCreate: true },
+
+    { label: 'common', path: `${sh.pwd().stdout}/src/common`, options: { recursive: true } },
+    { label: 'common/components', path: `${sh.pwd().stdout}/src/common/components`, options: { recursive: true }, isCreate: true },
+    { label: 'common/components', path: `${sh.pwd().stdout}/src/common/components/Button`, options: { recursive: true }, isCreate: true },
+    { label: 'common/components', path: `${sh.pwd().stdout}/src/common/components/Header`, options: { recursive: true }, isCreate: true },
+    { label: 'common/components', path: `${sh.pwd().stdout}/src/common/components/Label`, options: { recursive: true }, isCreate: true },
+    { label: 'common/components', path: `${sh.pwd().stdout}/src/common/components/List`, options: { recursive: true }, isCreate: true },
+    { label: 'common/components', path: `${sh.pwd().stdout}/src/common/components/Spinner`, options: { recursive: true }, isCreate: true },
+    { label: 'common/components', path: `${sh.pwd().stdout}/src/common/components/Switch`, options: { recursive: true }, isCreate: true },
+
+    { label: 'containers', path: `${sh.pwd().stdout}/src/containers`, options: { recursive: true }, isCreate: true },
+    { label: 'containers', path: `${sh.pwd().stdout}/src/containers/HomePage`, options: { recursive: true }, isCreate: true },
+
+    { label: 'configs', path: `${sh.pwd().stdout}/src/configs`, options: { recursive: true }, isCreate: true },
+
+    { label: 'stores', path: `${sh.pwd().stdout}/src/stores`, options: { recursive: true }, isCreate: true },
+    { label: 'stores/action', path: `${sh.pwd().stdout}/src/stores/actions`, options: { recursive: true }, isCreate: true },
+    { label: 'stores/reducers', path: `${sh.pwd().stdout}/src/stores/reducers`, options: { recursive: true }, isCreate: true },
+    { label: 'stores/sagas', path: `${sh.pwd().stdout}/src/stores/sagas`, options: { recursive: true }, isCreate: installLibCommandLine.includes('redux-saga') },
+
+    { label: 'routers', path: `${sh.pwd().stdout}/src/routers`, options: { recursive: true }, isCreate: true },
+
+    { label: 'utils', path: `${sh.pwd().stdout}/src/utils`, options: { recursive: true }, isCreate: true },
+
+    { label: 'debugging', path: `${sh.pwd().stdout}/debugging`, options: { recursive: true }, isCreate: true },
+  ];
+
+  listFolders.forEach(element => {
+    if (element.isCreate) {
+      console.log('[Project Structure]', element.label);
+      try {
+        fs.mkdirSync(element.path, element.options);
+      } catch (err) {
+        console.warn(err)
+      }
+    }
+  });
+
+  console.log(colorsTerminal.green('Generate => Source code...'));
+  console.log('[Source]', "assets");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/assets/icons/index.js'), indexIcons);
   } catch (error) {
@@ -236,61 +252,14 @@ async function main() {
     console.warn(error)
   }
 
-  console.log(colorsTerminal.green('[Source]'), "api");
-  // assets
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/api'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
+  console.log('[Source]', "api");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/api/index.js'), '');
   } catch (error) {
     console.warn(error)
   }
 
-  console.log(colorsTerminal.green('[Source]'), "common");
-  // common
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Button'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Header'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Label'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/List'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Switch'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/common/components/Spinner'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
+  console.log('[Source]', "common");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Button/index.js'), buttonComponents);
   } catch (error) {
@@ -327,18 +296,7 @@ async function main() {
     console.warn(error)
   }
 
-  console.log(colorsTerminal.green('[Source]'), "containers");
-  // containers
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/containers'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/containers/HomePage'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
+  console.log('[Source]', "containers");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/containers/HomePage/index.js'), indexHomePage);
   } catch (error) {
@@ -355,13 +313,7 @@ async function main() {
     console.warn(error)
   }
 
-  console.log(colorsTerminal.green('[Source]'), "configs");
-  // configs
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/configs'), { recursive: true })
-  } catch (error) {
-    console.warn(error)
-  }
+  console.log('[Source]', "configs");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/configs/Animations.js'), configAnimations);
   } catch (error) {
@@ -373,31 +325,7 @@ async function main() {
     console.warn(error)
   }
 
-  console.log(colorsTerminal.green('[Source]'), "stores");
-  // stores
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/stores'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/stores/actions'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/stores/reducers'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
-  if (installLibCommandLine.includes('redux-saga')) {
-    try {
-      fs.mkdirSync(sh.pwd().stdout + "/" + ('src/stores/sagas'), { recursive: true });
-    } catch (error) {
-      console.warn(error)
-    }
-  }
-
+  console.log('[Source]', "stores");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/actions/network.js'), networkAction);
   } catch (error) {
@@ -438,27 +366,14 @@ async function main() {
     console.warn(error)
   }
 
-
-  console.log(colorsTerminal.green('[Source]'), "routers");
-  // routers
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/routers'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
+  console.log('[Source]', "routers");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/routers/index.js'), indexRouter);
   } catch (error) {
     console.warn(error)
   }
 
-  console.log(colorsTerminal.green('[Source]'), "utils");
-  // utils
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('src/utils'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
+  console.log('[Source]', "utils");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/index.js'), indexUtils(installLibCommandLine.includes('react-native-vector-icons')));
   } catch (error) {
@@ -529,54 +444,42 @@ async function main() {
     console.warn(error)
   }
 
-  console.log(colorsTerminal.green('[Source]'), "debugging");
-  // debugging
-  try {
-    fs.mkdirSync(sh.pwd().stdout + "/" + ('debugging'), { recursive: true });
-  } catch (error) {
-    console.warn(error)
-  }
+  console.log('[Source]', "debugging");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('debugging/ReactotronConfig.js'), ReactotronConfig);
   } catch (error) {
     console.warn(error)
   }
 
-  console.log(colorsTerminal.green('[Source]'), "App");
-  // App
+  console.log('[Source]', "App");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/App.js'), appRoot());
   } catch (error) {
     console.warn(error)
   }
 
-  console.log(colorsTerminal.green('[Source]'), "delete");
-  // delete
+  console.log('[Source]', "delete");
   try {
     fs.unlinkSync(sh.pwd().stdout + "/" + ('App.js'))
   } catch (err) {
     console.warn(err)
   }
-  console.log(colorsTerminal.green('[Source]'), "exportOptionsDevelopment.plist");
-  // exportOptions.plist
+
+  console.log('[Source]', "exportOptionsDevelopment.plist");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('ios/exportOptionsDevelopment.plist'), exportOptionsDevelopment);
   } catch (error) {
     console.warn(error)
   }
-  console.log(colorsTerminal.green('[Source]'), 'build.sh');
-  // build.sh.plist
+
+  console.log('[Source]', 'build.sh');
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('build.sh'), buildScript(name));
   } catch (error) {
     console.warn(error)
   }
-  // rmdirAsync(sh.pwd().stdout + "/" +('ios/' + projectName + '-tvOS'))
-  // rmdirAsync(sh.pwd().stdout + "/" +('ios/' + projectName + '-tvOSTests'))
-  // rmdirAsync(sh.pwd().stdout + "/" +('ios/' + projectName + 'Tests'))
 
-  console.log(colorsTerminal.green('[Source]'), "root app");
-  // root app
+  console.log('[Source]', "Root index");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('index.js'), indexApp);
   } catch (error) {

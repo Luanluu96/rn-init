@@ -2258,14 +2258,19 @@ const exportOptionsDevelopment = `<?xml version="1.0" encoding="UTF-8"?>
 `
 
 const buildScript = (appName) => `#!/usr/bin/env bash
-npm run build-ios
-cd ios
-xcrun xcodebuild -workspace ${appName}.xcworkspace -scheme ${appName} -configuration Release archive -archivePath build/${appName}.xcarchive
-xcrun xcodebuild -exportArchive -exportPath build/${appName}IPA -archivePath build/${appName}.xcarchive/ -exportOptionsPlist exportOptionsDevelopment.plist
+# npm run build-ios
+# cd ios
+# xcrun xcodebuild -workspace test.xcworkspace -scheme test -configuration Release archive -archivePath build/test.xcarchive
+# xcrun xcodebuild -exportArchive -exportPath build/testIPA -archivePath build/test.xcarchive/ -exportOptionsPlist exportOptionsDevelopment.plist
 
-cd ..
-npm run build-android && npm run build-release-android && open android/app/build/outputs/apk
-`
+# cd ..
+# npm run build-android && npm run build-release-android && open android/app/build/outputs/apk
+if [ "$1" = "-r" ] || [ "$1" = "-release" ] 
+then 
+  echo "deaaaaav"
+else
+  echo "dev"
+fi`
 
 const podFile = ({
   appName,
