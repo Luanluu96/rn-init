@@ -197,7 +197,7 @@ async function main() {
 
     { label: 'api', path: `${sh.pwd().stdout}/src/api`, options: { recursive: true }, isCreate: true },
 
-    { label: 'common', path: `${sh.pwd().stdout}/src/common`, options: { recursive: true } },
+    { label: 'common', path: `${sh.pwd().stdout}/src/common`, options: { recursive: true }, isCreate: true },
     { label: 'common/components', path: `${sh.pwd().stdout}/src/common/components`, options: { recursive: true }, isCreate: true },
     { label: 'common/components', path: `${sh.pwd().stdout}/src/common/components/Button`, options: { recursive: true }, isCreate: true },
     { label: 'common/components', path: `${sh.pwd().stdout}/src/common/components/Header`, options: { recursive: true }, isCreate: true },
