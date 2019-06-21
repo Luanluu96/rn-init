@@ -2264,12 +2264,15 @@ const buildScript = (appName) => `#!/usr/bin/env bash
 # xcrun xcodebuild -exportArchive -exportPath build/testIPA -archivePath build/test.xcarchive/ -exportOptionsPlist exportOptionsDevelopment.plist
 
 # cd ..
-# npm run build-android && npm run build-release-android && open android/app/build/outputs/apk
 if [ "$1" = "-r" ] || [ "$1" = "-release" ] 
 then 
-  echo "deaaaaav"
+  npm run build-android && npm run build-release-android && open android/app/build/outputs/apk
 else
-  echo "dev"
+  react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res
+  cd android/
+  ./gradlew assembleDebug
+  open app/build/outputs/apk/
+  cd ..
 fi`
 
 const podFile = ({
