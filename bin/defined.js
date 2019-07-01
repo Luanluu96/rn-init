@@ -1219,13 +1219,16 @@ const Router = createStackNavigator({
 			opacity: 1
 		},
 		transitionConfig: () => ({
+			transitionSpec: {
+        duration: 300,
+				easing: Easing.out(Easing.poly(4)),
+				timing: Animated.timing,
+				useNativeDriver: true,
+			},
 			screenInterpolator: (sceneProps) => {
 				const { scene } = sceneProps;
 				const thisSceneIndex = scene.index;
-				if (thisSceneIndex != 1) {
-					return Animations.slideFromRight(sceneProps);
-				}
-				return Animations.fade(sceneProps)
+				return Animations.slideFromRight(sceneProps)
 			},
 			containerStyle: {
 				backgroundColor: 'transparent',
@@ -2151,7 +2154,7 @@ function getTimingAnimations(animatedValKeys, toValue, duration = 1000) {
 }
 
 
-const fade = (props) => {
+const fadeOutUp = (props) => {
   const { position, scene } = props
 
   const index = scene.index
@@ -2170,6 +2173,20 @@ const fade = (props) => {
   }
 }
 
+const fadeInUp = (props) => {
+  const { position, layout, scene } = props;
+
+  const thisSceneIndex = scene.index;
+  const height = layout.initHeight
+
+  const translateY = position.interpolate({
+    inputRange: [thisSceneIndex - 1, thisSceneIndex, thisSceneIndex + 1],
+    outputRange: [height, 0, 0]
+  })
+
+  return { transform: [{ translateY }] };
+}
+
 const slideFromRight = (props) => {
   const { position, layout, scene } = props;
 
@@ -2180,16 +2197,15 @@ const slideFromRight = (props) => {
     outputRange: [width, 0, 0]
   })
 
-  return {
-    transform: [{ translateX }]
-  }
+  return { transform: [{ translateX }] };
 }
 
 
 export {
   getSpringAnimations,
   getTimingAnimations,
-  fade,
+  fadeOutUp,
+  fadeInUp,
   slideFromRight,
 }`
 
