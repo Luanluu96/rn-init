@@ -1513,12 +1513,23 @@ var Switch = createReactClass({
       inactiveButtonPressedColor: '#FFFFFF',
       activeButtonColor: '#FFFFFF',
       activeButtonPressedColor: '#FFFFFF',
-      buttonShadow: {
+      buttonShadowOff: {
         elevation: 5,
         shadowColor: '#000',
-        shadowOpacity: 0.3,
+        shadowOpacity: 0.5,
+        shadowRadius: 2,
+        shadowOffset: { height: 3, width: 0 },
+      },
+      buttonShadowOn: {
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOpacity: 0.7,
         shadowRadius: 1,
-        shadowOffset: { height: 1, width: 0 },
+        shadowOffset: { height: 0.5, width: 0.5 },
+      },
+      backgroundShadow: {
+        shadowOpacity: 0.4,
+        shadowRadius: 1,
       },
       activeBackgroundColor: '#118303',
       inactiveBackgroundColor: '#FFFFFF',
@@ -1704,19 +1715,24 @@ var Switch = createReactClass({
     let panHandlers = this.props.enableSlideDragging ? this._panResponder.panHandlers : null
     let pressHandlers = !this.props.enableSlideDragging ? { onPress: () => this.toggle() } : null
 
+    let offsetPosition = this.state.state ? - 2 : 2;
+
     return (
       <View
         {...panHandlers}
         style={[{ padding: this.padding, position: 'relative' }, this.props.style]}>
         <View
-          style={{
+          style={[{
             backgroundColor: this.state.state ? this.props.activeBackgroundColor : this.props.inactiveBackgroundColor,
             height: this.props.switchHeight,
             width: this.props.switchWidth,
             borderRadius: this.props.switchHeight / 2,
             borderColor: this.state.state ? "#b2b2b2" : '#b2b2b2',
-            borderWidth: this.state.state ? 0 : 1
-          }} />
+            borderWidth: this.state.state ? 0 : 1,
+          },
+          { shadowColor: this.state.state ? this.props.activeBackgroundColor : this.props.inactiveBackgroundColor },
+          { shadowOffset: this.state.state ? { height: 0, width: 0.2 } : { height: 1, width: -0.2 } },
+          this.props.backgroundShadow]} />
         <TouchableHighlight {...pressHandlers} underlayColor='transparent' activeOpacity={1} style={{
           height: Math.max(this.props.buttonRadius * 2 + doublePadding, this.props.switchHeight + doublePadding),
           width: this.props.switchWidth + doublePadding,
@@ -1737,10 +1753,10 @@ var Switch = createReactClass({
             flexDirection: 'row',
             position: 'absolute',
             top: halfPadding + this.props.switchHeight / 2 - this.props.buttonRadius,
-            left: this.props.switchHeight / 2 > this.props.buttonRadius ? halfPadding : halfPadding + this.props.switchHeight / 2 - this.props.buttonRadius,
+            left: this.props.switchHeight / 2 > this.props.buttonRadius ? halfPadding + offsetPosition : halfPadding + this.props.switchHeight / 2 - this.props.buttonRadius + offsetPosition,
             transform: [{ translateX: this.state.position }]
           },
-          this.props.buttonShadow]}
+          this.state.state ? this.props.buttonShadowOn : this.props.buttonShadowOff]}
           >
             {this.props.buttonContent}
           </Animated.View>
