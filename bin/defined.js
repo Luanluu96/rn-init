@@ -29,7 +29,7 @@ const set = function (args) {
     Object.keys(args).map((v, i) => {
       return new Promise((resolve, reject) => {
         AsyncStorage.setItem(v, args[v], err => {
-          if (err !== null) reject("Appstorage set", err);
+          if (err !== null) reject("AppStorage set", err);
           resolve();
         });
       });
@@ -249,17 +249,16 @@ const height = IOS
   ? Dimensions.get("window").height
   : require("react-native-extra-dimensions-android").get("REAL_WINDOW_HEIGHT");
 
-const manubarBottomHeight = IOS
+const menubarBottomHeight = IOS
   ? 0
   : require("react-native-extra-dimensions-android").get("SOFT_MENU_BAR_HEIGHT");
 
 // base on iphone X
 const widthIphoneX = 375;
-const heightDesignApp = IOS ? 812 : 667;
-const widthDesignApp = IOS ? 375 : 384;
+const heightDesignApp = 812;
+const widthDesignApp = 375;
 
 const heightHeader = (44 / heightDesignApp * height);
-const heightButtonCategory = (65 / heightDesignApp * height);
 const iconSizeHeader = heightHeader * 0.5;
 
 const customFontSize = (value) => ({
@@ -309,7 +308,7 @@ const STYLES = {
   heightRatio,
   widthHeightRatio,
 
-  manubarBottomHeight,
+  menubarBottomHeight,
   centerScreen,
 
   // icons size 
@@ -422,10 +421,6 @@ const STYLES = {
     })
   }),
 
-  // button category
-  widthButtonCategory: (width * 0.85) / 2.5,
-  heightButtonCategory,
-
   textJustify: {
     textAlign: IOS ? 'justify' : 'left'
   },
@@ -435,16 +430,6 @@ const STYLES = {
     width: (width * 0.85) / 2,
     height: height * 1 / 7,
   },
-
-  //button play
-
-  buttonPlay: {
-    width: 64,
-    height: 64,
-  },
-  buttonPlaySize: 64,
-
-  heightOptionFilmDetail: 64,
 
   //Comments
   commentBox: {
@@ -475,7 +460,7 @@ const KEY_ASYNC_STORE = {
 const KEY_REDUX_STORE = {
   LOGIN_FETCHING: '@LOGIN_FETCHING',
   LOGIN_SUCCESS: '@LOGIN_SUCCESS',
-  LOGIN_FAILD: '@LOGIN_FAILD',
+  LOGIN_FAILED: '@LOGIN_FAILED',
   CLEAR_ACCOUNT: '@CLEAR_ACCOUNT',
 
   // internet status
@@ -968,9 +953,9 @@ const {
 
 const pixelRatio = PixelRatio.get();
 
-// Use iPhone6 as base size which is 375 x 667
+// Use iPhoneX as base size which is 375 x 812
 const baseWidth = 375;
-const baseHeight = 667;
+const baseHeight = 812;
 
 const scaleWidth = SCREEN_WIDTH / baseWidth;
 const scaleHeight = SCREEN_HEIGHT / baseHeight;
