@@ -54,7 +54,6 @@ const {
 } = require('./defined');
 
 const { rmdirSync } = require('./functions');
-const { generateBuildGradle } = require('./gradle');
 
 let ReactotronConfig = "";
 let indexStores = "";
@@ -187,12 +186,6 @@ async function main() {
     }
   }
 
-  console.log(colorsTerminal.green('Generate => Generate new build.gradle...'));
-  try {
-    await generateBuildGradle(sh.pwd().stdout, installLibCommandLine);
-  } catch (error) {
-    console.warn(error)
-  }
   console.log(colorsTerminal.green('Generate => Project Structure...'));
   const listFolders = [
     { label: 'Root src', path: `${sh.pwd().stdout}/src`, options: { recursive: true }, isCreate: true },
