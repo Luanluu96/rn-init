@@ -62,7 +62,7 @@ let podStringFile = "";
 const name = process.argv.slice(-1)[0];
 
 let installLibCommandLine = `npm install --save react-native-webview abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux `
-let installLibDevCommandLine = `npm install --save-dev reactotron-redux reactotron-react-native `;
+let installLibDevCommandLine = `npm install --save-dev reactotron-redux@^2.1.3 reactotron-react-native@^2.2.0 `;
 
 async function main() {
   if (fs.existsSync(sh.pwd().stdout + "/" + name)) {
@@ -81,7 +81,7 @@ async function main() {
       });
   }
 
-  sh.exec(`react-native init ${name}`);
+  sh.exec(`react-native init ${name} --version="react-native@0.59.5"`);
   sh.cd(name);
   sh.exec('clear');
   sh.mkdir(sh.pwd().stdout + '/android/app/src/main/assets/')
