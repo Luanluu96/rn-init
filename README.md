@@ -1,4 +1,5 @@
 ### rn-structure
+> **Note:** The current library only supports react-native 0.59.5, the react-native versions >= 0.60, and the supported libraries will be updated in the future.
 
 ### Documentation
 1.  [Installation](#installation)
