@@ -60,7 +60,7 @@ let indexStores = "";
 let podStringFile = "";
 const name = process.argv.slice(-1)[0];
 
-let installLibCommandLine = `npm install --save react-native-webview abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux `
+let installLibCommandLine = `npm install --save react-native-webview abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux ramda `
 let installLibDevCommandLine = `npm install --save-dev reactotron-redux@^2.1.3 reactotron-react-native@^2.2.0 `;
 
 async function main() {
@@ -85,9 +85,32 @@ async function main() {
   sh.exec('clear');
   sh.mkdir(sh.pwd().stdout + '/android/app/src/main/assets/')
 
+  if (os.platform() === 'darwin') {
+    sh.exec("echo \"## This file must *NOT* be checked into Version Control Systems,\n" +
+    "# as it contains information specific to your local configuration.\n" +
+    "#\n" +
+    "# Location of the SDK. This is only used by Gradle.\n" +
+    "# For customization when using a Version Control System, please read the\n" +
+    "# header note.\n" +
+    "ndk.dir = /Users/$(whoami)/Library/Android/sdk/ndk-bundle\n" +
+    "sdk.dir = /Users/$(whoami)/Library/Android/sdk\n" +
+    "\" > android/local.properties");
+  } else if (os.platform() === 'win32') {
+    sh.exec("@echo off\n" +
+    "(\n" +
+    "  echo ## This file must *NOT* be checked into Version Control Systems,\n" +
+    "  echo # as it contains information specific to your local configuration.\n" +
+    "  echo #\n" +
+    "  echo # Location of the SDK. This is only used by Gradle.\n" +
+    "  echo # For customization when using a Version Control System, please read the\n" +
+    "  echo # header note.\n" +
+    "  echo ndk.dir = /Users/$(whoami)/Library/Android/sdk/ndk-bundle\n" +
+    "  echo sdk.dir = /Users/$(whoami)/Library/Android/sdk\n" +
+    ") > android/local.properties");
+  }
 
   console.log(colorsTerminal.green('======================== Initalizing... ======================== '));
-  if (os.platform == 'darwin') {
+  if (os.platform() === 'darwin') {
     await inquirer
       .prompt({
         type: 'confirm',
@@ -128,10 +151,13 @@ async function main() {
       type: 'checkbox',
       name: 'Select libraries',
       choices: [
+        "★ native-base",
+        "★ react-native-keychain",
+        "★ react-native-svg",
+        "★ react-native-vector-icons",
+        "★ react-native-firebase",
         "react-native-sound",
-        "react-native-vector-icons",
         "react-native-hyperlink",
-        "react-native-firebase",
         "react-native-phone-call",
         "react-native-splash-screen",
         "react-native-maps",
@@ -140,12 +166,10 @@ async function main() {
         "react-native-scrollable-tab-view",
         "react-native-gifted-chat",
         "react-native-snap-carousel",
-        "react-native-svg",
         "react-native-image-picker",
         "react-native-image-crop-picker",
         "react-native-typography",
         "react-native-offline",
-        "ramda",
       ]
     })
     .then(libraries => {
@@ -153,7 +177,8 @@ async function main() {
         isFirebase: false,
         isMaps: false,
       }
-      libraries['Select libraries'].forEach(lib => {
+      libraries['Select libraries'].forEach((lib) => {
+        lib = lib.replace('★ ', '');
         if (os.platform == 'darwin') {
           switch (lib) {
             case 'react-native-firebase':
@@ -170,6 +195,7 @@ async function main() {
     });
 
   updatePackageJson(sh.pwd().stdout);
+  console.log(installLibCommandLine)
   console.log(colorsTerminal.green('Installing => linking libraries...'));
   sh.exec(installLibDevCommandLine);
   sh.exec(installLibCommandLine);

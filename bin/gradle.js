@@ -197,14 +197,6 @@ async function generateBuildGradle(pathProject, libsReactNativeExtends) {
   });
 }
 
-// async function generateBuildGradle(pathProject, libsReactNativeExtends) {
-// g2js.parseFile('/Users/neos/Desktop/rn-init/test/android/app/build.gradle').then(function (representation) {
-//   console.log(JSON.stringify(representation))
-// });
-// }
-let data = fs.readFileSync(`/Users/neos/Desktop/rn-init/test/android/app/build.gradle`, {encoding: `utf-8`, flag: 'r'});
-console.log(data)
-
 module.exports = {
   generateBuildGradle
 }
