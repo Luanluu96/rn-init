@@ -1,202 +1,194 @@
 #! /usr/bin/env node
+var sh = require('shelljs');
 var fs = require('fs');
-var g2js = require('gradle-to-js/lib/parser');
+
+const libs = {
+  'react-native-firebase': [
+    'googleService',
+    'firebase-core',
+    'firebase-messaging',
+    'ShortcutBadger',
+    'fabric',
+  ],
+  'react-native-maps': [
+    'googleService',
+    'play-services-maps',
+    'play-services-location',
+  ],
+  'react-native-image-crop-picker': [
+    'jitpack.io'
+  ]
+}
+
+const applyPluginGlobal = {
+  "googleService": "apply plugin: 'com.google.gms.google-services'",
+  "fabric": "apply plugin: 'io.fabric'",
+}
+const defaultConfig = `
+        multiDexEnabled true
+        vectorDrawables.useSupportLibrary = true
+        ndk {
+          abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86' ,'x86_64'
+        }
+`
+
+const variantOutputsAll = (projectName) => `
+        variant.outputs.all { output ->
+          def project = "${projectName}"
+          def SEP = "_"
+          def buildType = variant.variantData.variantConfiguration.buildType.name
+          def version = variant.versionName
+          def versionCode = variant.versionCode
+          def date = new Date();
+          def formattedDate = date.format('ddMMyy_HHmm')
+
+          def newApkName = project + SEP + buildType + SEP + version + SEP + versionCode + SEP + formattedDate + ".apk"
+
+          outputFileName = new File(newApkName)
+        }
+`
+
+const dependenciesGlobal = {
+  "googleService": `implementation "com.google.android.gms:play-services-base:16.1.0"`,
+  "firebase-core": `implementation "com.google.firebase:firebase-core:16.0.8"`,
+  "firebase-messaging": `implementation "com.google.firebase:firebase-messaging:17.3.4"`,
+  "firebase-core": `implementation 'me.leolin:ShortcutBadger:1.1.+@aar'`,
+  "play-services-maps": `implementation 'com.google.android.gms:play-services-maps:10.0.1'`,
+  "fabric": `implementation 'com.crashlytics.sdk.android:crashlytics:2.10.0'`,
+  "fabric": `implementation 'com.google.firebase:firebase-crash:16.2.1'`,
+}
 
 const containerDependenciesClassPath = {
-  'root': { "group": "com.android.tools.build", "name": "gradle", "version": "3.4.0", "type": "classpath", "excludes": [] },
-  'googleService': { "group": "com.google.gms", "name": "google-services", "version": "4.2.0", "type": "classpath", "excludes": [] },
-  'fabric': { "group": "io.fabric.tools", "name": "gradle", "version": "1.29.0", "type": "classpath", "excludes": [] },
+  'googleService': "classpath 'com.google.gms:google-services:4.2.0'",
+  'fabric': "classpath 'io.fabric.tools:gradle:1.29.0'",
 }
 const containerExt = {
-  'maps': {
-    "minSdkVersion": 20,
-    "googlePlayServicesLocationVersion": "16.0.0",
-    "googlePlayServicesVersion": "16.0.0",
-    "googlePlayServicesVisionVersion": "17.0.2",
-    "reactNativeVersion": "+",
-    "androidMapsUtilsVersion": "0.5+"
-  },
+  'play-services-maps': `
+        googlePlayServicesLocationVersion = "16.0.0"
+        googlePlayServicesVersion = "16.0.0"
+        googlePlayServicesVisionVersion = "17.0.2"
+        reactNativeVersion = "+"
+        androidMapsUtilsVersion = "0.5+"`,
 }
 const containerRepositories = {
-  'react-native': { "type": "maven", "data": { "url": "$rootDir/../node_modules/react-native/android" } },
-  'fabric': { "type": "maven", "data": { "url": "https://maven.fabric.io/public" } },
-  'google': { "type": "unknown", "data": { "name": "google()" } },
-  'jcenter': { "type": "unknown", "data": { "name": "jcenter()" } },
-  'mavenLocal': { "type": "unknown", "data": { "name": "mavenLocal()" } },
+  'fabric': "maven { url 'https://maven.fabric.io/public' }",
 }
-
-class Dependencies {
-  constructor(jsonObject = null, extendsGradle) {
-    if (jsonObject === null) {
-      this.dependencies = [containerDependenciesClassPath['root']];
-      this.extendsGradle = extendsGradle;
-    } else {
-      this.dependencies = jsonObject;
-      this.extendsGradle = extendsGradle;
-    }
-  }
-
-  static getInstanceBuildScript(jsonObject = null, extendsGradle) {
-    return new Dependencies(jsonObject, extendsGradle);
-  }
-
-  toString() {
-    let temp = '';
-    this.dependencies.forEach((value) => temp += `${value.type} '${value.group}:${value.name}:${value.version}' \n\t`);
-    if (this.extendsGradle !== null || this.extendsGradle !== undefined) {
-      this.extendsGradle.forEach((value) => temp += `${value.type} '${value.group}:${value.name}:${value.version}' \n\t`);
-    }
-    return `dependencies {
-        ${temp}
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-      }`
-  }
+const allProjectsRepositories = {
+  'jitpack.io': 'maven { url "https://jitpack.io" }'
 }
-
-class Repositories {
-
-  constructor(repositories) {
-    this.repositories = repositories;
-  }
-
-  static getInstanceBuildScript(repositories = null) {
-    if (repositories === null) {
-      return new Repositories([containerRepositories['google'], containerRepositories['jcenter']]);
-    } else {
-      return new Repositories(repositories);
-    }
-  }
-  static getInstanceAllProjects(repositories = null) {
-    if (repositories === null) {
-      return new Repositories([
-        containerRepositories['mavenLocal'],
-        containerRepositories['google'],
-        containerRepositories['jcenter'],
-        containerRepositories['react-native'],]);
-    } else {
-      return new Repositories(repositories);
-    }
-  }
-
-  toString() {
-    let temp = '';
-    this.repositories.forEach((value) => {
-      if (value.type === 'unknown') {
-        temp += `${value.data.name}\n\t`;
-      } else if (value.type === 'maven') {
-        temp += `${value.type} {\n\t\turl "${value.data.url}"\n\t}`;
-      }
-    });
-    return `repositories {
-        ${temp}
-      }`
-  }
-}
-
-class Ext {
-  constructor(jsonObject = null, extendsGradle) {
-    this.jsonObject = jsonObject;
-    this.extendsGradle = extendsGradle;
-  }
-  toString() {
-    let temp = '';
-    const mergeObject = { ...this.jsonObject, ...this.extendsGradle };
-    Object.keys(mergeObject).forEach((key) => {
-      let value = mergeObject[key];
-      if (isNaN(Number(value))) {
-        value = `"${value}"`
-      }
-      temp += (key + ' = ' + value + '\n\t');
-    });
-    return `ext {
-        ${temp}
-      }`
-  }
-}
-
-class BuildScript {
-  constructor(jsonObject = null, extendsGradle) {
-    if (jsonObject === null) {
-      this.ext = new Ext();
-      this.repositories = Repositories.getInstanceBuildScript();
-      this.dependencies = Dependencies.getInstanceBuildScript();
-    } else {
-      this.ext = new Ext(jsonObject['ext'], extendsGradle['ext']);
-      this.repositories = Repositories.getInstanceBuildScript(jsonObject['repositories']);
-      this.dependencies = Dependencies.getInstanceBuildScript(jsonObject['dependencies'], extendsGradle['dependencies']);
-    }
-  }
-
-  toString() {
-    return `buildscript {
-      ${this.ext.toString()}
-      ${this.repositories.toString()}
-      ${this.dependencies.toString()}
-    }`
-  }
-}
-
-class AllProjects {
-  constructor(jsonObject = null) {
-    if (jsonObject === null) {
-      this.repositories = Repositories.getInstanceAllProjects();
-    } else {
-      this.repositories = Repositories.getInstanceAllProjects(jsonObject['repositories']);
-    }
-  }
-
-  toString() {
-    return `allprojects {
-      ${this.repositories.toString()}
-    }`
-  }
-}
-let extendsGradle = {
-  'buildscript': { 'ext': {}, 'dependencies': [] },
-}
-class BuildGradle {
-  constructor(jsonObject = null, libsReactNativeExtends = 'npm install --save') {
+class BuildGradleForApp {
+  constructor(appName = '', sourceString = '', libsReactNativeExtends = 'npm install --save') {
     const listLibs = libsReactNativeExtends.replace('npm install --save', '').split(' ');
+    this.appName = appName;
+    this.sourceString = sourceString;
+    this.apply = '';
+    this.dependencies = '';
     listLibs.forEach((value) => {
-      if (
-        value === 'react-native-firebase' ||
-        value === 'react-native-maps'
-      ) {
-        if (containerDependenciesClassPath['googleService'] !== undefined) {
-          extendsGradle.buildscript.dependencies.push(containerDependenciesClassPath['googleService']);
-          delete containerDependenciesClassPath['googleService'];
-        }
+      var pluginLib = libs[value];
+      if (pluginLib !== undefined) {
+        pluginLib.forEach(valuePlugin => {
+          if (applyPluginGlobal[valuePlugin] !== undefined) {
+            this.apply += `\n${applyPluginGlobal[valuePlugin]}`;
+            delete applyPluginGlobal[valuePlugin];
+          }
+          if (dependenciesGlobal[valuePlugin] !== undefined) {
+            this.dependencies += `    ${dependenciesGlobal[valuePlugin]}\n`;
+            delete dependenciesGlobal[valuePlugin];
+          }
+        })
       }
-      if (value === 'react-native-maps') {
-        extendsGradle.buildscript.ext = { ...containerExt['maps'] };
-      }
-    })
-    if (jsonObject === null) {
-      this.buildscript = new BuildScript();
-      this.allprojects = new AllProjects();
-    } else {
-      this.buildscript = new BuildScript(jsonObject['buildscript'], extendsGradle['buildscript']);
-      this.allprojects = new AllProjects(jsonObject['allprojects']);
-    }
+    });
   }
 
   generateBuildGradleRoot() {
-    return `// Top-level build file where you can add configuration options common to all sub-projects/modules.
-    ${this.buildscript.toString()}
+    var resApplyPluginContent = this.sourceString.match(/^apply plugin: \"com.android.application\"/g);
+    var resDefaultConfig = this.sourceString.match(/(?<=(defaultConfig {))(.*\n?)+?(?=(\s*}))/g);
+    var resDependenciesContent = this.sourceString.match(/(?<=(dependencies {))(.*\n?)+?(?=(\s*}))/g);
+    var resApplicationVariants = this.sourceString.match(/(?<=(applicationVariants\.all { variant ->))(.*\n?)+?(?=(\s*}\n}))/g);
+    var replaceString = this.sourceString;
+    replaceString = replaceString.replace(resApplyPluginContent, resApplyPluginContent + this.apply);
+    replaceString = replaceString.replace(resDefaultConfig, resDefaultConfig + defaultConfig);
+    replaceString = replaceString.replace(resDependenciesContent, resDependenciesContent + this.dependencies);
+    replaceString = replaceString.replace(resApplicationVariants, resApplicationVariants + variantOutputsAll(this.appName));
 
-    ${this.allprojects.toString()}
-    `
+    return replaceString;
   }
 }
 
-async function generateBuildGradle(pathProject, libsReactNativeExtends) {
-  g2js.parseFile(pathProject + '/android/build.gradle').then(function (representation) {
-    fs.writeFileSync(pathProject + '/android/build.gradle', new BuildGradle(representation, libsReactNativeExtends).generateBuildGradleRoot());
-  });
+class BuildGradle {
+  constructor(appName = '', sourceString = '', libsReactNativeExtends = 'npm install --save') {
+    const listLibs = libsReactNativeExtends.replace('npm install --save', '').split(' ');
+    this.appName = appName;
+    this.sourceString = sourceString;
+    this.ext = '';
+    this.repositories = '';
+    this.dependencies = '';
+    this.allProjectsRepositories = '';
+    listLibs.forEach((value) => {
+      var pluginLib = libs[value];
+      if (pluginLib !== undefined) {
+        pluginLib.forEach(valuePlugin => {
+          if (containerExt[valuePlugin] !== undefined) {
+            this.ext += `        ${containerExt[valuePlugin]}\n`;
+            delete containerExt[valuePlugin];
+          }
+          if (containerRepositories[valuePlugin] !== undefined) {
+            this.repositories += `        ${containerRepositories[valuePlugin]}\n`;
+            delete containerRepositories[valuePlugin];
+          }
+          if (containerDependenciesClassPath[valuePlugin] !== undefined) {
+            this.dependencies += `        ${containerDependenciesClassPath[valuePlugin]}\n`;
+            delete containerDependenciesClassPath[valuePlugin];
+          }
+          if (allProjectsRepositories[valuePlugin] !== undefined) {
+            this.allProjectsRepositories += `        ${allProjectsRepositories[valuePlugin]}\n`;
+            delete allProjectsRepositories[valuePlugin];
+          }
+        })
+      }
+    });
+  }
+
+  generateBuildGradleRoot() {
+    var buildScript = this.sourceString.match(/(?<=(buildscript {))(.*\n?)+?(?=(}))/g)[0];
+    var allProjects = this.sourceString.match(/(?<=(allprojects {))(.*\n?)+?(?=(}))/g)[0];
+    
+    var resExtContent = buildScript.match(/(?<=(ext {))(.*\n?)+?(?=(\s+}))/g);
+    var resRepositoriesBuildScriptContent = buildScript.match(/(?<=(repositories {))(.*\n?)+?(?=(\s+}))/g);
+    var resDependenciesContent = buildScript.match(/(?<=(dependencies {))(.*\n?)+?(?=(\s+\/\/|\s+}))/g);
+
+    var resRepositoriesAllProjectsContent = allProjects.match(/(?<=(repositories {))(.*\n?)+?(?=(\s+}))/g);
+    
+    var replaceBuildScriptString = buildScript;
+    var replaceAllProjectsString = allProjects;
+    var replaceString = this.sourceString;
+
+    replaceBuildScriptString = replaceBuildScriptString.replace(resExtContent, resExtContent + this.ext);
+    replaceBuildScriptString = replaceBuildScriptString.replace(resRepositoriesBuildScriptContent, resRepositoriesBuildScriptContent + this.repositories);
+    replaceBuildScriptString = replaceBuildScriptString.replace(resDependenciesContent, resDependenciesContent + this.dependencies);
+
+    replaceAllProjectsString = replaceAllProjectsString.replace(resRepositoriesAllProjectsContent, resRepositoriesAllProjectsContent + this.allProjectsRepositories);
+
+    replaceString = replaceString.replace(buildScript, replaceBuildScriptString);
+    replaceString = replaceString.replace(allProjects, replaceAllProjectsString);
+
+    return replaceString;
+  }
 }
 
+async function generateBuildGradleForApp(appName, pathProject, libsReactNativeExtends) {
+  let data = fs.readFileSync(`${pathProject}/android/app/build.gradle`, { encoding: `utf-8`, flag: 'r' });
+  fs.writeFileSync(pathProject + '/android/app/build.gradle', new BuildGradleForApp(appName, data, libsReactNativeExtends).generateBuildGradleRoot());
+}
+
+async function generateBuildGradle(appName, pathProject, libsReactNativeExtends) {
+  let data = fs.readFileSync(`${pathProject}/android/build.gradle`, { encoding: `utf-8`, flag: 'r' });
+  fs.writeFileSync(pathProject + '/android/build.gradle', new BuildGradle(appName, data, libsReactNativeExtends).generateBuildGradleRoot());
+}
+// generateBuildGradleForApp('test', sh.pwd().stdout + '/test', 'npm install --save react-native-webview abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux react-native-maps react-native-firebase ')
+
+// generateBuildGradle('test', sh.pwd().stdout + '/test', 'npm install --save react-native-webview abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux react-native-maps react-native-firebase ')
 module.exports = {
-  generateBuildGradle
+  generateBuildGradleForApp,
+  generateBuildGradle,
 }

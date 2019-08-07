@@ -7,6 +7,7 @@ var colorsTerminal = require('colors');
 var os = require('os');
 
 const { updatePackageJson } = require('./package');
+const { generateBuildGradle, generateBuildGradleForApp } = require('./gradle');
 const {
   indexIcons,
   indexImages,
@@ -60,7 +61,7 @@ let indexStores = "";
 let podStringFile = "";
 const name = process.argv.slice(-1)[0];
 
-let installLibCommandLine = `npm install --save react-native-webview abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux ramda `
+let installLibCommandLine = `npm install --save react-native-webview @react-native-community/async-storage @react-native-community/netinfo @react-native-community/viewpager abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler react-native-reanimated accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux ramda `
 let installLibDevCommandLine = `npm install --save-dev reactotron-redux@^2.1.3 reactotron-react-native@^2.2.0 `;
 
 async function main() {
@@ -87,26 +88,26 @@ async function main() {
 
   if (os.platform() === 'darwin') {
     sh.exec("echo \"## This file must *NOT* be checked into Version Control Systems,\n" +
-    "# as it contains information specific to your local configuration.\n" +
-    "#\n" +
-    "# Location of the SDK. This is only used by Gradle.\n" +
-    "# For customization when using a Version Control System, please read the\n" +
-    "# header note.\n" +
-    "ndk.dir = /Users/$(whoami)/Library/Android/sdk/ndk-bundle\n" +
-    "sdk.dir = /Users/$(whoami)/Library/Android/sdk\n" +
-    "\" > android/local.properties");
+      "# as it contains information specific to your local configuration.\n" +
+      "#\n" +
+      "# Location of the SDK. This is only used by Gradle.\n" +
+      "# For customization when using a Version Control System, please read the\n" +
+      "# header note.\n" +
+      "ndk.dir = /Users/$(whoami)/Library/Android/sdk/ndk-bundle\n" +
+      "sdk.dir = /Users/$(whoami)/Library/Android/sdk\n" +
+      "\" > android/local.properties");
   } else if (os.platform() === 'win32') {
     sh.exec("@echo off\n" +
-    "(\n" +
-    "  echo ## This file must *NOT* be checked into Version Control Systems,\n" +
-    "  echo # as it contains information specific to your local configuration.\n" +
-    "  echo #\n" +
-    "  echo # Location of the SDK. This is only used by Gradle.\n" +
-    "  echo # For customization when using a Version Control System, please read the\n" +
-    "  echo # header note.\n" +
-    "  echo ndk.dir = /Users/$(whoami)/Library/Android/sdk/ndk-bundle\n" +
-    "  echo sdk.dir = /Users/$(whoami)/Library/Android/sdk\n" +
-    ") > android/local.properties");
+      "(\n" +
+      "  echo ## This file must *NOT* be checked into Version Control Systems,\n" +
+      "  echo # as it contains information specific to your local configuration.\n" +
+      "  echo #\n" +
+      "  echo # Location of the SDK. This is only used by Gradle.\n" +
+      "  echo # For customization when using a Version Control System, please read the\n" +
+      "  echo # header note.\n" +
+      "  echo ndk.dir = /Users/$(whoami)/Library/Android/sdk/ndk-bundle\n" +
+      "  echo sdk.dir = /Users/$(whoami)/Library/Android/sdk\n" +
+      ") > android/local.properties");
   }
 
   console.log(colorsTerminal.green('======================== Initalizing... ======================== '));
@@ -157,6 +158,8 @@ async function main() {
         "★ react-native-vector-icons",
         "★ react-native-firebase",
         "react-native-sound",
+        "react-native-video",
+        "react-native-camera",
         "react-native-hyperlink",
         "react-native-phone-call",
         "react-native-splash-screen",
@@ -164,12 +167,17 @@ async function main() {
         "react-native-permissions",
         "lottie-react-native",
         "react-native-scrollable-tab-view",
+        "react-native-tab-view",
         "react-native-gifted-chat",
         "react-native-snap-carousel",
         "react-native-image-picker",
         "react-native-image-crop-picker",
         "react-native-typography",
         "react-native-offline",
+        "react-native-android-open-settings",
+        "react-native-keep-awake",
+        "crypto-js",
+        "lodash"
       ]
     })
     .then(libraries => {
@@ -211,6 +219,9 @@ async function main() {
       console.warn(error)
     }
   }
+  console.log(colorsTerminal.green('Installing => Generate android gradle...'));
+  generateBuildGradle(name, sh.pwd().stdout, installLibCommandLine);
+  generateBuildGradleForApp(name, sh.pwd().stdout, installLibCommandLine);
 
   console.log(colorsTerminal.green('Generate => Project Structure...'));
   const listFolders = [
