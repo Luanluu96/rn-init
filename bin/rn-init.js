@@ -7,7 +7,7 @@ var colorsTerminal = require('colors');
 var os = require('os');
 
 const { updatePackageJson } = require('./package');
-const { generateBuildGradle, generateBuildGradleForApp } = require('./gradle');
+const { generateBuildGradle, generateGradleProperties, generateBuildGradleForApp } = require('./gradle');
 const {
   indexIcons,
   indexImages,
@@ -61,8 +61,8 @@ let indexStores = "";
 let podStringFile = "";
 const name = process.argv.slice(-1)[0];
 
-let installLibCommandLine = `npm install --save react-native-webview @react-native-community/async-storage @react-native-community/netinfo @react-native-community/viewpager abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler react-native-reanimated accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux ramda `
-let installLibDevCommandLine = `npm install --save-dev reactotron-redux@^2.1.3 reactotron-react-native@^2.2.0 `;
+let installLibCommandLine = `npm install --save react-native-webview @react-native-community/async-storage @react-native-community/netinfo @react-native-community/viewpager abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux ramda `
+let installLibDevCommandLine = `npm install --save-dev jetifier reactotron-redux@^2.1.3 reactotron-react-native@^2.2.0 `;
 
 async function main() {
   if (fs.existsSync(sh.pwd().stdout + "/" + name)) {
@@ -97,17 +97,17 @@ async function main() {
       "sdk.dir = /Users/$(whoami)/Library/Android/sdk\n" +
       "\" > android/local.properties");
   } else if (os.platform() === 'win32') {
-    sh.exec("@echo off\n" +
-      "(\n" +
-      "  echo ## This file must *NOT* be checked into Version Control Systems,\n" +
-      "  echo # as it contains information specific to your local configuration.\n" +
-      "  echo #\n" +
-      "  echo # Location of the SDK. This is only used by Gradle.\n" +
-      "  echo # For customization when using a Version Control System, please read the\n" +
-      "  echo # header note.\n" +
-      "  echo ndk.dir = /Users/$(whoami)/Library/Android/sdk/ndk-bundle\n" +
-      "  echo sdk.dir = /Users/$(whoami)/Library/Android/sdk\n" +
-      ") > android/local.properties");
+    // sh.exec("@echo off\n" +
+    //   "(\n" +
+    //   "  echo ## This file must *NOT* be checked into Version Control Systems,\n" +
+    //   "  echo # as it contains information specific to your local configuration.\n" +
+    //   "  echo #\n" +
+    //   "  echo # Location of the SDK. This is only used by Gradle.\n" +
+    //   "  echo # For customization when using a Version Control System, please read the\n" +
+    //   "  echo # header note.\n" +
+    //   "  echo ndk.dir = /Users/$(whoami)/Library/Android/sdk/ndk-bundle\n" +
+    //   "  echo sdk.dir = /Users/$(whoami)/Library/Android/sdk\n" +
+    //   ") > android/local.properties");
   }
 
   console.log(colorsTerminal.green('======================== Initalizing... ======================== '));
@@ -152,6 +152,7 @@ async function main() {
       type: 'checkbox',
       name: 'Select libraries',
       choices: [
+        "★ query-string",
         "★ native-base",
         "★ react-native-keychain",
         "★ react-native-svg",
@@ -191,9 +192,11 @@ async function main() {
           switch (lib) {
             case 'react-native-firebase':
               podFileOption['isFirebase'] = true;
+              sh.exec('google-chrome https://console.firebase.google.com');
               break;
             case 'react-native-maps':
               podFileOption['isMaps'] = true;
+              sh.exec('google-chrome https://console.firebase.google.com');
               break;
           }
         }
@@ -207,22 +210,30 @@ async function main() {
   console.log(colorsTerminal.green('Installing => linking libraries...'));
   sh.exec(installLibDevCommandLine);
   sh.exec(installLibCommandLine);
+
+  // write pod file
+  if (os.platform == 'darwin' && podStringFile !== '') {
+    console.log(colorsTerminal.green('Init => CocoaPods...'));
+    try {
+      fs.writeFileSync(sh.pwd().stdout + "/" + ('ios/Podfile'), podStringFile);
+    } catch (error) {
+      console.warn(error)
+    }
+  }
   sh.exec('react-native link');
 
   // write pod file
   if (os.platform == 'darwin' && podStringFile !== '') {
     console.log(colorsTerminal.green('Installing => CocoaPods...'));
-    try {
-      fs.writeFileSync(sh.pwd().stdout + "/" + ('ios/Podfile'), podStringFile);
-      sh.exec('cd ./ios && pod install');
-    } catch (error) {
-      console.warn(error)
-    }
+    sh.exec('cd ./ios && pod install');
   }
-  console.log(colorsTerminal.green('Installing => Generate android gradle...'));
+  console.log(colorsTerminal.green('Installing => Generate android gradle...'), sh.pwd().stdout);
   generateBuildGradle(name, sh.pwd().stdout, installLibCommandLine);
   generateBuildGradleForApp(name, sh.pwd().stdout, installLibCommandLine);
+  generateGradleProperties(sh.pwd().stdout);
 
+  console.log(colorsTerminal.green('Androidx => jetify...'));
+  sh.exec('npx jetify');
   console.log(colorsTerminal.green('Generate => Project Structure...'));
   const listFolders = [
     { label: 'Root src', path: `${sh.pwd().stdout}/src`, options: { recursive: true }, isCreate: true },

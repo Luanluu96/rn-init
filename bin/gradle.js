@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 var sh = require('shelljs');
 var fs = require('fs');
+var colorsTerminal = require('colors');
 
 const libs = {
   'react-native-firebase': [
@@ -17,6 +18,10 @@ const libs = {
   ],
   'react-native-image-crop-picker': [
     'jitpack.io'
+  ],
+  'react-native-camera': [
+    'react-native-camera',
+    'jitpack.io'
   ]
 }
 
@@ -24,13 +29,16 @@ const applyPluginGlobal = {
   "googleService": "apply plugin: 'com.google.gms.google-services'",
   "fabric": "apply plugin: 'io.fabric'",
 }
-const defaultConfig = `
+const defaultConfig = {
+  'default': `
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
         ndk {
           abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86' ,'x86_64'
         }
-`
+  `,
+  'react-native-camera': `missingDimensionStrategy 'react-native-camera', 'general'`,
+}
 
 const variantOutputsAll = (projectName) => `
         variant.outputs.all { output ->
@@ -78,11 +86,12 @@ const allProjectsRepositories = {
 }
 class BuildGradleForApp {
   constructor(appName = '', sourceString = '', libsReactNativeExtends = 'npm install --save') {
-    const listLibs = libsReactNativeExtends.replace('npm install --save', '').split(' ');
+    const listLibs = libsReactNativeExtends.replace('npm install --save', '').trim().split(' ');
     this.appName = appName;
     this.sourceString = sourceString;
     this.apply = '';
     this.dependencies = '';
+    this.defaultConfig = '';
     listLibs.forEach((value) => {
       var pluginLib = libs[value];
       if (pluginLib !== undefined) {
@@ -95,19 +104,23 @@ class BuildGradleForApp {
             this.dependencies += `    ${dependenciesGlobal[valuePlugin]}\n`;
             delete dependenciesGlobal[valuePlugin];
           }
+          if (defaultConfig[valuePlugin] !== undefined) {
+            this.defaultConfig += `    ${defaultConfig[valuePlugin]}\n`;
+            delete defaultConfig[valuePlugin];
+          }
         })
       }
     });
   }
 
   generateBuildGradleRoot() {
-    var resApplyPluginContent = this.sourceString.match(/^apply plugin: \"com.android.application\"/g);
-    var resDefaultConfig = this.sourceString.match(/(?<=(defaultConfig {))(.*\n?)+?(?=(\s*}))/g);
-    var resDependenciesContent = this.sourceString.match(/(?<=(dependencies {))(.*\n?)+?(?=(\s*}))/g);
-    var resApplicationVariants = this.sourceString.match(/(?<=(applicationVariants\.all { variant ->))(.*\n?)+?(?=(\s*}\n}))/g);
+    var resApplyPluginContent = this.sourceString.match(/^apply plugin: \"com.android.application\"/g)[0];
+    var resDefaultConfig = this.sourceString.match(/(?<=(defaultConfig {))(.*\n?)+?(?=(\s*}))/g)[0];
+    var resDependenciesContent = this.sourceString.match(/(?<=(dependencies {))(.*\n?)+?(?=(\s*}))/g)[0];
+    var resApplicationVariants = this.sourceString.match(/(?<=(applicationVariants\.all { variant ->))(.*\n?)+?(?=(\s*}\n}))/g)[0];
     var replaceString = this.sourceString;
     replaceString = replaceString.replace(resApplyPluginContent, resApplyPluginContent + this.apply);
-    replaceString = replaceString.replace(resDefaultConfig, resDefaultConfig + defaultConfig);
+    replaceString = replaceString.replace(resDefaultConfig, resDefaultConfig + defaultConfig['default'] + this.defaultConfig);
     replaceString = replaceString.replace(resDependenciesContent, resDependenciesContent + this.dependencies);
     replaceString = replaceString.replace(resApplicationVariants, resApplicationVariants + variantOutputsAll(this.appName));
 
@@ -117,7 +130,7 @@ class BuildGradleForApp {
 
 class BuildGradle {
   constructor(appName = '', sourceString = '', libsReactNativeExtends = 'npm install --save') {
-    const listLibs = libsReactNativeExtends.replace('npm install --save', '').split(' ');
+    const listLibs = libsReactNativeExtends.replace('npm install --save', '').trim().split(' ');
     this.appName = appName;
     this.sourceString = sourceString;
     this.ext = '';
@@ -152,13 +165,13 @@ class BuildGradle {
   generateBuildGradleRoot() {
     var buildScript = this.sourceString.match(/(?<=(buildscript {))(.*\n?)+?(?=(}))/g)[0];
     var allProjects = this.sourceString.match(/(?<=(allprojects {))(.*\n?)+?(?=(}))/g)[0];
-    
-    var resExtContent = buildScript.match(/(?<=(ext {))(.*\n?)+?(?=(\s+}))/g);
-    var resRepositoriesBuildScriptContent = buildScript.match(/(?<=(repositories {))(.*\n?)+?(?=(\s+}))/g);
-    var resDependenciesContent = buildScript.match(/(?<=(dependencies {))(.*\n?)+?(?=(\s+\/\/|\s+}))/g);
 
-    var resRepositoriesAllProjectsContent = allProjects.match(/(?<=(repositories {))(.*\n?)+?(?=(\s+}))/g);
-    
+    var resExtContent = buildScript.match(/(?<=(ext {))(.*\n?)+?(?=(\s+}))/g)[0];
+    var resRepositoriesBuildScriptContent = buildScript.match(/(?<=(repositories {))(.*\n?)+?(?=(\s+}))/g)[0];
+    var resDependenciesContent = buildScript.match(/(?<=(dependencies {))(.*\n?)+?(?=(\s+\/\/|\s+}))/g)[0];
+
+    var resRepositoriesAllProjectsContent = allProjects.match(/(?<=(repositories {))(.*\n?)+?(?=(}))/g)[0];
+
     var replaceBuildScriptString = buildScript;
     var replaceAllProjectsString = allProjects;
     var replaceString = this.sourceString;
@@ -177,18 +190,27 @@ class BuildGradle {
 }
 
 async function generateBuildGradleForApp(appName, pathProject, libsReactNativeExtends) {
+  console.log(colorsTerminal.green('/android/app/build.gradle'));
   let data = fs.readFileSync(`${pathProject}/android/app/build.gradle`, { encoding: `utf-8`, flag: 'r' });
   fs.writeFileSync(pathProject + '/android/app/build.gradle', new BuildGradleForApp(appName, data, libsReactNativeExtends).generateBuildGradleRoot());
 }
 
 async function generateBuildGradle(appName, pathProject, libsReactNativeExtends) {
+  console.log(colorsTerminal.green('/android/build.gradle'));
   let data = fs.readFileSync(`${pathProject}/android/build.gradle`, { encoding: `utf-8`, flag: 'r' });
   fs.writeFileSync(pathProject + '/android/build.gradle', new BuildGradle(appName, data, libsReactNativeExtends).generateBuildGradleRoot());
 }
+
+async function generateGradleProperties(pathProject) {
+  console.log(colorsTerminal.green('/android/gradle.properties'));
+  fs.appendFileSync(pathProject + '/android/gradle.properties', 'android.useAndroidX=true\nandroid.enableJetifier=true');
+}
+
 // generateBuildGradleForApp('test', sh.pwd().stdout + '/test', 'npm install --save react-native-webview abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux react-native-maps react-native-firebase ')
 
 // generateBuildGradle('test', sh.pwd().stdout + '/test', 'npm install --save react-native-webview abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux react-native-maps react-native-firebase ')
 module.exports = {
   generateBuildGradleForApp,
+  generateGradleProperties,
   generateBuildGradle,
 }
