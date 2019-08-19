@@ -1380,9 +1380,9 @@ const Store = __DEV__ ?
 
 export default Store;`
 
-const indexStoresSaga = `import { createStore, applyMiddleware, combineReducers } from 'redux';
+const indexStoresSaga = `import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
 import createSagaMiddleware from 'redux-saga';
-// import Reactotron from 'reactotron-react-native';
+
 import Reactotron from '../../debugging/ReactotronConfig';
 
 import reducer from './reducers';
@@ -1396,9 +1396,12 @@ const sagaMiddleware = createSagaMiddleware({ sagaMonitor });
 
 // mount it on the Store
 const Store = __DEV__ ?
-  Reactotron.createStore(
+  createStore(
     reducer,
-    applyMiddleware(sagaMiddleware)
+    compose(
+      applyMiddleware(sagaMiddleware),
+      Reactotron.createEnhancer()
+    )
   ) : createStore(
     reducer,
     applyMiddleware(sagaMiddleware)
@@ -2275,12 +2278,12 @@ const exportOptionsDevelopment = `<?xml version="1.0" encoding="UTF-8"?>
 `
 
 const buildScript = (appName) => `#!/usr/bin/env bash
-# npm run build-ios
-# cd ios
-# xcrun xcodebuild -workspace test.xcworkspace -scheme test -configuration Release archive -archivePath build/test.xcarchive
-# xcrun xcodebuild -exportArchive -exportPath build/testIPA -archivePath build/test.xcarchive/ -exportOptionsPlist exportOptionsDevelopment.plist
+npm run build-ios
+cd ios
+xcrun xcodebuild -workspace test.xcworkspace -scheme test -configuration Release archive -archivePath build/test.xcarchive
+xcrun xcodebuild -exportArchive -exportPath build/testIPA -archivePath build/test.xcarchive/ -exportOptionsPlist exportOptionsDevelopment.plist
 
-# cd ..
+cd ..
 if [ "$1" = "-r" ] || [ "$1" = "-release" ] 
 then 
   npm run build-android && npm run build-release-android && open android/app/build/outputs/apk

@@ -112,17 +112,7 @@ async function main() {
 
   console.log(colorsTerminal.green('======================== Initalizing... ======================== '));
   if (os.platform() === 'darwin') {
-    await inquirer
-      .prompt({
-        type: 'confirm',
-        name: 'CocoaPods',
-        message: 'Do you want to use CocoaPods for project?',
-        default: false
-      }).then(answers => {
-        if (answers['CocoaPods']) {
-          podStringFile = podFile({ appName: name });
-        }
-      });
+    podStringFile = podFile({ appName: name });
   }
   //edit root package.json
   await inquirer
@@ -188,7 +178,7 @@ async function main() {
       }
       libraries['Select libraries'].forEach((lib) => {
         lib = lib.replace('★ ', '');
-        if (os.platform == 'darwin') {
+        if (os.platform() === 'darwin') {
           switch (lib) {
             case 'react-native-firebase':
               podFileOption['isFirebase'] = true;
@@ -214,7 +204,7 @@ async function main() {
   sh.exec(installLibCommandLine);
 
   // write pod file
-  if (os.platform == 'darwin' && podStringFile !== '') {
+  if (os.platform() === 'darwin') {
     console.log(colorsTerminal.green('=> CocoaPods...'));
     try {
       fs.writeFileSync(sh.pwd().stdout + "/" + ('ios/Podfile'), podStringFile);
@@ -226,7 +216,7 @@ async function main() {
   sh.exec('react-native link');
 
   // write pod file
-  if (os.platform == 'darwin' && podStringFile !== '') {
+  if (os.platform() === 'darwin') {
     console.log(colorsTerminal.green('=> CocoaPods...'));
     sh.exec('cd ./ios && pod install');
   }
