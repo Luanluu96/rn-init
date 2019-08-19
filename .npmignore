@@ -4,3 +4,4 @@
 package-lock.json
 test/
 bin/gradle.js
+google-services.json
