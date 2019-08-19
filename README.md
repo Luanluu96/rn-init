@@ -43,7 +43,7 @@ npm run android                         # <=> react-native run-android
 npm run ios                             # <=> react-native run-ios
 npm run SE                              # <=> react-native run-ios --simulator='iPhone SE'
 
-npm run reload                          # <=> adb shell input text 'rr' working reload android build debuging
+npm run reload                          # <=> adb shell input text 'rr' working reload android build debugging
 npm run toggle                          # <=> adb shell input keyevent 82 show toggle
 
 npm run restart                         # <=> react-native start --reset-cache
@@ -58,6 +58,11 @@ npm test
 npm run coverage
 
 ```
+> **Note:** If you have prepared configuration for the release application, you can use the following command to create file apk, ipa.
+
+````
+sh build.sh 
+````
 
 ## [Structure](#structure)
 
@@ -307,7 +312,7 @@ import { IconTypes } from '../types';
 
 <a name="libs"></a>
 
-For UI:
+UI:
 
 ```
 react-native-linear-gradient
@@ -334,7 +339,7 @@ or
 redux-thunk
 ```
 
-Navigations
+Navigation
 ```
 react-navigation
 ```
