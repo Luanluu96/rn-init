@@ -29,7 +29,7 @@ const set = function (args) {
     Object.keys(args).map((v, i) => {
       return new Promise((resolve, reject) => {
         AsyncStorage.setItem(v, args[v], err => {
-          if (err !== null) reject("Appstorage set", err);
+          if (err !== null) reject("AppStorage set", err);
           resolve();
         });
       });
@@ -249,17 +249,16 @@ const height = IOS
   ? Dimensions.get("window").height
   : require("react-native-extra-dimensions-android").get("REAL_WINDOW_HEIGHT");
 
-const manubarBottomHeight = IOS
+const menubarBottomHeight = IOS
   ? 0
   : require("react-native-extra-dimensions-android").get("SOFT_MENU_BAR_HEIGHT");
 
 // base on iphone X
 const widthIphoneX = 375;
-const heightDesignApp = IOS ? 812 : 667;
-const widthDesignApp = IOS ? 375 : 384;
+const heightDesignApp = 812;
+const widthDesignApp = 375;
 
 const heightHeader = (44 / heightDesignApp * height);
-const heightButtonCategory = (65 / heightDesignApp * height);
 const iconSizeHeader = heightHeader * 0.5;
 
 const customFontSize = (value) => ({
@@ -309,7 +308,7 @@ const STYLES = {
   heightRatio,
   widthHeightRatio,
 
-  manubarBottomHeight,
+  menubarBottomHeight,
   centerScreen,
 
   // icons size 
@@ -422,10 +421,6 @@ const STYLES = {
     })
   }),
 
-  // button category
-  widthButtonCategory: (width * 0.85) / 2.5,
-  heightButtonCategory,
-
   textJustify: {
     textAlign: IOS ? 'justify' : 'left'
   },
@@ -435,16 +430,6 @@ const STYLES = {
     width: (width * 0.85) / 2,
     height: height * 1 / 7,
   },
-
-  //button play
-
-  buttonPlay: {
-    width: 64,
-    height: 64,
-  },
-  buttonPlaySize: 64,
-
-  heightOptionFilmDetail: 64,
 
   //Comments
   commentBox: {
@@ -475,7 +460,7 @@ const KEY_ASYNC_STORE = {
 const KEY_REDUX_STORE = {
   LOGIN_FETCHING: '@LOGIN_FETCHING',
   LOGIN_SUCCESS: '@LOGIN_SUCCESS',
-  LOGIN_FAILD: '@LOGIN_FAILD',
+  LOGIN_FAILED: '@LOGIN_FAILED',
   CLEAR_ACCOUNT: '@CLEAR_ACCOUNT',
 
   // internet status
@@ -968,9 +953,9 @@ const {
 
 const pixelRatio = PixelRatio.get();
 
-// Use iPhone6 as base size which is 375 x 667
+// Use iPhoneX as base size which is 375 x 812
 const baseWidth = 375;
-const baseHeight = 667;
+const baseHeight = 812;
 
 const scaleWidth = SCREEN_WIDTH / baseWidth;
 const scaleHeight = SCREEN_HEIGHT / baseHeight;
@@ -1219,13 +1204,16 @@ const Router = createStackNavigator({
 			opacity: 1
 		},
 		transitionConfig: () => ({
+			transitionSpec: {
+        duration: 300,
+				easing: Easing.out(Easing.poly(4)),
+				timing: Animated.timing,
+				useNativeDriver: true,
+			},
 			screenInterpolator: (sceneProps) => {
 				const { scene } = sceneProps;
 				const thisSceneIndex = scene.index;
-				if (thisSceneIndex != 1) {
-					return Animations.slideFromRight(sceneProps);
-				}
-				return Animations.fade(sceneProps)
+				return Animations.slideFromRight(sceneProps)
 			},
 			containerStyle: {
 				backgroundColor: 'transparent',
@@ -1233,6 +1221,21 @@ const Router = createStackNavigator({
 		})
 	});
 export default createAppContainer(Router);`
+
+const indexUtils = (vectorIcon) => `import STYLES from './styles';
+import COLORS from './colors';
+${vectorIcon ? `import { IconTypes } from './types';` : ``}
+import strings from './strings';
+import { ArrayUtils } from './function';
+
+export {
+	STYLES,
+	COLORS,
+  ${vectorIcon ? `IconTypes,` : ``}
+	IconTypes,
+	strings,
+	ArrayUtils
+}`
 
 const appRoot = ({ networkTrackerEnable } = { networkTrackerEnable: true }) => `import React, { Component } from 'react';
 import { StyleSheet, Text, StatusBar, View, AppState, Platform } from 'react-native';
@@ -1360,26 +1363,26 @@ import Reactotron from "../../debugging/ReactotronConfig";
 
 import reducer from './reducers';
 
-const middlewares = applyMiddleware(thunk);
+const middleware = applyMiddleware(thunk);
 
 // mount it on the Store
 const Store = __DEV__ ?
   createStore(
     reducer,
     compose(
-      middlewares,
+      middleware,
       Reactotron.createEnhancer(),
     )
   ) : createStore(
     reducer,
-    middlewares
+    middleware
   )
 
 export default Store;`
 
-const indexStoresSaga = `import { createStore, applyMiddleware, combineReducers } from 'redux';
+const indexStoresSaga = `import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
 import createSagaMiddleware from 'redux-saga';
-// import Reactotron from 'reactotron-react-native';
+
 import Reactotron from '../../debugging/ReactotronConfig';
 
 import reducer from './reducers';
@@ -1393,9 +1396,12 @@ const sagaMiddleware = createSagaMiddleware({ sagaMonitor });
 
 // mount it on the Store
 const Store = __DEV__ ?
-  Reactotron.createStore(
+  createStore(
     reducer,
-    applyMiddleware(sagaMiddleware)
+    compose(
+      applyMiddleware(sagaMiddleware),
+      Reactotron.createEnhancer()
+    )
   ) : createStore(
     reducer,
     applyMiddleware(sagaMiddleware)
@@ -1498,12 +1504,23 @@ var Switch = createReactClass({
       inactiveButtonPressedColor: '#FFFFFF',
       activeButtonColor: '#FFFFFF',
       activeButtonPressedColor: '#FFFFFF',
-      buttonShadow: {
+      buttonShadowOff: {
         elevation: 5,
         shadowColor: '#000',
-        shadowOpacity: 0.3,
+        shadowOpacity: 0.5,
+        shadowRadius: 2,
+        shadowOffset: { height: 3, width: 0 },
+      },
+      buttonShadowOn: {
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOpacity: 0.7,
         shadowRadius: 1,
-        shadowOffset: { height: 1, width: 0 },
+        shadowOffset: { height: 0.5, width: 0.5 },
+      },
+      backgroundShadow: {
+        shadowOpacity: 0.4,
+        shadowRadius: 1,
       },
       activeBackgroundColor: '#118303',
       inactiveBackgroundColor: '#FFFFFF',
@@ -1689,19 +1706,24 @@ var Switch = createReactClass({
     let panHandlers = this.props.enableSlideDragging ? this._panResponder.panHandlers : null
     let pressHandlers = !this.props.enableSlideDragging ? { onPress: () => this.toggle() } : null
 
+    let offsetPosition = this.state.state ? - 2 : 2;
+
     return (
       <View
         {...panHandlers}
         style={[{ padding: this.padding, position: 'relative' }, this.props.style]}>
         <View
-          style={{
+          style={[{
             backgroundColor: this.state.state ? this.props.activeBackgroundColor : this.props.inactiveBackgroundColor,
             height: this.props.switchHeight,
             width: this.props.switchWidth,
             borderRadius: this.props.switchHeight / 2,
             borderColor: this.state.state ? "#b2b2b2" : '#b2b2b2',
-            borderWidth: this.state.state ? 0 : 1
-          }} />
+            borderWidth: this.state.state ? 0 : 1,
+          },
+          { shadowColor: this.state.state ? this.props.activeBackgroundColor : this.props.inactiveBackgroundColor },
+          { shadowOffset: this.state.state ? { height: 0, width: 0.2 } : { height: 1, width: -0.2 } },
+          this.props.backgroundShadow]} />
         <TouchableHighlight {...pressHandlers} underlayColor='transparent' activeOpacity={1} style={{
           height: Math.max(this.props.buttonRadius * 2 + doublePadding, this.props.switchHeight + doublePadding),
           width: this.props.switchWidth + doublePadding,
@@ -1722,10 +1744,10 @@ var Switch = createReactClass({
             flexDirection: 'row',
             position: 'absolute',
             top: halfPadding + this.props.switchHeight / 2 - this.props.buttonRadius,
-            left: this.props.switchHeight / 2 > this.props.buttonRadius ? halfPadding : halfPadding + this.props.switchHeight / 2 - this.props.buttonRadius,
+            left: this.props.switchHeight / 2 > this.props.buttonRadius ? halfPadding + offsetPosition : halfPadding + this.props.switchHeight / 2 - this.props.buttonRadius + offsetPosition,
             transform: [{ translateX: this.state.position }]
           },
-          this.props.buttonShadow]}
+          this.state.state ? this.props.buttonShadowOn : this.props.buttonShadowOff]}
           >
             {this.props.buttonContent}
           </Animated.View>
@@ -2120,7 +2142,7 @@ function getTimingAnimations(animatedValKeys, toValue, duration = 1000) {
 }
 
 
-const fade = (props) => {
+const fadeOutUp = (props) => {
   const { position, scene } = props
 
   const index = scene.index
@@ -2139,6 +2161,20 @@ const fade = (props) => {
   }
 }
 
+const fadeInUp = (props) => {
+  const { position, layout, scene } = props;
+
+  const thisSceneIndex = scene.index;
+  const height = layout.initHeight
+
+  const translateY = position.interpolate({
+    inputRange: [thisSceneIndex - 1, thisSceneIndex, thisSceneIndex + 1],
+    outputRange: [height, 0, 0]
+  })
+
+  return { transform: [{ translateY }] };
+}
+
 const slideFromRight = (props) => {
   const { position, layout, scene } = props;
 
@@ -2149,16 +2185,15 @@ const slideFromRight = (props) => {
     outputRange: [width, 0, 0]
   })
 
-  return {
-    transform: [{ translateX }]
-  }
+  return { transform: [{ translateX }] };
 }
 
 
 export {
   getSpringAnimations,
   getTimingAnimations,
-  fade,
+  fadeOutUp,
+  fadeInUp,
   slideFromRight,
 }`
 
@@ -2228,6 +2263,104 @@ import {name as appName} from './app.json';
 AppRegistry.registerComponent(appName, () => App);
 `
 
+const exportOptionsDevelopment = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>method</key>
+	<string>development</string>
+	<key>compileBitcode</key>
+	<false/>
+	<key>stripSwiftSymbols</key>
+	<true/>
+</dict>
+</plist>
+`
+
+const buildScript = (appName) => `#!/usr/bin/env bash
+npm run build-ios
+cd ios
+xcrun xcodebuild -workspace test.xcworkspace -scheme test -configuration Release archive -archivePath build/test.xcarchive
+xcrun xcodebuild -exportArchive -exportPath build/testIPA -archivePath build/test.xcarchive/ -exportOptionsPlist exportOptionsDevelopment.plist
+
+cd ..
+if [ "$1" = "-r" ] || [ "$1" = "-release" ] 
+then 
+  npm run build-android && npm run build-release-android && open android/app/build/outputs/apk
+else
+  react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res
+  cd android/
+  ./gradlew assembleDebug
+  open app/build/outputs/apk/
+  cd ..
+fi`
+
+const podFile = ({
+  appName,
+  isFirebase,
+  isMaps,
+} = { isFirebase: false, isMaps: false, }) => `# Uncomment the next line to define a global platform for your project
+platform :ios, '10.0'
+
+target '${appName}' do
+  # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
+  # use_frameworks!
+  ${isMaps ? `rn_maps_path = '../node_modules/react-native-maps'` : ``}
+
+  pod 'React', :path => '../node_modules/react-native', :subspecs => [
+    'Core',
+    'CxxBridge',
+    'DevSupport',
+    'RCTActionSheet',
+    'RCTAnimation',
+    'RCTGeolocation',
+    'RCTImage',
+    'RCTLinkingIOS',
+    'RCTNetwork',
+    'RCTSettings',
+    'RCTText',
+    'RCTVibration',
+    'RCTWebSocket',
+  ]
+  pod 'yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
+  pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
+  pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
+  pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
+  ${isFirebase ? `pod 'Firebase/Core', '~> 6.3.0'` : ``}
+  ${isFirebase ? `pod 'Firebase/Messaging'` : ``}
+  ${isFirebase ? `pod 'Fabric'` : ``}
+  ${isFirebase ? `pod 'Crashlytics'` : ``}
+
+  ${isMaps ? `
+  pod 'react-native-maps', path: rn_maps_path
+  # pod 'react-native-google-maps', path: rn_maps_path  # Uncomment this line if you want to support GoogleMaps on iOS
+  pod 'GoogleMaps'  # Uncomment this line if you want to support GoogleMaps on iOS
+  pod 'Google-Maps-iOS-Utils' # Uncomment this line if you want to support GoogleMaps on iOS`: ``}
+  
+
+end
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+  ${isMaps ? `
+    if target.name == 'react-native-google-maps'
+      target.build_configurations.each do |config|
+        config.build_settings['CLANG_ENABLE_MODULES'] = 'No'
+      end
+    end`: ``}
+    if target.name == "React"
+      target.remove_from_project
+    end
+    if target.name == 'yoga'
+      target.remove_from_project
+      target.build_configurations.each do |config|
+          config.build_settings['GCC_TREAT_WARNINGS_AS_ERRORS'] = 'NO'
+          config.build_settings['GCC_WARN_64_TO_32_BIT_CONVERSION'] = 'NO'
+      end
+    end
+  end
+end
+`
+
 module.exports = {
   indexIcons,
   indexImages,
@@ -2268,5 +2401,8 @@ module.exports = {
   ReactotronConfigSaga,
   ReactotronConfigThunk,
   appRoot,
-  indexApp
+  indexApp,
+  exportOptionsDevelopment,
+  buildScript,
+  podFile,
 }

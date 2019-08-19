@@ -3,3 +3,4 @@
 .travis.yml
 package-lock.json
 test/
+bin/gradle.js
