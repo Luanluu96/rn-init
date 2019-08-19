@@ -58,9 +58,8 @@ const variantOutputsAll = (projectName) => `
 
 const dependenciesGlobal = {
   "googleService": `implementation "com.google.android.gms:play-services-base:16.1.0"`,
-  "firebase-core": `implementation "com.google.firebase:firebase-core:16.0.8"`,
-  "firebase-messaging": `implementation "com.google.firebase:firebase-messaging:17.3.4"`,
-  "firebase-core": `implementation 'me.leolin:ShortcutBadger:1.1.+@aar'`,
+  "firebase-core": `implementation 'me.leolin:ShortcutBadger:1.1.+@aar'\nimplementation "com.google.firebase:firebase-core:16.0.9"`,
+  "firebase-messaging": `implementation "com.google.firebase:firebase-messaging:18.0.0"`,
   "play-services-maps": `implementation 'com.google.android.gms:play-services-maps:10.0.1'`,
   "fabric": `implementation 'com.crashlytics.sdk.android:crashlytics:2.10.0'`,
   "fabric": `implementation 'com.google.firebase:firebase-crash:16.2.1'`,

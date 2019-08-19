@@ -1363,19 +1363,19 @@ import Reactotron from "../../debugging/ReactotronConfig";
 
 import reducer from './reducers';
 
-const middlewares = applyMiddleware(thunk);
+const middleware = applyMiddleware(thunk);
 
 // mount it on the Store
 const Store = __DEV__ ?
   createStore(
     reducer,
     compose(
-      middlewares,
+      middleware,
       Reactotron.createEnhancer(),
     )
   ) : createStore(
     reducer,
-    middlewares
+    middleware
   )
 
 export default Store;`
@@ -2323,12 +2323,14 @@ target '${appName}' do
   pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
-  ${isFirebase ? `pod 'Firebase/Core', '~> 5.0.0'` : ``}
-  ${isFirebase ? `pod 'Firebase/Messaging', '~> 5.0.0'` : ``}
+  ${isFirebase ? `pod 'Firebase/Core', '~> 6.3.0'` : ``}
+  ${isFirebase ? `pod 'Firebase/Messaging'` : ``}
+  ${isFirebase ? `pod 'Fabric'` : ``}
+  ${isFirebase ? `pod 'Crashlytics'` : ``}
 
   ${isMaps ? `
   pod 'react-native-maps', path: rn_maps_path
-  pod 'react-native-google-maps', path: rn_maps_path  # Uncomment this line if you want to support GoogleMaps on iOS
+  # pod 'react-native-google-maps', path: rn_maps_path  # Uncomment this line if you want to support GoogleMaps on iOS
   pod 'GoogleMaps'  # Uncomment this line if you want to support GoogleMaps on iOS
   pod 'Google-Maps-iOS-Utils' # Uncomment this line if you want to support GoogleMaps on iOS`: ``}
   

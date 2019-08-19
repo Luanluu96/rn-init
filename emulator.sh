@@ -1,0 +1,1 @@
+cd ~/Library/Android/sdk/tools && ./emulator -avd Pixel_2_API_26

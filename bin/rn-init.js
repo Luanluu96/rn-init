@@ -61,8 +61,8 @@ let indexStores = "";
 let podStringFile = "";
 const name = process.argv.slice(-1)[0];
 
-let installLibCommandLine = `npm install --save react-native-webview @react-native-community/async-storage @react-native-community/netinfo @react-native-community/viewpager abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux ramda `
-let installLibDevCommandLine = `npm install --save-dev jetifier reactotron-redux@^2.1.3 reactotron-react-native@^2.2.0 `;
+let installLibCommandLine = `npm install --save react-native-webview @react-native-community/async-storage @react-native-community/netinfo @react-native-community/viewpager abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux ramda ramdasauce `
+let installLibDevCommandLine = `npm install --save-dev jetifier reactotron-redux@3.1.1 reactotron-react-native@3.6.4 `;
 
 async function main() {
   if (fs.existsSync(sh.pwd().stdout + "/" + name)) {
@@ -166,13 +166,13 @@ async function main() {
         "react-native-splash-screen",
         "react-native-maps",
         "react-native-permissions",
-        "lottie-react-native",
+        "lottie-react-native@2.6.1",
         "react-native-scrollable-tab-view",
         "react-native-tab-view",
         "react-native-gifted-chat",
         "react-native-snap-carousel",
         "react-native-image-picker",
-        "react-native-image-crop-picker",
+        "react-native-image-crop-picker@0.24.1",
         "react-native-typography",
         "react-native-offline",
         "react-native-android-open-settings",
@@ -200,41 +200,44 @@ async function main() {
               break;
           }
         }
+        if (lib === 'lottie-react-native') {
+          installLibCommandLine += 'lottie-ios@3.0.3' + ` `
+        }
         installLibCommandLine += lib + ` `
       });
       podStringFile = podFile({ appName: name, ...podFileOption });
     });
 
   updatePackageJson(sh.pwd().stdout);
-  console.log(installLibCommandLine)
-  console.log(colorsTerminal.green('Installing => linking libraries...'));
+  console.log(colorsTerminal.green('=> Installing libraries...'));
   sh.exec(installLibDevCommandLine);
   sh.exec(installLibCommandLine);
 
   // write pod file
   if (os.platform == 'darwin' && podStringFile !== '') {
-    console.log(colorsTerminal.green('Init => CocoaPods...'));
+    console.log(colorsTerminal.green('=> CocoaPods...'));
     try {
       fs.writeFileSync(sh.pwd().stdout + "/" + ('ios/Podfile'), podStringFile);
     } catch (error) {
       console.warn(error)
     }
   }
+  console.log(colorsTerminal.green('=> linking libraries...'));
   sh.exec('react-native link');
 
   // write pod file
   if (os.platform == 'darwin' && podStringFile !== '') {
-    console.log(colorsTerminal.green('Installing => CocoaPods...'));
+    console.log(colorsTerminal.green('=> CocoaPods...'));
     sh.exec('cd ./ios && pod install');
   }
-  console.log(colorsTerminal.green('Installing => Generate android gradle...'), sh.pwd().stdout);
+  console.log(colorsTerminal.green('=> Generate android gradle...'));
   generateBuildGradle(name, sh.pwd().stdout, installLibCommandLine);
   generateBuildGradleForApp(name, sh.pwd().stdout, installLibCommandLine);
   generateGradleProperties(sh.pwd().stdout);
 
-  console.log(colorsTerminal.green('Androidx => jetify...'));
+  console.log(colorsTerminal.green('=> jetify...'));
   sh.exec('npx jetify');
-  console.log(colorsTerminal.green('Generate => Project Structure...'));
+  console.log(colorsTerminal.green('=> Project Structure...'));
   const listFolders = [
     { label: 'Root src', path: `${sh.pwd().stdout}/src`, options: { recursive: true }, isCreate: true },
 
@@ -283,7 +286,7 @@ async function main() {
     }
   });
 
-  console.log(colorsTerminal.green('Generate => Source code...'));
+  console.log(colorsTerminal.green('=> Source code...'));
   console.log('[Source]', "assets");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/assets/icons/index.js'), indexIcons);
