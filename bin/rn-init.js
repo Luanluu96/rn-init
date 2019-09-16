@@ -58,7 +58,7 @@ const { rmdirSync } = require('./functions');
 
 let ReactotronConfig = "";
 let indexStores = "";
-let podStringFile = "";
+let podStringFile = [];
 const name = process.argv.slice(-1)[0];
 
 let installLibCommandLine = `npm install --save react-native-webview @react-native-community/async-storage @react-native-community/netinfo @react-native-community/viewpager abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux ramda ramdasauce `
@@ -81,7 +81,7 @@ async function main() {
       });
   }
 
-  sh.exec(`react-native init ${name} --version="react-native@0.59.5"`);
+  sh.exec(`react-native init ${name}`);
   sh.cd(name);
   sh.exec('clear');
   sh.mkdir(sh.pwd().stdout + '/android/app/src/main/assets/')
@@ -111,9 +111,6 @@ async function main() {
   }
 
   console.log(colorsTerminal.green('======================== Initalizing... ======================== '));
-  if (os.platform() === 'darwin') {
-    podStringFile = podFile({ appName: name });
-  }
   //edit root package.json
   await inquirer
     .prompt({
@@ -156,13 +153,13 @@ async function main() {
         "react-native-splash-screen",
         "react-native-maps",
         "react-native-permissions",
-        "lottie-react-native@2.6.1",
+        "lottie-react-native",
         "react-native-scrollable-tab-view",
         "react-native-tab-view",
         "react-native-gifted-chat",
         "react-native-snap-carousel",
         "react-native-image-picker",
-        "react-native-image-crop-picker@0.24.1",
+        "react-native-image-crop-picker",
         "react-native-typography",
         "react-native-offline",
         "react-native-android-open-settings",
@@ -191,11 +188,11 @@ async function main() {
           }
         }
         if (lib === 'lottie-react-native') {
-          installLibCommandLine += 'lottie-ios@3.0.3' + ` `
+          installLibCommandLine += 'lottie-ios' + ` `
         }
         installLibCommandLine += lib + ` `
       });
-      podStringFile = podFile({ appName: name, ...podFileOption });
+      podStringFile = podFile(podFileOption);
     });
 
   updatePackageJson(sh.pwd().stdout);

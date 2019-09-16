@@ -1977,7 +1977,7 @@ const H = ({
   children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle, textStyle, color ? { color } : null])}>{children}</Text>
     </View>
   );
 
@@ -1985,7 +1985,7 @@ const H1 = ({
   children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle1, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle1, textStyle, color ? { color } : null])}>{children}</Text>
     </View>
   );
 
@@ -1993,7 +1993,7 @@ const H2 = ({
   children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle2, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle2, textStyle, color ? { color } : null])}>{children}</Text>
     </View>
   );
 
@@ -2001,7 +2001,7 @@ const H3 = ({
   children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle3, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle3, textStyle, color ? { color } : null])}>{children}</Text>
     </View>
   );
 
@@ -2009,7 +2009,7 @@ const H4 = ({
   children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle4, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle4, textStyle, color ? { color } : null])}>{children}</Text>
     </View>
   );
 
@@ -2017,7 +2017,7 @@ const H5 = ({
   children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle5, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle5, textStyle, color ? { color } : null])}>{children}</Text>
     </View>
   );
 
@@ -2025,7 +2025,7 @@ const H6 = ({
   children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle6, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle6, textStyle, color ? { color } : null])}>{children}</Text>
     </View>
   );
 
@@ -2296,70 +2296,22 @@ else
 fi`
 
 const podFile = ({
-  appName,
   isFirebase,
   isMaps,
-} = { isFirebase: false, isMaps: false, }) => `# Uncomment the next line to define a global platform for your project
-platform :ios, '10.0'
-
-target '${appName}' do
-  # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
-  # use_frameworks!
-  ${isMaps ? `rn_maps_path = '../node_modules/react-native-maps'` : ``}
-
-  pod 'React', :path => '../node_modules/react-native', :subspecs => [
-    'Core',
-    'CxxBridge',
-    'DevSupport',
-    'RCTActionSheet',
-    'RCTAnimation',
-    'RCTGeolocation',
-    'RCTImage',
-    'RCTLinkingIOS',
-    'RCTNetwork',
-    'RCTSettings',
-    'RCTText',
-    'RCTVibration',
-    'RCTWebSocket',
-  ]
-  pod 'yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
-  pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
-  pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
-  pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
-  ${isFirebase ? `pod 'Firebase/Core', '~> 6.3.0'` : ``}
-  ${isFirebase ? `pod 'Firebase/Messaging'` : ``}
-  ${isFirebase ? `pod 'Fabric'` : ``}
-  ${isFirebase ? `pod 'Crashlytics'` : ``}
-
-  ${isMaps ? `
-  pod 'react-native-maps', path: rn_maps_path
-  # pod 'react-native-google-maps', path: rn_maps_path  # Uncomment this line if you want to support GoogleMaps on iOS
-  pod 'GoogleMaps'  # Uncomment this line if you want to support GoogleMaps on iOS
-  pod 'Google-Maps-iOS-Utils' # Uncomment this line if you want to support GoogleMaps on iOS`: ``}
-  
-
-end
-post_install do |installer|
-  installer.pods_project.targets.each do |target|
-  ${isMaps ? `
-    if target.name == 'react-native-google-maps'
-      target.build_configurations.each do |config|
-        config.build_settings['CLANG_ENABLE_MODULES'] = 'No'
-      end
-    end`: ``}
-    if target.name == "React"
-      target.remove_from_project
-    end
-    if target.name == 'yoga'
-      target.remove_from_project
-      target.build_configurations.each do |config|
-          config.build_settings['GCC_TREAT_WARNINGS_AS_ERRORS'] = 'NO'
-          config.build_settings['GCC_WARN_64_TO_32_BIT_CONVERSION'] = 'NO'
-      end
-    end
-  end
-end
-`
+} = { isFirebase: false, isMaps: false, }) => {
+  let listPods = [];
+  if (isMaps) {
+    listPods.push(`pod 'react-native-maps', path: '../node_modules/react-native-maps'`);
+    listPods.push(`pod 'GoogleMaps'  # Uncomment this line if you want to support GoogleMaps on iOS`);
+    listPods.push(`pod 'Google-Maps-iOS-Utils' # Uncomment this line if you want to support GoogleMaps on iOS`);
+  }
+  if (isFirebase) {
+    listPods.push(`pod 'Firebase/Core', '~> 6.3.0'`);
+    listPods.push(`pod 'Firebase/Messaging`);
+    listPods.push(`pod 'Fabric'`);
+    listPods.push(`pod 'Crashlytics'`);
+  }
+}
 
 module.exports = {
   indexIcons,
