@@ -4,3 +4,4 @@
 package-lock.json
 test/
 google-services.json
+./bin/test.html

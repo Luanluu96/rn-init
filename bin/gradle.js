@@ -189,19 +189,19 @@ class BuildGradle {
 }
 
 async function generateBuildGradleForApp(appName, pathProject, libsReactNativeExtends) {
-  console.log(colorsTerminal.green('/android/app/build.gradle'));
+  console.log('/android/app/build.gradle');
   let data = fs.readFileSync(`${pathProject}/android/app/build.gradle`, { encoding: `utf-8`, flag: 'r' });
   fs.writeFileSync(pathProject + '/android/app/build.gradle', new BuildGradleForApp(appName, data, libsReactNativeExtends).generateBuildGradleRoot());
 }
 
 async function generateBuildGradle(appName, pathProject, libsReactNativeExtends) {
-  console.log(colorsTerminal.green('/android/build.gradle'));
+  console.log('/android/build.gradle');
   let data = fs.readFileSync(`${pathProject}/android/build.gradle`, { encoding: `utf-8`, flag: 'r' });
   fs.writeFileSync(pathProject + '/android/build.gradle', new BuildGradle(appName, data, libsReactNativeExtends).generateBuildGradleRoot());
 }
 
 async function generateGradleProperties(pathProject) {
-  console.log(colorsTerminal.green('/android/gradle.properties'));
+  console.log('/android/gradle.properties');
   fs.appendFileSync(pathProject + '/android/gradle.properties', 'android.useAndroidX=true\nandroid.enableJetifier=true');
 }
 

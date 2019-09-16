@@ -217,7 +217,6 @@ async function main() {
 
   // write pod file
   if (os.platform() === 'darwin') {
-    console.log(colorsTerminal.green('=> CocoaPods...'));
     sh.exec('cd ./ios && pod install');
   }
   console.log(colorsTerminal.green('=> Generate android gradle...'));
@@ -267,7 +266,7 @@ async function main() {
 
   listFolders.forEach(element => {
     if (element.isCreate) {
-      console.log('[Project Structure]', element.label);
+      console.log(colorsTerminal.green('✔'), '[Project Structure]', element.label);
       try {
         fs.mkdirSync(element.path, element.options);
       } catch (err) {
@@ -277,7 +276,7 @@ async function main() {
   });
 
   console.log(colorsTerminal.green('=> Source code...'));
-  console.log('[Source]', "assets");
+  console.log(colorsTerminal.green('✔'), '[Source]', "assets");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/assets/icons/index.js'), indexIcons);
   } catch (error) {
@@ -294,14 +293,14 @@ async function main() {
     console.warn(error)
   }
 
-  console.log('[Source]', "api");
+  console.log(colorsTerminal.green('✔'), '[Source]', "api");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/api/index.js'), '');
   } catch (error) {
     console.warn(error)
   }
 
-  console.log('[Source]', "common");
+  console.log(colorsTerminal.green('✔'), '[Source]', "common");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Button/index.js'), buttonComponents);
   } catch (error) {
@@ -338,7 +337,7 @@ async function main() {
     console.warn(error)
   }
 
-  console.log('[Source]', "containers");
+  console.log(colorsTerminal.green('✔'), '[Source]', "containers");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/containers/HomePage/index.js'), indexHomePage);
   } catch (error) {
@@ -355,7 +354,7 @@ async function main() {
     console.warn(error)
   }
 
-  console.log('[Source]', "configs");
+  console.log(colorsTerminal.green('✔'), '[Source]', "configs");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/configs/Animations.js'), configAnimations);
   } catch (error) {
@@ -367,7 +366,7 @@ async function main() {
     console.warn(error)
   }
 
-  console.log('[Source]', "stores");
+  console.log(colorsTerminal.green('✔'), '[Source]', "stores");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/actions/network.js'), networkAction);
   } catch (error) {
@@ -408,14 +407,14 @@ async function main() {
     console.warn(error)
   }
 
-  console.log('[Source]', "routers");
+  console.log(colorsTerminal.green('✔'), '[Source]', "routers");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/routers/index.js'), indexRouter);
   } catch (error) {
     console.warn(error)
   }
 
-  console.log('[Source]', "utils");
+  console.log(colorsTerminal.green('✔'), '[Source]', "utils");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/index.js'), indexUtils(installLibCommandLine.includes('react-native-vector-icons')));
   } catch (error) {
@@ -486,42 +485,42 @@ async function main() {
     console.warn(error)
   }
 
-  console.log('[Source]', "debugging");
+  console.log(colorsTerminal.green('✔'), '[Source]', "debugging");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('debugging/ReactotronConfig.js'), ReactotronConfig);
   } catch (error) {
     console.warn(error)
   }
 
-  console.log('[Source]', "App");
+  console.log(colorsTerminal.green('✔'), '[Source]', "App");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/App.js'), appRoot());
   } catch (error) {
     console.warn(error)
   }
 
-  console.log('[Source]', "delete");
+  console.log(colorsTerminal.green('✔'), '[Source]', "delete");
   try {
     fs.unlinkSync(sh.pwd().stdout + "/" + ('App.js'))
   } catch (err) {
     console.warn(err)
   }
 
-  console.log('[Source]', "exportOptionsDevelopment.plist");
+  console.log(colorsTerminal.green('✔'), '[Source]', "exportOptionsDevelopment.plist");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('ios/exportOptionsDevelopment.plist'), exportOptionsDevelopment);
   } catch (error) {
     console.warn(error)
   }
 
-  console.log('[Source]', 'build.sh');
+  console.log(colorsTerminal.green('✔'), '[Source]', 'build.sh');
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('build.sh'), buildScript(name));
   } catch (error) {
     console.warn(error)
   }
 
-  console.log('[Source]', "Root index");
+  console.log(colorsTerminal.green('✔'), '[Source]', "Root index");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('index.js'), indexApp);
   } catch (error) {
