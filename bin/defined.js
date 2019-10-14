@@ -1107,9 +1107,7 @@ export {
 
 const networkTracker = `import React, { Component } from "react";
 import { updateInternetConnectionState } from '../stores/actions/network';
-import {
-  NetInfo
-} from "react-native";
+import NetInfo from "@react-native-community/netinfo";
 
 export default class NetworkTracker {
   constructor(store) {
@@ -1117,22 +1115,24 @@ export default class NetworkTracker {
   }
 
   startTracking() {
-    NetInfo.getConnectionInfo().then((connectionInfo) => {
-      console.log('Initial, type: ' + connectionInfo.type + ', effectiveType: ' + connectionInfo.effectiveType);
+    NetInfo.fetch().then((state) => {
+      console.log("Connection type", state.type);
     });
 
-    NetInfo.isConnected.addEventListener(
+    const unsubscribe = NetInfo.addEventListener(state => {
+      console.log("Connection type", state.type);
+      this._handleConnectivityChange(state.isConnected)
+    });
+    NetInfo.addEventListener(
       'connectionChange',
-      this._handleConnectivityChange
     );
   }
 
   stopTracking() {
-    NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
+    unsubscribe();
   }
 
   _handleConnectivityChange = isConnected => {
-    console.log("_handleConnectivityChange isConnected: " + isConnected)
     this.reduxStore.dispatch(updateInternetConnectionState(isConnected))
   };
 }
@@ -1179,47 +1179,48 @@ export {
   HomePage,
 }`
 
-const indexRouter = `import { NavigationActions, createStackNavigator, createAppContainer } from 'react-navigation';
+const indexRouter = `import { createAppContainer } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation-stack';
 import { Animated, Easing } from 'react-native';
 import { SCREEN_NAME } from '../utils/constants';
 import { Animations } from '../configs';
 
-import { 
+import {
 	HomePage
 } from '../containers';
 
 const Router = createStackNavigator({
 	HomePage: { screen: HomePage },
 }, {
-		initialRouteName: SCREEN_NAME.HOME_PAGE,
-		swipeEnabled: true,
-		animationEnabled: false,
-		headerMode: 'none',
-		navigationOptions: {
-			header: null
+	initialRouteName: SCREEN_NAME.HOME_PAGE,
+	swipeEnabled: true,
+	animationEnabled: false,
+	headerMode: 'none',
+	navigationOptions: {
+		header: null
+	},
+	lazy: true,
+	cardStyle: {
+		backgroundColor: '#FFF',
+		opacity: 1
+	},
+	transitionConfig: () => ({
+		transitionSpec: {
+			duration: 300,
+			easing: Easing.out(Easing.poly(4)),
+			timing: Animated.timing,
+			useNativeDriver: true,
 		},
-		lazy: true,
-		cardStyle: {
-			backgroundColor: '#FFF',
-			opacity: 1
+		screenInterpolator: (sceneProps) => {
+			const { scene } = sceneProps;
+			const thisSceneIndex = scene.index;
+			return Animations.slideFromRight(sceneProps)
 		},
-		transitionConfig: () => ({
-			transitionSpec: {
-        duration: 300,
-				easing: Easing.out(Easing.poly(4)),
-				timing: Animated.timing,
-				useNativeDriver: true,
-			},
-			screenInterpolator: (sceneProps) => {
-				const { scene } = sceneProps;
-				const thisSceneIndex = scene.index;
-				return Animations.slideFromRight(sceneProps)
-			},
-			containerStyle: {
-				backgroundColor: 'transparent',
-			},
-		})
-	});
+		containerStyle: {
+			backgroundColor: 'transparent',
+		},
+	})
+});
 export default createAppContainer(Router);`
 
 const indexUtils = (vectorIcon) => `import STYLES from './styles';
@@ -2278,6 +2279,36 @@ const exportOptionsDevelopment = `<?xml version="1.0" encoding="UTF-8"?>
 `
 
 const buildScript = (appName) => `#!/usr/bin/env bash
+
+if [ ! -d "/Users/$(whoami)/Library/Android/sdk/ndk-bundle" ]; then
+	echo "SETUP ANDROID NDK"
+	cd "/Users/$(whoami)/Library/Android/sdk" && {
+		curl -O https://dl.google.com/android/repository/android-ndk-r20-darwin-x86_64.zip
+		unzip 'android-ndk-r20-darwin-x86_64.zip'
+		mv android-ndk-r20 ndk-bundle
+		rm -rf 'android-ndk-r20-darwin-x86_64.zip'
+		cd -
+	}
+fi
+
+echo "NODE_MODULES"
+if [ ! -d "node_modules" ] || [ "$1" = "-stg" ] || [ "$1" = "-staging" ] || [ "$1" = "-prod" ] || [ "$1" = "-product" ] || [ "$1" = "-production" ]; then
+  npm install
+fi
+
+echo "ANDROID"
+if grep -R "sdk.dir = /Users/$(whoami)/Library/Android/sdk" android/local.properties
+then
+	echo ""
+else
+	{
+		echo "ndk.dir = /Users/$(whoami)/Library/Android/sdk/ndk-bundle"
+		echo "sdk.dir = /Users/$(whoami)/Library/Android/sdk"
+	} >> android/local.properties
+fi
+
+mkdir android/app/src/main/assets
+
 npm run build-ios
 cd ios
 xcrun xcodebuild -workspace test.xcworkspace -scheme test -configuration Release archive -archivePath build/test.xcarchive
@@ -2296,21 +2327,22 @@ else
 fi`
 
 const podFile = ({
+  isLottie,
   isFirebase,
   isMaps,
 } = { isFirebase: false, isMaps: false, }) => {
   let listPods = [];
   if (isMaps) {
-    listPods.push(`pod 'react-native-maps', path: '../node_modules/react-native-maps'`);
     listPods.push(`pod 'GoogleMaps'  # Uncomment this line if you want to support GoogleMaps on iOS`);
-    listPods.push(`pod 'Google-Maps-iOS-Utils' # Uncomment this line if you want to support GoogleMaps on iOS`);
+    listPods.push(`pod 'Google-Maps-iOS-Utils' # Uncomment this line if you want to support GoogleMaps on iOS\n`);
   }
   if (isFirebase) {
     listPods.push(`pod 'Firebase/Core', '~> 6.3.0'`);
-    listPods.push(`pod 'Firebase/Messaging`);
+    listPods.push(`pod 'Firebase/Messaging'`);
     listPods.push(`pod 'Fabric'`);
-    listPods.push(`pod 'Crashlytics'`);
+    listPods.push(`pod 'Crashlytics'\n`);
   }
+  return listPods;
 }
 
 module.exports = {

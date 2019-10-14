@@ -71,6 +71,8 @@ const containerDependenciesClassPath = {
 }
 const containerExt = {
   'play-services-maps': `
+        supportLibVersion = "28.0.0"
+        supportVersion = "28.0.0"
         googlePlayServicesLocationVersion = "16.0.0"
         googlePlayServicesVersion = "16.0.0"
         googlePlayServicesVisionVersion = "17.0.2"

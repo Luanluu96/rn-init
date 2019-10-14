@@ -8,6 +8,7 @@ var os = require('os');
 
 const { updatePackageJson } = require('./package');
 const { generateBuildGradle, generateGradleProperties, generateBuildGradleForApp } = require('./gradle');
+const { generatePodFile } = require('./podfile');
 const {
   indexIcons,
   indexImages,
@@ -58,10 +59,10 @@ const { rmdirSync } = require('./functions');
 
 let ReactotronConfig = "";
 let indexStores = "";
-let podStringFile = [];
+let listPods = [];
 const name = process.argv.slice(-1)[0];
 
-let installLibCommandLine = `npm install --save react-native-webview @react-native-community/async-storage @react-native-community/netinfo @react-native-community/viewpager abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux ramda ramdasauce `
+let installLibCommandLine = `npm install --save react-native-webview @react-native-community/async-storage @react-native-community/netinfo @react-native-community/viewpager abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-navigation-stack react-navigation-drawer react-navigation-tabs react-redux redux ramda ramdasauce `
 let installLibDevCommandLine = `npm install --save-dev jetifier reactotron-redux@3.1.1 reactotron-react-native@3.6.4 `;
 
 async function main() {
@@ -185,14 +186,14 @@ async function main() {
               podFileOption['isMaps'] = true;
               sh.exec('google-chrome https://console.firebase.google.com');
               break;
+            case 'lottie-react-native':
+              installLibCommandLine += 'lottie-ios@3.1.3' + ` `
+              break;
           }
-        }
-        if (lib === 'lottie-react-native') {
-          installLibCommandLine += 'lottie-ios' + ` `
         }
         installLibCommandLine += lib + ` `
       });
-      podStringFile = podFile(podFileOption);
+      listPods = podFile(podFileOption);
     });
 
   updatePackageJson(sh.pwd().stdout);
@@ -204,18 +205,16 @@ async function main() {
   if (os.platform() === 'darwin') {
     console.log(colorsTerminal.green('=> CocoaPods...'));
     try {
-      fs.writeFileSync(sh.pwd().stdout + "/" + ('ios/Podfile'), podStringFile);
+      generatePodFile(sh.pwd().stdout, listPods);
     } catch (error) {
       console.warn(error)
     }
   }
-  console.log(colorsTerminal.green('=> linking libraries...'));
-  sh.exec('react-native link');
-
   // write pod file
   if (os.platform() === 'darwin') {
     sh.exec('cd ./ios && pod install');
   }
+  
   console.log(colorsTerminal.green('=> Generate android gradle...'));
   generateBuildGradle(name, sh.pwd().stdout, installLibCommandLine);
   generateBuildGradleForApp(name, sh.pwd().stdout, installLibCommandLine);
