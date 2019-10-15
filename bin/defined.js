@@ -1107,9 +1107,7 @@ export {
 
 const networkTracker = `import React, { Component } from "react";
 import { updateInternetConnectionState } from '../stores/actions/network';
-import {
-  NetInfo
-} from "react-native";
+import NetInfo from "@react-native-community/netinfo";
 
 export default class NetworkTracker {
   constructor(store) {
@@ -1117,22 +1115,24 @@ export default class NetworkTracker {
   }
 
   startTracking() {
-    NetInfo.getConnectionInfo().then((connectionInfo) => {
-      console.log('Initial, type: ' + connectionInfo.type + ', effectiveType: ' + connectionInfo.effectiveType);
+    NetInfo.fetch().then((state) => {
+      console.log("Connection type", state.type);
     });
 
-    NetInfo.isConnected.addEventListener(
+    const unsubscribe = NetInfo.addEventListener(state => {
+      console.log("Connection type", state.type);
+      this._handleConnectivityChange(state.isConnected)
+    });
+    NetInfo.addEventListener(
       'connectionChange',
-      this._handleConnectivityChange
     );
   }
 
   stopTracking() {
-    NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
+    unsubscribe();
   }
 
   _handleConnectivityChange = isConnected => {
-    console.log("_handleConnectivityChange isConnected: " + isConnected)
     this.reduxStore.dispatch(updateInternetConnectionState(isConnected))
   };
 }
@@ -1179,47 +1179,48 @@ export {
   HomePage,
 }`
 
-const indexRouter = `import { NavigationActions, createStackNavigator, createAppContainer } from 'react-navigation';
+const indexRouter = `import { createAppContainer } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation-stack';
 import { Animated, Easing } from 'react-native';
 import { SCREEN_NAME } from '../utils/constants';
 import { Animations } from '../configs';
 
-import { 
+import {
 	HomePage
 } from '../containers';
 
 const Router = createStackNavigator({
 	HomePage: { screen: HomePage },
 }, {
-		initialRouteName: SCREEN_NAME.HOME_PAGE,
-		swipeEnabled: true,
-		animationEnabled: false,
-		headerMode: 'none',
-		navigationOptions: {
-			header: null
+	initialRouteName: SCREEN_NAME.HOME_PAGE,
+	swipeEnabled: true,
+	animationEnabled: false,
+	headerMode: 'none',
+	navigationOptions: {
+		header: null
+	},
+	lazy: true,
+	cardStyle: {
+		backgroundColor: '#FFF',
+		opacity: 1
+	},
+	transitionConfig: () => ({
+		transitionSpec: {
+			duration: 300,
+			easing: Easing.out(Easing.poly(4)),
+			timing: Animated.timing,
+			useNativeDriver: true,
 		},
-		lazy: true,
-		cardStyle: {
-			backgroundColor: '#FFF',
-			opacity: 1
+		screenInterpolator: (sceneProps) => {
+			const { scene } = sceneProps;
+			const thisSceneIndex = scene.index;
+			return Animations.slideFromRight(sceneProps)
 		},
-		transitionConfig: () => ({
-			transitionSpec: {
-        duration: 300,
-				easing: Easing.out(Easing.poly(4)),
-				timing: Animated.timing,
-				useNativeDriver: true,
-			},
-			screenInterpolator: (sceneProps) => {
-				const { scene } = sceneProps;
-				const thisSceneIndex = scene.index;
-				return Animations.slideFromRight(sceneProps)
-			},
-			containerStyle: {
-				backgroundColor: 'transparent',
-			},
-		})
-	});
+		containerStyle: {
+			backgroundColor: 'transparent',
+		},
+	})
+});
 export default createAppContainer(Router);`
 
 const indexUtils = (vectorIcon) => `import STYLES from './styles';
@@ -1977,7 +1978,7 @@ const H = ({
   children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle, textStyle, color ? { color } : null])}>{children}</Text>
     </View>
   );
 
@@ -1985,7 +1986,7 @@ const H1 = ({
   children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle1, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle1, textStyle, color ? { color } : null])}>{children}</Text>
     </View>
   );
 
@@ -1993,7 +1994,7 @@ const H2 = ({
   children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle2, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle2, textStyle, color ? { color } : null])}>{children}</Text>
     </View>
   );
 
@@ -2001,7 +2002,7 @@ const H3 = ({
   children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle3, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle3, textStyle, color ? { color } : null])}>{children}</Text>
     </View>
   );
 
@@ -2009,7 +2010,7 @@ const H4 = ({
   children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle4, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle4, textStyle, color ? { color } : null])}>{children}</Text>
     </View>
   );
 
@@ -2017,7 +2018,7 @@ const H5 = ({
   children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle5, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle5, textStyle, color ? { color } : null])}>{children}</Text>
     </View>
   );
 
@@ -2025,7 +2026,7 @@ const H6 = ({
   children, style, textStyle, color, numberOfLines
 }) => (
     <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle6, textStyle, { color }])}>{children}</Text>
+      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle6, textStyle, color ? { color } : null])}>{children}</Text>
     </View>
   );
 
@@ -2278,6 +2279,36 @@ const exportOptionsDevelopment = `<?xml version="1.0" encoding="UTF-8"?>
 `
 
 const buildScript = (appName) => `#!/usr/bin/env bash
+
+if [ ! -d "/Users/$(whoami)/Library/Android/sdk/ndk-bundle" ]; then
+	echo "SETUP ANDROID NDK"
+	cd "/Users/$(whoami)/Library/Android/sdk" && {
+		curl -O https://dl.google.com/android/repository/android-ndk-r20-darwin-x86_64.zip
+		unzip 'android-ndk-r20-darwin-x86_64.zip'
+		mv android-ndk-r20 ndk-bundle
+		rm -rf 'android-ndk-r20-darwin-x86_64.zip'
+		cd -
+	}
+fi
+
+echo "NODE_MODULES"
+if [ ! -d "node_modules" ] || [ "$1" = "-stg" ] || [ "$1" = "-staging" ] || [ "$1" = "-prod" ] || [ "$1" = "-product" ] || [ "$1" = "-production" ]; then
+  npm install
+fi
+
+echo "ANDROID"
+if grep -R "sdk.dir = /Users/$(whoami)/Library/Android/sdk" android/local.properties
+then
+	echo ""
+else
+	{
+		echo "ndk.dir = /Users/$(whoami)/Library/Android/sdk/ndk-bundle"
+		echo "sdk.dir = /Users/$(whoami)/Library/Android/sdk"
+	} >> android/local.properties
+fi
+
+mkdir android/app/src/main/assets
+
 npm run build-ios
 cd ios
 xcrun xcodebuild -workspace test.xcworkspace -scheme test -configuration Release archive -archivePath build/test.xcarchive
@@ -2296,70 +2327,23 @@ else
 fi`
 
 const podFile = ({
-  appName,
+  isLottie,
   isFirebase,
   isMaps,
-} = { isFirebase: false, isMaps: false, }) => `# Uncomment the next line to define a global platform for your project
-platform :ios, '10.0'
-
-target '${appName}' do
-  # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
-  # use_frameworks!
-  ${isMaps ? `rn_maps_path = '../node_modules/react-native-maps'` : ``}
-
-  pod 'React', :path => '../node_modules/react-native', :subspecs => [
-    'Core',
-    'CxxBridge',
-    'DevSupport',
-    'RCTActionSheet',
-    'RCTAnimation',
-    'RCTGeolocation',
-    'RCTImage',
-    'RCTLinkingIOS',
-    'RCTNetwork',
-    'RCTSettings',
-    'RCTText',
-    'RCTVibration',
-    'RCTWebSocket',
-  ]
-  pod 'yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
-  pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
-  pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
-  pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
-  ${isFirebase ? `pod 'Firebase/Core', '~> 6.3.0'` : ``}
-  ${isFirebase ? `pod 'Firebase/Messaging'` : ``}
-  ${isFirebase ? `pod 'Fabric'` : ``}
-  ${isFirebase ? `pod 'Crashlytics'` : ``}
-
-  ${isMaps ? `
-  pod 'react-native-maps', path: rn_maps_path
-  # pod 'react-native-google-maps', path: rn_maps_path  # Uncomment this line if you want to support GoogleMaps on iOS
-  pod 'GoogleMaps'  # Uncomment this line if you want to support GoogleMaps on iOS
-  pod 'Google-Maps-iOS-Utils' # Uncomment this line if you want to support GoogleMaps on iOS`: ``}
-  
-
-end
-post_install do |installer|
-  installer.pods_project.targets.each do |target|
-  ${isMaps ? `
-    if target.name == 'react-native-google-maps'
-      target.build_configurations.each do |config|
-        config.build_settings['CLANG_ENABLE_MODULES'] = 'No'
-      end
-    end`: ``}
-    if target.name == "React"
-      target.remove_from_project
-    end
-    if target.name == 'yoga'
-      target.remove_from_project
-      target.build_configurations.each do |config|
-          config.build_settings['GCC_TREAT_WARNINGS_AS_ERRORS'] = 'NO'
-          config.build_settings['GCC_WARN_64_TO_32_BIT_CONVERSION'] = 'NO'
-      end
-    end
-  end
-end
-`
+} = { isFirebase: false, isMaps: false, }) => {
+  let listPods = [];
+  if (isMaps) {
+    listPods.push(`pod 'GoogleMaps'  # Uncomment this line if you want to support GoogleMaps on iOS`);
+    listPods.push(`pod 'Google-Maps-iOS-Utils' # Uncomment this line if you want to support GoogleMaps on iOS\n`);
+  }
+  if (isFirebase) {
+    listPods.push(`pod 'Firebase/Core', '~> 6.3.0'`);
+    listPods.push(`pod 'Firebase/Messaging'`);
+    listPods.push(`pod 'Fabric'`);
+    listPods.push(`pod 'Crashlytics'\n`);
+  }
+  return listPods;
+}
 
 module.exports = {
   indexIcons,

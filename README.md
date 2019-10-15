@@ -1,5 +1,4 @@
 ### rn-structure
-> **Note:** The current library only supports react-native 0.59.5, the react-native versions >= 0.60, and the supported libraries will be updated in the future.
 
 ### Documentation
 1.  [Installation](#installation)
@@ -15,12 +14,23 @@
 <a name="installation"></a>
 
 Get started with rn-structure by installing the node module with yarn or npm:
+## Installing (React Native >= 0.60.0)
+
 ```
 npm install -g rn-structure
 ```
 or
 ```
 yarn add global rn-structure
+```
+## Installing (React Native == 0.59.x)
+
+```
+npm install -g rn-structure@0.3.1
+```
+or
+```
+yarn add global rn-structure@0.3.1
 ```
 
 ## [Usage](#usage)
@@ -341,7 +351,7 @@ redux-thunk
 
 Navigation
 ```
-react-navigation
+react-navigation@latest
 ```
 
 Fetch:

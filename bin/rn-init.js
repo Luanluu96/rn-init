@@ -8,6 +8,7 @@ var os = require('os');
 
 const { updatePackageJson } = require('./package');
 const { generateBuildGradle, generateGradleProperties, generateBuildGradleForApp } = require('./gradle');
+const { generatePodFile } = require('./podfile');
 const {
   indexIcons,
   indexImages,
@@ -58,10 +59,10 @@ const { rmdirSync } = require('./functions');
 
 let ReactotronConfig = "";
 let indexStores = "";
-let podStringFile = "";
+let listPods = [];
 const name = process.argv.slice(-1)[0];
 
-let installLibCommandLine = `npm install --save react-native-webview @react-native-community/async-storage @react-native-community/netinfo @react-native-community/viewpager abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-redux redux ramda ramdasauce `
+let installLibCommandLine = `npm install --save react-native-webview @react-native-community/async-storage @react-native-community/netinfo @react-native-community/viewpager abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-navigation-stack react-navigation-drawer react-navigation-tabs react-redux redux ramda ramdasauce `
 let installLibDevCommandLine = `npm install --save-dev jetifier reactotron-redux@3.1.1 reactotron-react-native@3.6.4 `;
 
 async function main() {
@@ -81,12 +82,24 @@ async function main() {
       });
   }
 
-  sh.exec(`react-native init ${name} --version="react-native@0.59.5"`);
+  sh.exec(`react-native init ${name}`);
   sh.cd(name);
   sh.exec('clear');
   sh.mkdir(sh.pwd().stdout + '/android/app/src/main/assets/')
 
   if (os.platform() === 'darwin') {
+    sh.exec("\n" +
+      "if [ ! -d \"/Users/$(whoami)/Library/Android/sdk/ndk-bundle\" ]; then\n" +
+      "\techo \"SETUP ANDROID NDK\"\n" +
+      "\tcd \"/Users/$(whoami)/Library/Android/sdk\" && {\n" +
+      "\t\tcurl -O https://dl.google.com/android/repository/android-ndk-r20-darwin-x86_64.zip\n" +
+      "\t\tunzip 'android-ndk-r20-darwin-x86_64.zip'\n" +
+      "\t\tmv android-ndk-r20 ndk-bundle\n" +
+      "\t\trm -rf 'android-ndk-r20-darwin-x86_64.zip'\n" +
+      "\t\tcd -\n" +
+      "\t}\n" +
+      "fi\n"
+    );
     sh.exec("echo \"## This file must *NOT* be checked into Version Control Systems,\n" +
       "# as it contains information specific to your local configuration.\n" +
       "#\n" +
@@ -111,9 +124,6 @@ async function main() {
   }
 
   console.log(colorsTerminal.green('======================== Initalizing... ======================== '));
-  if (os.platform() === 'darwin') {
-    podStringFile = podFile({ appName: name });
-  }
   //edit root package.json
   await inquirer
     .prompt({
@@ -156,13 +166,13 @@ async function main() {
         "react-native-splash-screen",
         "react-native-maps",
         "react-native-permissions",
-        "lottie-react-native@2.6.1",
+        "lottie-react-native",
         "react-native-scrollable-tab-view",
         "react-native-tab-view",
         "react-native-gifted-chat",
         "react-native-snap-carousel",
         "react-native-image-picker",
-        "react-native-image-crop-picker@0.24.1",
+        "react-native-image-crop-picker",
         "react-native-typography",
         "react-native-offline",
         "react-native-android-open-settings",
@@ -188,14 +198,14 @@ async function main() {
               podFileOption['isMaps'] = true;
               sh.exec('google-chrome https://console.firebase.google.com');
               break;
+            case 'lottie-react-native':
+              installLibCommandLine += 'lottie-ios@3.1.3' + ` `
+              break;
           }
-        }
-        if (lib === 'lottie-react-native') {
-          installLibCommandLine += 'lottie-ios@3.0.3' + ` `
         }
         installLibCommandLine += lib + ` `
       });
-      podStringFile = podFile({ appName: name, ...podFileOption });
+      listPods = podFile(podFileOption);
     });
 
   updatePackageJson(sh.pwd().stdout);
@@ -207,19 +217,16 @@ async function main() {
   if (os.platform() === 'darwin') {
     console.log(colorsTerminal.green('=> CocoaPods...'));
     try {
-      fs.writeFileSync(sh.pwd().stdout + "/" + ('ios/Podfile'), podStringFile);
+      generatePodFile(sh.pwd().stdout, listPods);
     } catch (error) {
       console.warn(error)
     }
   }
-  console.log(colorsTerminal.green('=> linking libraries...'));
-  sh.exec('react-native link');
-
   // write pod file
   if (os.platform() === 'darwin') {
-    console.log(colorsTerminal.green('=> CocoaPods...'));
     sh.exec('cd ./ios && pod install');
   }
+
   console.log(colorsTerminal.green('=> Generate android gradle...'));
   generateBuildGradle(name, sh.pwd().stdout, installLibCommandLine);
   generateBuildGradleForApp(name, sh.pwd().stdout, installLibCommandLine);
@@ -267,7 +274,7 @@ async function main() {
 
   listFolders.forEach(element => {
     if (element.isCreate) {
-      console.log('[Project Structure]', element.label);
+      console.log(colorsTerminal.green('✔'), '[Project Structure]', element.label);
       try {
         fs.mkdirSync(element.path, element.options);
       } catch (err) {
@@ -277,7 +284,7 @@ async function main() {
   });
 
   console.log(colorsTerminal.green('=> Source code...'));
-  console.log('[Source]', "assets");
+  console.log(colorsTerminal.green('✔'), '[Source]', "assets");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/assets/icons/index.js'), indexIcons);
   } catch (error) {
@@ -294,14 +301,14 @@ async function main() {
     console.warn(error)
   }
 
-  console.log('[Source]', "api");
+  console.log(colorsTerminal.green('✔'), '[Source]', "api");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/api/index.js'), '');
   } catch (error) {
     console.warn(error)
   }
 
-  console.log('[Source]', "common");
+  console.log(colorsTerminal.green('✔'), '[Source]', "common");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/common/components/Button/index.js'), buttonComponents);
   } catch (error) {
@@ -338,7 +345,7 @@ async function main() {
     console.warn(error)
   }
 
-  console.log('[Source]', "containers");
+  console.log(colorsTerminal.green('✔'), '[Source]', "containers");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/containers/HomePage/index.js'), indexHomePage);
   } catch (error) {
@@ -355,7 +362,7 @@ async function main() {
     console.warn(error)
   }
 
-  console.log('[Source]', "configs");
+  console.log(colorsTerminal.green('✔'), '[Source]', "configs");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/configs/Animations.js'), configAnimations);
   } catch (error) {
@@ -367,7 +374,7 @@ async function main() {
     console.warn(error)
   }
 
-  console.log('[Source]', "stores");
+  console.log(colorsTerminal.green('✔'), '[Source]', "stores");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/stores/actions/network.js'), networkAction);
   } catch (error) {
@@ -408,14 +415,14 @@ async function main() {
     console.warn(error)
   }
 
-  console.log('[Source]', "routers");
+  console.log(colorsTerminal.green('✔'), '[Source]', "routers");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/routers/index.js'), indexRouter);
   } catch (error) {
     console.warn(error)
   }
 
-  console.log('[Source]', "utils");
+  console.log(colorsTerminal.green('✔'), '[Source]', "utils");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/index.js'), indexUtils(installLibCommandLine.includes('react-native-vector-icons')));
   } catch (error) {
@@ -486,42 +493,42 @@ async function main() {
     console.warn(error)
   }
 
-  console.log('[Source]', "debugging");
+  console.log(colorsTerminal.green('✔'), '[Source]', "debugging");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('debugging/ReactotronConfig.js'), ReactotronConfig);
   } catch (error) {
     console.warn(error)
   }
 
-  console.log('[Source]', "App");
+  console.log(colorsTerminal.green('✔'), '[Source]', "App");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/App.js'), appRoot());
   } catch (error) {
     console.warn(error)
   }
 
-  console.log('[Source]', "delete");
+  console.log(colorsTerminal.green('✔'), '[Source]', "delete");
   try {
     fs.unlinkSync(sh.pwd().stdout + "/" + ('App.js'))
   } catch (err) {
     console.warn(err)
   }
 
-  console.log('[Source]', "exportOptionsDevelopment.plist");
+  console.log(colorsTerminal.green('✔'), '[Source]', "exportOptionsDevelopment.plist");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('ios/exportOptionsDevelopment.plist'), exportOptionsDevelopment);
   } catch (error) {
     console.warn(error)
   }
 
-  console.log('[Source]', 'build.sh');
+  console.log(colorsTerminal.green('✔'), '[Source]', 'build.sh');
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('build.sh'), buildScript(name));
   } catch (error) {
     console.warn(error)
   }
 
-  console.log('[Source]', "Root index");
+  console.log(colorsTerminal.green('✔'), '[Source]', "Root index");
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('index.js'), indexApp);
   } catch (error) {
