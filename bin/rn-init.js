@@ -88,6 +88,18 @@ async function main() {
   sh.mkdir(sh.pwd().stdout + '/android/app/src/main/assets/')
 
   if (os.platform() === 'darwin') {
+    sh.exec("\n" +
+      "if [ ! -d \"/Users/$(whoami)/Library/Android/sdk/ndk-bundle\" ]; then\n" +
+      "\techo \"SETUP ANDROID NDK\"\n" +
+      "\tcd \"/Users/$(whoami)/Library/Android/sdk\" && {\n" +
+      "\t\tcurl -O https://dl.google.com/android/repository/android-ndk-r20-darwin-x86_64.zip\n" +
+      "\t\tunzip 'android-ndk-r20-darwin-x86_64.zip'\n" +
+      "\t\tmv android-ndk-r20 ndk-bundle\n" +
+      "\t\trm -rf 'android-ndk-r20-darwin-x86_64.zip'\n" +
+      "\t\tcd -\n" +
+      "\t}\n" +
+      "fi\n"
+    );
     sh.exec("echo \"## This file must *NOT* be checked into Version Control Systems,\n" +
       "# as it contains information specific to your local configuration.\n" +
       "#\n" +
@@ -214,7 +226,7 @@ async function main() {
   if (os.platform() === 'darwin') {
     sh.exec('cd ./ios && pod install');
   }
-  
+
   console.log(colorsTerminal.green('=> Generate android gradle...'));
   generateBuildGradle(name, sh.pwd().stdout, installLibCommandLine);
   generateBuildGradleForApp(name, sh.pwd().stdout, installLibCommandLine);
