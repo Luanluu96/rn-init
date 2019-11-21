@@ -489,6 +489,20 @@ import strings from "./strings";
 
 const timeOutDefault = 20000;
 const AbortController = window.AbortController;
+const headerDefault = {
+  method: "GET",
+  headers: {
+    "Accept": "application/json",
+    "Content-Type": "application/json"
+  }
+}
+const headerMultiDefault = {
+  method: "POST",
+  headers: {
+    "Accept": "application/json",
+    "Content-Type": "multipart/form-data"
+  },
+}
 
 export const STATUS_CODE = {
   0: { status: false, message: 'skipped' },
@@ -509,8 +523,10 @@ async function outputError(response) {
       error = { error: error };
     }
   } catch (e) { error = {}; }
+
   error["status"] = false;
   error["statusCode"] = response.status;
+
   if (!error.hasOwnProperty("error")) {
     if (STATUS_CODE[response.status].message) {
       error["error"] = STATUS_CODE[response.status].message;
@@ -522,360 +538,55 @@ async function outputError(response) {
   return error;
 }
 
-export function FetchJsonGet(url, timeOut = timeOutDefault) {
-  return new Promise((resolve, reject) => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    let handleTimeOut = setTimeout(() => {
-      controller.abort();
-      reject({ status: false, statusCode: 500, error: strings.REQUEST_TIME_OUT });
-    }, timeOut);
-    fetch(url, {
-      signal: signal
+async function FetchBase(request, handleTimeOut) {
+  fetch(request)
+    .then(async response => {
+      if (STATUS_CODE[response.status].status) {
+        let jsonObject = await response.json();
+        if (typeof jsonObject == "string") {
+          jsonObject = { message: jsonObject };
+        }
+        jsonObject["status"] = true;
+        jsonObject["statusCode"] = response.status;
+        return jsonObject;
+      } else if (!STATUS_CODE[response.status].status) {
+        return outputError(response);
+      }
     })
-      .then(async response => {
-        if (STATUS_CODE[response.status].status) {
-          let jsonObject = await response.json();
-          if (typeof jsonObject == "string") {
-            jsonObject = { message: jsonObject };
-          }
-          jsonObject["status"] = true;
-          jsonObject["statusCode"] = response.status;
-          return jsonObject;
-        } else if (!STATUS_CODE[response.status].status) {
-          return outputError(response);
-        }
-      })
-      .then(responseJson => {
-        clearTimeout(handleTimeOut);
-        if (responseJson.status) {
-          resolve(responseJson);
-        } else {
-          reject(responseJson);
-        }
-      })
-      .catch(error => {
-        clearTimeout(handleTimeOut);
-        reject({
-          status: false,
-          statusCode: 500,
-          error: strings.SOMETHING_WENT_WRONG_ON_API_SERVER
-        });
-      });
-  });
-}
-
-export function FetchPatchWith(
-  url,
-  accessToken,
-  json,
-  timeOut = timeOutDefault
-) {
-  return new Promise((resolve, reject) => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    let handleTimeOut = setTimeout(() => {
-      controller.abort();
-      reject({ status: false, statusCode: 500, error: strings.REQUEST_TIME_OUT });
-    }, timeOut);
-    const myRequest = new Request(url, {
-      method: "PATCH",
-      headers: {
-        Authorization: "Bearer " + accessToken,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(json),
-      signal: signal
-    });
-    fetch(myRequest)
-      .then(async response => {
-        if (STATUS_CODE[response.status].status) {
-          let jsonObject = await response.json();
-          if (typeof jsonObject == "string") {
-            jsonObject = { message: jsonObject };
-          }
-          jsonObject["status"] = true;
-          jsonObject["statusCode"] = response.status;
-          return jsonObject;
-        } else if (!STATUS_CODE[response.status].status) {
-          return outputError(response);
-        }
-      })
-      .then(responseJson => {
-        clearTimeout(handleTimeOut);
-        if (responseJson.status) {
-          resolve(responseJson);
-        } else {
-          reject(responseJson);
-        }
-      })
-      .catch(error => {
-        clearTimeout(handleTimeOut);
-        reject({
-          status: false,
-          statusCode: 500,
-          error: strings.SOMETHING_WENT_WRONG_ON_API_SERVER
-        });
-      });
-  });
-}
-
-export async function FetchDeleteWithTokenGet(
-  url,
-  accessToken,
-  json,
-  timeOut = timeOutDefault
-) {
-  return new Promise((resolve, reject) => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    let handleTimeOut = setTimeout(() => {
-      controller.abort();
-      reject({ status: false, statusCode: 500, error: strings.REQUEST_TIME_OUT });
-    }, timeOut);
-    const myRequest = new Request(url, {
-      method: "DELETE",
-      headers: {
-        Authorization: "Bearer " + accessToken,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(json),
-      signal: signal
-    });
-    fetch(myRequest)
-      .then(async response => {
-        if (STATUS_CODE[response.status].status) {
-          let jsonObject = await response.json();
-          if (typeof jsonObject == "string") {
-            jsonObject = { message: jsonObject };
-          }
-          jsonObject["status"] = true;
-          jsonObject["statusCode"] = response.status;
-          return jsonObject;
-        } else if (!STATUS_CODE[response.status].status) {
-          return outputError(response);
-        }
-      })
-      .then(responseJson => {
-        clearTimeout(handleTimeOut);
-        if (responseJson.status) {
-          resolve(responseJson);
-        } else {
-          reject(responseJson);
-        }
-      })
-      .catch(error => {
-        clearTimeout(handleTimeOut);
-        reject({
-          status: false,
-          statusCode: 500,
-          error: strings.SOMETHING_WENT_WRONG_ON_API_SERVER
-        });
-      });
-  });
-}
-
-export function FetchJsonWithTokenGet(
-  url,
-  accessToken,
-  timeOut = timeOutDefault
-) {
-  return new Promise((resolve, reject) => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    let handleTimeOut = setTimeout(() => {
-      controller.abort();
-      reject({ status: false, statusCode: 500, error: strings.REQUEST_TIME_OUT });
-    }, timeOut);
-    const myRequest = new Request(url, {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + accessToken
-      },
-      signal: signal
-    });
-    fetch(myRequest)
-      .then(async response => {
-        if (STATUS_CODE[response.status].status) {
-          let jsonObject = await response.json();
-          if (typeof jsonObject == "string") {
-            jsonObject = { message: jsonObject };
-          }
-          jsonObject["status"] = true;
-          jsonObject["statusCode"] = response.status;
-          return jsonObject;
-        } else if (!STATUS_CODE[response.status].status) {
-          return outputError(response);
-        }
-      })
-      .then(responseJson => {
-        clearTimeout(handleTimeOut);
-        if (responseJson.status) {
-          resolve(responseJson);
-        } else {
-          reject(responseJson);
-        }
-      })
-      .catch(error => {
-        clearTimeout(handleTimeOut);
-        reject({
-          status: false,
-          statusCode: 500,
-          error: strings.SOMETHING_WENT_WRONG_ON_API_SERVER
-        });
-      });
-  });
-}
-
-export async function FetchJsonWithToken(
-  url,
-  accessToken,
-  json,
-  timeOut = timeOutDefault
-) {
-  return new Promise((resolve, reject) => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    let handleTimeOut = setTimeout(() => {
-      controller.abort();
-      reject({ status: false, statusCode: 500, error: strings.REQUEST_TIME_OUT });
-    }, timeOut);
-    const myRequest = new Request(url, {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + accessToken,
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(json),
-      signal: signal
-    });
-    fetch(myRequest)
-      .then(async response => {
-        if (STATUS_CODE[response.status].status) {
-          let jsonObject = await response.json();
-          if (typeof jsonObject == "string") {
-            jsonObject = { message: jsonObject };
-          }
-          jsonObject["status"] = true;
-          jsonObject["statusCode"] = response.status;
-          return jsonObject;
-        } else if (!STATUS_CODE[response.status].status) {
-          return outputError(response);
-        }
-      })
-      .then(responseJson => {
-        clearTimeout(handleTimeOut);
-        if (responseJson.status) {
-          resolve(responseJson);
-        } else {
-          reject(responseJson);
-        }
-      })
-      .catch(error => {
-        clearTimeout(handleTimeOut);
-        reject({
-          status: false,
-          statusCode: 500,
-          error: strings.SOMETHING_WENT_WRONG_ON_API_SERVER
-        });
-      });
-  });
-}
-
-export async function FetchJson(url, json, timeOut = timeOutDefault) {
-  return new Promise((resolve, reject) => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    let handleTimeOut = setTimeout(() => {
-      controller.abort();
-      reject({ status: false, statusCode: 500, error: strings.REQUEST_TIME_OUT });
-    }, timeOut);
-    const myRequest = new Request(url, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(json),
-      signal: signal
-    });
-    fetch(myRequest)
-      .then(async response => {
-        if (STATUS_CODE[response.status].status) {
-          let jsonObject = await response.json();
-          if (typeof jsonObject == "string") {
-            jsonObject = { message: jsonObject };
-          }
-          jsonObject["status"] = true;
-          jsonObject["statusCode"] = response.status;
-          return jsonObject;
-        } else if (!STATUS_CODE[response.status].status) {
-          return outputError(response);
-        }
-      })
-      .then(responseJson => {
-        clearTimeout(handleTimeOut);
-        if (responseJson.status) {
-          resolve(responseJson);
-        } else {
-          reject(responseJson);
-        }
-      })
-      .catch(error => {
-        clearTimeout(handleTimeOut);
-        reject({
-          status: false,
-          statusCode: 500,
-          error: strings.SOMETHING_WENT_WRONG_ON_API_SERVER
-        });
-      });
-  });
-}
-
-export function FetchJsonWait(list, json, timeOut = timeOutDefault) {
-  let newTimeOut = timeOut * (list && list.length > 0 ? list.length : 1);
-  return new Promise((resolve, reject) => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    let handleTimeOut = setTimeout(() => {
-      controller.abort();
-      reject({ status: false, statusCode: 500, error: strings.REQUEST_TIME_OUT });
-    }, newTimeOut);
-    let fetches = [];
-    let arr = [];
-    list.map(v => {
-      const myRequest = new Request(v.link, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(json),
-        signal: signal
-      });
-      fetches.push(
-        fetch(myRequest)
-          .then(data => data.json())
-          .then(dataJson => {
-            arr.push({ key_store: v.key_store, data: dataJson.rows });
-          })
-      );
-    });
-    Promise.all(fetches).then(() => {
+    .then(responseJson => {
       clearTimeout(handleTimeOut);
-      resolve(arr);
+      if (responseJson.status) {
+        resolve(responseJson);
+      } else {
+        reject(responseJson);
+      }
+    })
+    .catch(error => {
+      clearTimeout(handleTimeOut);
+      reject({ status: false, statusCode: 500, error: strings.SOMETHING_WENT_WRONG_ON_API_SERVER });
     });
+}
+
+export function Fetch(url, optionHeader = headerDefault, timeOut = timeOutDefault) {
+  return new Promise((resolve, reject) => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+    let handleTimeOut = setTimeout(() => {
+      controller.abort();
+      reject({ status: false, statusCode: 500, message: strings.REQUEST_TIME_OUT });
+    }, timeOut);
+
+    let newOptionHeader = optionHeader;
+    newOptionHeader['signal'] = signal;
+
+    const myRequest = new Request(url, newOptionHeader);
+    FetchBase(myRequest, handleTimeOut);
   });
 }
 
-export function FetchProfileImageWait(
-  url,
-  list,
-  accessToken,
-  timeOut = timeOutDefault
-) {
+export function FetchList(url, listData, optionHeader = headerMultiDefault, timeOut = timeOutDefault) {
   let newTimeOut = timeOut * (list && list.length > 0 ? list.length : 1);
+
   return new Promise((resolve, reject) => {
     const controller = new AbortController();
     const signal = controller.signal;
@@ -883,48 +594,21 @@ export function FetchProfileImageWait(
       controller.abort();
       reject({ status: false, statusCode: 500, error: strings.REQUEST_TIME_OUT });
     }, newTimeOut);
+
     let fetches = [];
     let arr = [];
-    list.map(v => {
-      const formData = new FormData();
+    let formData;
+    listData.map(v => {
+      formData = new FormData();
       formData.append("file", v.data);
-      const myRequest = new Request(url, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          Authorization: "Bearer " + accessToken,
-          "Content-Type": "multipart/form-data"
-        },
-        body: formData,
-        signal: signal
-      });
-      fetches.push(
-        fetch(myRequest)
-          .then(async response => {
-            if (STATUS_CODE[response.status].status) {
-              let jsonObject = await response.json();
-              if (typeof jsonObject == "string") {
-                jsonObject = { message: jsonObject };
-              }
-              jsonObject["status"] = true;
-              jsonObject["statusCode"] = response.status;
-              return jsonObject;
-            } else if (!STATUS_CODE[response.status].status) {
-              return outputError(response);
-            }
-          })
-          .then(dataJson => {
-            if (dataJson.status) {
-              arr.push({ param: v.param, data: dataJson.url });
-            } else {
-              arr.push({
-                param: v.param,
-                data: null,
-                message: dataJson.message
-              });
-            }
-          })
-      );
+
+
+      let newOptionHeader = optionHeader;
+      newOptionHeader['signal'] = signal;
+      newOptionHeader['body'] = formData;
+      const myRequest = new Request(url, newOptionHeader);
+
+      fetches.push(FetchBase(myRequest));
     });
     Promise.all(fetches)
       .then(() => {
@@ -933,11 +617,7 @@ export function FetchProfileImageWait(
       })
       .catch(error => {
         clearTimeout(handleTimeOut);
-        reject({
-          status: false,
-          statusCode: 500,
-          error: strings.SOMETHING_WENT_WRONG_ON_API_SERVER
-        });
+        reject({ status: false, statusCode: 500, error: strings.SOMETHING_WENT_WRONG_ON_API_SERVER });
       });
   });
 }
