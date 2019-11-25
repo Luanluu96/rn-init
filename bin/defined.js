@@ -489,14 +489,14 @@ import strings from "./strings";
 
 const timeOutDefault = 20000;
 const AbortController = window.AbortController;
-const headerDefault = {
+export const HEADER_DEFAULT = {
   method: "GET",
   headers: {
     "Accept": "application/json",
     "Content-Type": "application/json"
   }
 }
-const headerMultiDefault = {
+const HEADER_MULTI_DEFAULT = {
   method: "POST",
   headers: {
     "Accept": "application/json",
@@ -539,53 +539,54 @@ async function outputError(response) {
 }
 
 async function FetchBase(request, handleTimeOut) {
-  fetch(request)
-    .then(async response => {
-      if (STATUS_CODE[response.status].status) {
-        let jsonObject = await response.json();
-        if (typeof jsonObject == "string") {
-          jsonObject = { message: jsonObject };
-        }
-        jsonObject["status"] = true;
-        jsonObject["statusCode"] = response.status;
-        return jsonObject;
-      } else if (!STATUS_CODE[response.status].status) {
-        return outputError(response);
-      }
-    })
-    .then(responseJson => {
-      clearTimeout(handleTimeOut);
-      if (responseJson.status) {
-        resolve(responseJson);
-      } else {
-        reject(responseJson);
-      }
-    })
-    .catch(error => {
-      clearTimeout(handleTimeOut);
-      reject({ status: false, statusCode: 500, error: strings.SOMETHING_WENT_WRONG_ON_API_SERVER });
-    });
-}
-
-export function Fetch(url, optionHeader = headerDefault, timeOut = timeOutDefault) {
   return new Promise((resolve, reject) => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    let handleTimeOut = setTimeout(() => {
-      controller.abort();
-      reject({ status: false, statusCode: 500, message: strings.REQUEST_TIME_OUT });
-    }, timeOut);
-
-    let newOptionHeader = optionHeader;
-    newOptionHeader['signal'] = signal;
-
-    const myRequest = new Request(url, newOptionHeader);
-    FetchBase(myRequest, handleTimeOut);
+    fetch(request)
+      .then(async response => {
+        if (STATUS_CODE[response.status].status) {
+          let jsonObject = await response.json();
+          if (typeof jsonObject == "string") {
+            jsonObject = { message: jsonObject };
+          }
+          jsonObject["status"] = true;
+          jsonObject["statusCode"] = response.status;
+          return jsonObject;
+        } else if (!STATUS_CODE[response.status].status) {
+          return outputError(response);
+        }
+      })
+      .then(responseJson => {
+        clearTimeout(handleTimeOut);
+        if (responseJson.status) {
+          resolve(responseJson);
+          log(results)
+        } else {
+          reject(responseJson);
+        }
+      })
+      .catch(error => {
+        clearTimeout(handleTimeOut);
+        reject({ status: false, statusCode: 500, error: strings.SOMETHING_WENT_WRONG_ON_API_SERVER });
+      });
   });
 }
 
-export function FetchList(url, listData, optionHeader = headerMultiDefault, timeOut = timeOutDefault) {
-  let newTimeOut = timeOut * (list && list.length > 0 ? list.length : 1);
+export async function Fetch(url, optionHeader = HEADER_DEFAULT, timeOut = timeOutDefault) {
+  const controller = new AbortController();
+  const signal = controller.signal;
+  let handleTimeOut = setTimeout(() => {
+    controller.abort();
+    reject({ status: false, statusCode: 500, message: strings.REQUEST_TIME_OUT });
+  }, timeOut);
+
+  let newOptionHeader = optionHeader;
+  newOptionHeader['signal'] = signal;
+
+  const myRequest = new Request(url, newOptionHeader);
+  return FetchBase(myRequest, handleTimeOut);
+}
+
+export async function FetchList(url, listData, optionHeader = HEADER_MULTI_DEFAULT, timeOut = timeOutDefault) {
+  let newTimeOut = timeOut * (listData && listData.length > 0 ? listData.length : 1);
 
   return new Promise((resolve, reject) => {
     const controller = new AbortController();
@@ -611,9 +612,9 @@ export function FetchList(url, listData, optionHeader = headerMultiDefault, time
       fetches.push(FetchBase(myRequest));
     });
     Promise.all(fetches)
-      .then(() => {
+      .then((response) => {
         clearTimeout(handleTimeOut);
-        resolve(arr);
+        resolve(response);
       })
       .catch(error => {
         clearTimeout(handleTimeOut);
