@@ -573,16 +573,23 @@ async function FetchBase(request, handleTimeOut) {
 export async function Fetch(url, optionHeader = HEADER_DEFAULT, timeOut = timeOutDefault) {
   const controller = new AbortController();
   const signal = controller.signal;
-  let handleTimeOut = setTimeout(() => {
-    controller.abort();
-    reject({ status: false, statusCode: 500, message: strings.REQUEST_TIME_OUT });
-  }, timeOut);
+  return new Promise((resolve, reject) => {
+    let handleTimeOut = setTimeout(() => {
+      controller.abort();
+      reject({ status: false, statusCode: 500, message: strings.REQUEST_TIME_OUT });
+    }, timeOut);
 
-  let newOptionHeader = optionHeader;
-  newOptionHeader['signal'] = signal;
+    let newOptionHeader = optionHeader;
+    newOptionHeader['signal'] = signal;
 
-  const myRequest = new Request(url, newOptionHeader);
-  return FetchBase(myRequest, handleTimeOut);
+    const myRequest = new Request(url, newOptionHeader);
+    try {
+      resolve(FetchBase(myRequest, handleTimeOut))
+    } catch (error) {
+      reject(error);
+    }
+  });
+
 }
 
 export async function FetchList(url, listData, optionHeader = HEADER_MULTI_DEFAULT, timeOut = timeOutDefault) {
