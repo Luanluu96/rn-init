@@ -1,5 +1,4 @@
-const asyncStorage = `
-import { AsyncStorage } from "react-native";
+const asyncStorage = `import AsyncStorage from '@react-native-community/async-storage';
 /**
  *
  * @param {*string} args
@@ -56,27 +55,10 @@ const remove = function (...args) {
   );
 };
 
-/**
- * -- remove all to asyncStorage
- * @return {promise}
- */
-let keys = [
-];
-const clearAll = function () {
-  return new Promise((resolve, reject) => {
-    AsyncStorage.multiRemove(keys, (err, result) => {
-      if (err !== null) reject(err);
-      resolve();
-    });
-  });
-};
-
-
 export default {
   get,
   set,
   remove,
-  clearAll
 };
 `
 
@@ -807,24 +789,20 @@ export default class NetworkTracker {
       console.log("Connection type", state.type);
     });
 
-    const unsubscribe = NetInfo.addEventListener(state => {
+    this.unsubscribe = NetInfo.addEventListener(state => {
       console.log("Connection type", state.type);
       this._handleConnectivityChange(state.isConnected)
     });
-    NetInfo.addEventListener(
-      'connectionChange',
-    );
   }
 
   stopTracking() {
-    unsubscribe();
+    this.unsubscribe();
   }
 
   _handleConnectivityChange = isConnected => {
     this.reduxStore.dispatch(updateInternetConnectionState(isConnected))
   };
-}
-`
+}`
 
 const indexHomePage = `import React, { PureComponent } from 'react';
 import { View, Text } from 'react-native';
