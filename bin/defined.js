@@ -466,11 +466,9 @@ export {
 }
 `
 
-const fetches = `import "abortcontroller-polyfill/dist/polyfill-patch-fetch";
-import strings from "./strings";
+const fetches = `import strings from "./strings";
 
 const timeOutDefault = 20000;
-const AbortController = window.AbortController;
 export const HEADER_DEFAULT = {
   method: "GET",
   headers: {
@@ -491,6 +489,7 @@ export const STATUS_CODE = {
   200: { status: true, message: 'OK' },
   201: { status: true, message: 'Created' },
   400: { status: false, message: 'Bad Request response status code' },
+  401: { status: false, message: 'Unauthorized' },
   403: { status: false, message: 'Forbidden' },
   404: { status: false, message: 'Not found' },
   500: { status: false, message: 'Internal Server ErrorHTTP' },
@@ -502,18 +501,18 @@ async function outputError(response) {
     error = await response.json();
 
     if (typeof error == "string") {
-      error = { error: error };
+      error = { message: error };
     }
   } catch (e) { error = {}; }
 
   error["status"] = false;
   error["statusCode"] = response.status;
 
-  if (!error.hasOwnProperty("error")) {
+  if (!error.hasOwnProperty("message")) {
     if (STATUS_CODE[response.status].message) {
-      error["error"] = STATUS_CODE[response.status].message;
+      error["message"] = STATUS_CODE[response.status].message;
     } else {
-      error["error"] = strings.SOMETHING_WENT_WRONG_ON_API_SERVER;
+      error["message"] = strings.SOMETHING_WENT_WRONG_ON_API_SERVER;
     }
   }
 
@@ -530,7 +529,9 @@ async function FetchBase(request, handleTimeOut) {
             jsonObject = { message: jsonObject };
           }
           jsonObject["status"] = true;
-          jsonObject["statusCode"] = response.status;
+          if (!jsonObject["statusCode"]) {
+            jsonObject["statusCode"] = response.status;
+          }
           return jsonObject;
         } else if (!STATUS_CODE[response.status].status) {
           return outputError(response);
@@ -540,14 +541,13 @@ async function FetchBase(request, handleTimeOut) {
         clearTimeout(handleTimeOut);
         if (responseJson.status) {
           resolve(responseJson);
-          log(results)
         } else {
           reject(responseJson);
         }
       })
       .catch(error => {
         clearTimeout(handleTimeOut);
-        reject({ status: false, statusCode: 500, error: strings.SOMETHING_WENT_WRONG_ON_API_SERVER });
+        reject({ status: false, statusCode: 500, message: strings.SOMETHING_WENT_WRONG_ON_API_SERVER });
       });
   });
 }
@@ -582,7 +582,7 @@ export async function FetchList(url, listData, optionHeader = HEADER_MULTI_DEFAU
     const signal = controller.signal;
     let handleTimeOut = setTimeout(() => {
       controller.abort();
-      reject({ status: false, statusCode: 500, error: strings.REQUEST_TIME_OUT });
+      reject({ status: false, statusCode: 500, message: strings.REQUEST_TIME_OUT });
     }, newTimeOut);
 
     let fetches = [];
@@ -607,7 +607,7 @@ export async function FetchList(url, listData, optionHeader = HEADER_MULTI_DEFAU
       })
       .catch(error => {
         clearTimeout(handleTimeOut);
-        reject({ status: false, statusCode: 500, error: strings.SOMETHING_WENT_WRONG_ON_API_SERVER });
+        reject({ status: false, statusCode: 500, message: strings.SOMETHING_WENT_WRONG_ON_API_SERVER });
       });
   });
 }
@@ -698,6 +698,9 @@ export function exportTabRouteConfigsToArray(routeConfigs) {
 			...routeConfigs[key],
 		}
 	})
+}
+export function extractFacebookIcon(id) {
+	return "http://graph.facebook.com/" + id + "/picture?type=large";
 }`
 
 const strings = `const strings = {
@@ -906,22 +909,22 @@ export {
 
 const appRoot = ({ networkTrackerEnable } = { networkTrackerEnable: true }) => `import React, { Component } from 'react';
 import { StyleSheet, Text, StatusBar, View, AppState, Platform } from 'react-native';
+
 import { Provider } from "react-redux";
+import { SafeAreaView } from "react-navigation";
 
 import '../debugging/ReactotronConfig';
+import * as NavigatorHandle from "./utils/navigators";
 ${networkTrackerEnable ? `import NetworkTracker from './utils/networkTracker';` : ``}
 
 import Router from './routers';
 import Store from './stores';
 
 console.disableYellowBox = true;
-let originalGetDefaultProps = Text.getDefaultProps;
-Text.getDefaultProps = function () {
-  return {
-    ...originalGetDefaultProps(),
-    allowFontScaling: false,
-  };
-};
+Text.defaultProps = Text.defaultProps || {};
+Text.defaultProps.allowFontScaling = false;
+TextInput.defaultProps = TextInput.defaultProps || {};
+TextInput.defaultProps.allowFontScaling = false;
 
 type Props = {};
 type State = {};
@@ -961,7 +964,14 @@ export default class App extends Component<Props, State> {
     return (
       <Provider store={Store}>
         <View style={styles.container}>
-          <Router />
+          <SafeAreaView style={{ height: StatusBar.currentHeight, backgroundColor: '#2597A6' }}>
+            <StatusBar
+              translucent
+              barStyle='light-content'
+              backgroundColor={'#2597A6'}
+            />
+          </SafeAreaView>
+          <Router ref={navigatorRef => NavigatorHandle.setTopLevelNavigator(navigatorRef)} />
         </View>
       </Provider>
     );
