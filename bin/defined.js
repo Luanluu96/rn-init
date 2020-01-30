@@ -778,6 +778,105 @@ export {
   IconTypes,
 }` : ``;
 
+const navigators = `import { NavigationActions, StackActions } from 'react-navigation';
+
+import type { NavigationEvents } from 'react-navigation';
+
+let _navigator;
+let popToRootSettingPage = Function();
+let popToRoot = Function();
+
+
+function setTopLevelNavigator(navigatorRef) {
+  _navigator = navigatorRef;
+}
+
+function getInstance() {
+  return _navigator
+}
+
+function navigate(routeName, params, action = null) {
+  _navigator.dispatch(
+    NavigationActions.navigate({
+      routeName,
+      params,
+      action
+    })
+  );
+}
+
+function navigateDeep(actions) {
+  let action = actions.reduceRight(
+    (prevAction, action) =>
+      NavigationActions.navigate({
+        routeName: action.routeName,
+        params: action.params,
+        action: prevAction,
+      }),
+    undefined
+  )
+  _navigator.dispatch(action)
+}
+
+function popToTop() {
+  _navigator.dispatch(
+    StackActions.popToTop()
+  );
+}
+
+function back(key) {
+  _navigator.dispatch(
+    NavigationActions.back({
+      key
+    })
+  );
+}
+
+function refresh(key, params) {
+  _navigator.dispatch(
+    NavigationActions.setParams({
+      key,
+      params,
+    })
+  );
+}
+
+function replace(routeName, params, action, key = null, newKey = null, ) {
+  _navigator.dispatch(
+    StackActions.replace({
+      key: key,
+      newKey: newKey,
+      routeName: routeName,
+      params: params,
+      action: action
+    })
+  );
+}
+
+function reset(index, actions, key) {
+  const resetAction = StackActions.reset({
+    index,
+    actions,
+    key
+  });
+  _navigator.dispatch(resetAction);
+}
+
+// add other navigation functions that you need and export them
+export {
+  back,
+  reset,
+  refresh,
+  replace,
+  navigate,
+  popToTop,
+  popToRoot,
+  getInstance,
+  navigateDeep,
+  popToRootSettingPage,
+  setTopLevelNavigator,
+};`;
+
 const networkTracker = `import React, { Component } from "react";
 import { updateInternetConnectionState } from '../stores/actions/network';
 import NetInfo from "@react-native-community/netinfo";
@@ -908,7 +1007,7 @@ export {
 }`
 
 const appRoot = ({ networkTrackerEnable } = { networkTrackerEnable: true }) => `import React, { Component } from 'react';
-import { StyleSheet, Text, StatusBar, View, AppState, Platform } from 'react-native';
+import { StyleSheet, Text, TextInput, StatusBar, View, AppState, Platform } from 'react-native';
 
 import { Provider } from "react-redux";
 import { SafeAreaView } from "react-navigation";
@@ -2056,6 +2155,7 @@ module.exports = {
   fetches,
   asyncStorage,
   audioPlayer,
+  navigators,
   networkTracker,
   types,
   ReactotronConfigSaga,
