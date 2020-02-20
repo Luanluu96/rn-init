@@ -44,6 +44,7 @@ const {
   fetches,
   asyncStorage,
   audioPlayer,
+  navigators,
   networkTracker,
   types,
   ReactotronConfigSaga,
@@ -62,7 +63,7 @@ let indexStores = "";
 let listPods = [];
 const name = process.argv.slice(-1)[0];
 
-let installLibCommandLine = `npm install --save react-native-webview @react-native-community/async-storage @react-native-community/netinfo @react-native-community/viewpager abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-navigation-stack react-navigation-drawer react-navigation-tabs react-redux redux redux-persist redux-actions ramda ramdasauce `
+let installLibCommandLine = `npm install --save react-native-webview @react-native-community/async-storage @react-native-community/netinfo @react-native-community/viewpager abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-navigation-stack @react-native-community/masked-view react-native-safe-area-context react-navigation-drawer react-navigation-tabs react-redux redux redux-persist redux-actions ramda ramdasauce `
 let installLibDevCommandLine = `npm install --save-dev jetifier reactotron-redux@3.1.1 reactotron-react-native@3.6.4 `;
 
 async function main() {
@@ -482,6 +483,11 @@ async function main() {
     } catch (error) {
       console.warn(error)
     }
+  }
+  try {
+    fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/navigators.js'), navigators);
+  } catch (error) {
+    console.warn(error)
   }
   try {
     fs.writeFileSync(sh.pwd().stdout + "/" + ('src/utils/networkTracker.js'), networkTracker);
