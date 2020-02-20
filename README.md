@@ -336,10 +336,14 @@ Stores:
 ```
 redux
 react-redux
-
 ```
 
 Middleware
+```
+redux-persist
+redux-actions
+```
+
 ```
 redux-saga
 @redux-saga/is
@@ -348,6 +352,7 @@ or
 ```
 redux-thunk
 ```
+
 
 Navigation
 ```
@@ -373,4 +378,6 @@ Utils:
 ```
 accounting
 moment
+ramda
+lodash
 ```

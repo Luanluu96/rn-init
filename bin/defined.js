@@ -183,34 +183,35 @@ export default audioPlayer;
 
 const colors = `
 
-const COLORS_MOCK = [
-  { color: '#2D4EF5', title: 'Primary' },
-  { color: '#4CE2A7', title: 'Success' },
-  { color: '#E24C4C', title: 'Error' },
-  { color: '#F1A153', title: 'Alert' },
-  { color: '#022047', title: 'Dark' },
-]
+const COLORS_MOCK = {
+  'Primary': '#2D4EF5',
+  'Success': '#4CE2A7',
+  'Error': '#E24C4C',
+  'Alert': '#F1A153',
+  'Dark': '#022047',
+}
 
-const GRADIENTS_MOCK = [
-  { colors: ['#8AA8F8', '#2D4EF5'], title: 'Primary' },
-  { colors: ['#B3F6DC', '#4CE2A7'], title: 'Success' },
-  { colors: ['#FFB2B2', '#E24C4C'], title: 'Error' },
-  { colors: ['#FFDEBE', '#F1A153'], title: 'Alert' },
-  { colors: ['#547298', '#022047'], title: 'Dark' },
-]
+const GRADIENTS_MOCK = {
+  'Primary': ['#8AA8F8', '#2D4EF5'],
+  'Success': ['#B3F6DC', '#4CE2A7'],
+  'Error': ['#FFB2B2', '#E24C4C'],
+  'Alert': ['#FFDEBE', '#F1A153'],
+  'Dark': ['#547298', '#022047'],
+}
 
-const GREYS = [
-  { color: '#FAFAFA', title: '100' },
-  { color: '#E5E5E5', title: '200' },
-  { color: '#CCCCCC', title: '300' },
-  { color: '#999999', title: '400' },
-  { color: '#666666', title: '500' },
-  { color: '#333333', title: '600' },
-]
-
+const GREYS = {
+  '100': '#FAFAFA',
+  '200': '#E5E5E5',
+  '300': '#CCCCCC',
+  '400': '#999999',
+  '500': '#666666',
+  '600': '#333333',
+}
 
 const COLORS = {
-  white: '#FFF',
+  BLACK: '#000000',
+  WHITE: '#FFFFFF',
+  BASE: '#274293',
   COLORS_MOCK,
   GRADIENTS_MOCK,
   GREYS,
@@ -406,24 +407,6 @@ const STYLES = {
   textJustify: {
     textAlign: IOS ? 'justify' : 'left'
   },
-
-  // screenshot
-  sizeSceenShotView: {
-    width: (width * 0.85) / 2,
-    height: height * 1 / 7,
-  },
-
-  //Comments
-  commentBox: {
-    minHeight: 100,
-    width,
-  },
-
-  //
-  autoWidthHeight: {
-    width: 'auto',
-    height: 'auto',
-  },
 }
 
 export default STYLES;`
@@ -614,6 +597,10 @@ export async function FetchList(url, listData, optionHeader = HEADER_MULTI_DEFAU
 `
 
 const functions = `import { Dimensions, Platform, PixelRatio } from 'react-native';
+
+import { isEmpty } from 'ramda';
+import accounting from 'accounting';
+
 const IOS = Platform.OS === "ios";
 
 const {
@@ -646,31 +633,12 @@ function formatDate() {
 	return [year, month, day].join('-');
 }
 
-export const FormatMoney = (number) => {
+export const FormatMoney = (number, symbol = "") => {
 	if (number < 0) {
 		number = 0;
 	}
-	return accounting.formatMoney(number, "€ ", 0)
+	return accounting.formatMoney(number, { symbol, format: "%v %s", precision: 0 })
 };
-
-export const ArrayUtils = {
-	isEmpty: (arrays) => {
-		return !(arrays && arrays.length > 0);
-	}
-}
-
-export const groupStyle = (arrays: Array<any>) => {
-	if (ArrayUtils.isEmpty(arrays) && !Array.isArray(arrays) && arrays.length <= 1) return arrays;
-	let newStyle = [arrays[0]];
-	arrays.slice(1, arrays.length).forEach(value => {
-		if (Array.isArray(value)) {
-			newStyle = [...newStyle, ...value];
-		} else {
-			newStyle.push(value);
-		}
-	});
-	return newStyle;
-}
 
 export function millisecondToTimeProgress(second) {
 
@@ -878,14 +846,12 @@ export {
 };`;
 
 const networkTracker = `import React, { Component } from "react";
-import { updateInternetConnectionState } from '../stores/actions/network';
 import NetInfo from "@react-native-community/netinfo";
 
-export default class NetworkTracker {
-  constructor(store) {
-    this.reduxStore = store
-  }
+import { updateInternetConnectionState } from '../stores/actions/network';
+import Store from '../stores';
 
+export default class NetworkTracker {
   startTracking() {
     NetInfo.fetch().then((state) => {
       console.log("Connection type", state.type);
@@ -902,7 +868,7 @@ export default class NetworkTracker {
   }
 
   _handleConnectivityChange = isConnected => {
-    this.reduxStore.dispatch(updateInternetConnectionState(isConnected))
+    Store.store.dispatch(updateInternetConnectionState(isConnected))
   };
 }`
 
@@ -995,15 +961,12 @@ const indexUtils = (vectorIcon) => `import STYLES from './styles';
 import COLORS from './colors';
 ${vectorIcon ? `import { IconTypes } from './types';` : ``}
 import strings from './strings';
-import { ArrayUtils } from './function';
 
 export {
 	STYLES,
 	COLORS,
   ${vectorIcon ? `IconTypes,` : ``}
-	IconTypes,
 	strings,
-	ArrayUtils
 }`
 
 const appRoot = ({ networkTrackerEnable } = { networkTrackerEnable: true }) => `import React, { Component } from 'react';
@@ -1662,7 +1625,6 @@ export default class Spinner extends PureComponent {
 const buttonComponents = `import React from 'react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet, TouchableOpacity, Text, Image, Animated } from 'react-native';
-import { groupStyle } from '../../../utils/functions';
 
 const TouchableOpacityAnimated = Animated.createAnimatedComponent(TouchableOpacity)
 
@@ -1673,15 +1635,15 @@ const Button = (props) => {
       onPressIn={() => props.onPressIn()}
       onPressOut={() => props.onPressOut()}
       onPress={() => props.onPress()}
-      style={groupStyle([styles.container, props.style])}
+      style={[styles.container, StyleSheet.flatten(props.style)]}
       {...props.touchableProps}>
       {
         (!props.children) && (
-          <View style={groupStyle([styles.buttonContentStyle, props.buttonContentStyle])}>
+          <View style={[styles.buttonContentStyle, StyleSheet.flatten(props.buttonContentStyle)]}>
             {
               (props.imageLeft) && (
                 <Animated.Image
-                  style={groupStyle([styles.buttonImage, props.buttonImageStyle])}
+                  style={[styles.buttonImage, StyleSheet.flatten(props.buttonImageStyle)]}
                   source={props.imageLeft}
                   resizeMode={props.resizeMode} />
               )
@@ -1689,7 +1651,7 @@ const Button = (props) => {
             {
               (props.buttonText) && (
                 <Text
-                  style={groupStyle([styles.buttonTextContent, props.buttonTextContentStyle])}
+                  style={[styles.buttonTextContent, StyleSheet.flatten(props.buttonTextContentStyle)]}
                   numberOfLines={props.numberOfLines}>
                   {props.buttonText}
                 </Text>
@@ -1698,7 +1660,7 @@ const Button = (props) => {
             {
               (props.source || props.imageRight) && (
                 <Animated.Image
-                  style={groupStyle([styles.buttonImage, props.buttonImageStyle])}
+                  style={[styles.buttonImage, StyleSheet.flatten(props.buttonImageStyle)]}
                   source={props.source | props.imageRight}
                   resizeMode={props.resizeMode} />
               )
@@ -1757,14 +1719,15 @@ const styles = StyleSheet.create({
 
 const headerComponents = `import React from 'react';
 import PropTypes from 'prop-types';
-import { SafeAreaView } from 'react-navigation';
 import { View, StyleSheet } from 'react-native';
+
+import { SafeAreaView } from 'react-navigation';
+
 import STYLES from '../../../utils/styles';
-import { groupStyle } from '../../../utils/functions';
 
 const Header = (props) => {
   return (
-    <SafeAreaView style={groupStyle([styles.container, props.style])}>
+    <SafeAreaView style={[styles.container, StyleSheet.flatten(props.style)]}>
       {props.children}
     </SafeAreaView>
   );
@@ -1793,68 +1756,65 @@ const styles = StyleSheet.create({
 });`
 
 const labelComponents = `import React from 'react';
-import PropTypes from 'prop-types';
-import { SafeAreaView } from 'react-navigation';
 import { View, StyleSheet, Text } from 'react-native';
 
+import { SafeAreaView } from 'react-navigation';
+
 import STYLES from '../../../utils/styles';
-
-import { groupStyle } from '../../../utils/functions';
-
 
 const H = ({
   children, style, textStyle, color, numberOfLines
 }) => (
-    <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle, textStyle, color ? { color } : null])}>{children}</Text>
+    <View style={[styles.container, StyleSheet.flatten(style)]}>
+      <Text {...{ numberOfLines }} style={[styles.textStyle, StyleSheet.flatten(textStyle), color ? { color } : null]}>{children}</Text>
     </View>
   );
 
 const H1 = ({
   children, style, textStyle, color, numberOfLines
 }) => (
-    <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle1, textStyle, color ? { color } : null])}>{children}</Text>
+    <View style={[styles.container, StyleSheet.flatten(style)]}>
+      <Text {...{ numberOfLines }} style={[styles.textStyle1, StyleSheet.flatten(textStyle), color ? { color } : null]}>{children}</Text>
     </View>
   );
 
 const H2 = ({
   children, style, textStyle, color, numberOfLines
 }) => (
-    <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle2, textStyle, color ? { color } : null])}>{children}</Text>
+    <View style={[styles.container, StyleSheet.flatten(style)]}>
+      <Text {...{ numberOfLines }} style={[styles.textStyle2, StyleSheet.flatten(textStyle), color ? { color } : null]}>{children}</Text>
     </View>
   );
 
 const H3 = ({
   children, style, textStyle, color, numberOfLines
 }) => (
-    <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle3, textStyle, color ? { color } : null])}>{children}</Text>
+    <View style={[styles.container, StyleSheet.flatten(style)]}>
+      <Text {...{ numberOfLines }} style={[styles.textStyle3, StyleSheet.flatten(textStyle), color ? { color } : null]}>{children}</Text>
     </View>
   );
 
 const H4 = ({
   children, style, textStyle, color, numberOfLines
 }) => (
-    <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle4, textStyle, color ? { color } : null])}>{children}</Text>
+    <View style={[styles.container, StyleSheet.flatten(style)]}>
+      <Text {...{ numberOfLines }} style={[styles.textStyle4, StyleSheet.flatten(textStyle), color ? { color } : null]}>{children}</Text>
     </View>
   );
 
 const H5 = ({
   children, style, textStyle, color, numberOfLines
 }) => (
-    <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle5, textStyle, color ? { color } : null])}>{children}</Text>
+    <View style={[styles.container, StyleSheet.flatten(style)]}>
+      <Text {...{ numberOfLines }} style={[styles.textStyle5, StyleSheet.flatten(textStyle), color ? { color } : null]}>{children}</Text>
     </View>
   );
 
 const H6 = ({
   children, style, textStyle, color, numberOfLines
 }) => (
-    <View style={groupStyle([styles.container, style])}>
-      <Text {...{ numberOfLines }} style={groupStyle([styles.textStyle6, textStyle, color ? { color } : null])}>{children}</Text>
+    <View style={[styles.container, StyleSheet.flatten(style)]}>
+      <Text {...{ numberOfLines }} style={[styles.textStyle6, StyleSheet.flatten(textStyle), color ? { color } : null]}>{children}</Text>
     </View>
   );
 
@@ -1896,13 +1856,32 @@ const styles = StyleSheet.create({
 });`
 
 const listComponents = `import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import STYLES from '../../../utils/styles';
 import COLORS from '../../../utils/colors';
-import { groupStyle } from '../../../utils/functions';
 
-export default class List extends PureComponent {
+type Props = {
+  style?: Object,
+  titleList?: String,
+  titleListStyle?: Object,
+  listContainer?: Object,
+
+  data: Array,
+  horizontal: Boolean,
+  listProps: Object,
+  
+  renderHeader: any,
+  renderItem: Function,
+}
+
+export default class List extends PureComponent<Props> {
+  static defaultProps = {
+    data: [],
+    renderItem: Function(),
+    horizontal: false,
+    listProps: {}
+  }
+
   render() {
     const {
       style,
@@ -1910,42 +1889,32 @@ export default class List extends PureComponent {
       titleListStyle,
       listContainer,
       data,
+      renderHeader,
       renderItem,
       horizontal,
       listProps,
+      children
     } = this.props;
+    let header = typeof renderHeader === 'function' ? renderHeader() : renderHeader
     return (
-      <View style={groupStyle([styles.container, style])}>
-        {titleList && <Text style={groupStyle([styles.titleListStyle, titleListStyle])}>{titleList}</Text>}
-        <View style={groupStyle([styles.listContainer, listContainer])}>
+      <View style={[styles.container, StyleSheet.flatten(style)]}>
+        {titleList && <Text style={[styles.titleListStyle, StyleSheet.flatten(titleListStyle)]}>{titleList}</Text>}
+        {header}
+        <View style={[styles.listContainer, StyleSheet.flatten(listContainer)]}>
           <ScrollView
             showsHorizontalScrollIndicator={false}
             showsVerticalScrollIndicator={false}
             horizontal={horizontal}
             {...listProps}
+            contentContainerStyle={{ paddingBottom: 10 }}
           >
             {data.map((value, index) => renderItem(value, index))}
+            {children}
           </ScrollView>
         </View>
       </View>
     );
   }
-}
-
-List.defaultProps = {
-  data: [],
-  renderItem: Function(),
-  horizontal: false,
-  listProps: {}
-}
-
-List.propTypes = {
-  titleList: PropTypes.string,
-  titleListStyle: PropTypes.any,
-  data: PropTypes.array,
-  renderItem: PropTypes.func.isRequired,
-  horizontal: PropTypes.bool,
-  listProps: PropTypes.object,
 }
 
 const styles = StyleSheet.create({
@@ -2032,6 +2001,7 @@ const indexConfigs = `import * as Animations from './Animations';
 export {
   Animations,
 }`
+
 const ReactotronConfigThunk = `import Reactotron, {
   trackGlobalErrors,
   asyncStorage,
@@ -2055,6 +2025,7 @@ if (__DEV__) reactotron.connect();
 
 export default reactotron;
 `;
+
 const ReactotronConfigSaga = `import Reactotron, {
   trackGlobalErrors,
   asyncStorage,
