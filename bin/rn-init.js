@@ -62,7 +62,7 @@ let indexStores = "";
 let listPods = [];
 const name = process.argv.slice(-1)[0];
 
-let installLibCommandLine = `npm install --save react-native-webview @react-native-community/async-storage @react-native-community/netinfo @react-native-community/viewpager abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-navigation-stack react-navigation-drawer react-navigation-tabs react-redux redux ramda ramdasauce `
+let installLibCommandLine = `npm install --save react-native-webview @react-native-community/async-storage @react-native-community/netinfo @react-native-community/viewpager abortcontroller-polyfill react-native-popup-dialog react-native-gesture-handler accounting moment react-native-extra-dimensions-android react-native-iphone-x-helper react-native-linear-gradient react-navigation react-navigation-stack react-navigation-drawer react-navigation-tabs react-redux redux redux-persist redux-actions ramda ramdasauce `
 let installLibDevCommandLine = `npm install --save-dev jetifier reactotron-redux@3.1.1 reactotron-react-native@3.6.4 `;
 
 async function main() {
@@ -177,6 +177,7 @@ async function main() {
         "react-native-offline",
         "react-native-android-open-settings",
         "react-native-keep-awake",
+        "react-native-simple-encryption",
         "crypto-js",
         "lodash"
       ]

@@ -908,10 +908,11 @@ export {
 }`
 
 const appRoot = ({ networkTrackerEnable } = { networkTrackerEnable: true }) => `import React, { Component } from 'react';
-import { StyleSheet, Text, StatusBar, View, AppState, Platform } from 'react-native';
+import { StyleSheet, Text, TextInput, StatusBar, View, AppState, Platform } from 'react-native';
 
 import { Provider } from "react-redux";
 import { SafeAreaView } from "react-navigation";
+import { PersistGate } from 'redux-persist/integration/react';
 
 import '../debugging/ReactotronConfig';
 import * as NavigatorHandle from "./utils/navigators";
@@ -921,10 +922,24 @@ import Router from './routers';
 import Store from './stores';
 
 console.disableYellowBox = true;
-Text.defaultProps = Text.defaultProps || {};
+let originalGetDefaultProps = Text.defaultProps || {};
+Text.defaultProps = function () {
+  return {
+    ...originalGetDefaultProps(),
+    allowFontScaling: false,
+  };
+};
 Text.defaultProps.allowFontScaling = false;
-TextInput.defaultProps = TextInput.defaultProps || {};
+
+let inputOriginalGetDefaultProps = TextInput.defaultProps || {};
+TextInput.defaultProps = function () {
+  return {
+    ...inputOriginalGetDefaultProps(),
+    allowFontScaling: false,
+  };
+};
 TextInput.defaultProps.allowFontScaling = false;
+
 
 type Props = {};
 type State = {};
@@ -962,17 +977,19 @@ export default class App extends Component<Props, State> {
   };
   render() {
     return (
-      <Provider store={Store}>
-        <View style={styles.container}>
-          <SafeAreaView style={{ height: StatusBar.currentHeight, backgroundColor: '#2597A6' }}>
-            <StatusBar
-              translucent
-              barStyle='light-content'
-              backgroundColor={'#2597A6'}
-            />
-          </SafeAreaView>
-          <Router ref={navigatorRef => NavigatorHandle.setTopLevelNavigator(navigatorRef)} />
-        </View>
+      <Provider store={Store.store}>
+        <PersistGate loading={null} persistor={Store.persistor}>
+          <View style={styles.container}>
+            <SafeAreaView style={{ height: StatusBar.currentHeight, backgroundColor: '#2597A6' }}>
+              <StatusBar
+                translucent
+                barStyle='light-content'
+                backgroundColor={'#2597A6'}
+              />
+            </SafeAreaView>
+            <Router ref={navigatorRef => NavigatorHandle.setTopLevelNavigator(navigatorRef)} />
+          </View>
+        </PersistGate>
       </Provider>
     );
   }
@@ -1036,34 +1053,66 @@ export default reducer;
 
 const indexStoresThunk = `import { createStore, applyMiddleware, compose } from "redux";
 import thunk from "redux-thunk";
+import { persistStore, persistReducer } from 'redux-persist';
+import AsyncStorage from '@react-native-community/async-storage';
+
 import Reactotron from "../../debugging/ReactotronConfig";
 
 import reducer from './reducers';
 
+// Middleware: Redux Persist Config
+const persistConfig = {
+  key: 'root',
+  storage: AsyncStorage,
+  whitelist: [
+    '',
+  ],
+  blacklist: [
+    '',
+  ],
+};
+// Middleware:
+const persistedReducer = persistReducer(persistConfig, reducer);
 const middleware = applyMiddleware(thunk);
 
-// mount it on the Store
-const Store = __DEV__ ?
+// mount it on the store
+const store = __DEV__ ?
   createStore(
-    reducer,
+    persistedReducer,
     compose(
       middleware,
       Reactotron.createEnhancer(),
     )
   ) : createStore(
-    reducer,
+    persistedReducer,
     middleware
   )
 
-export default Store;`
+let persistor = persistStore(store);
+export default { store, persistor };
+`
 
 const indexStoresSaga = `import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
 import createSagaMiddleware from 'redux-saga';
+import { persistStore, persistReducer } from 'redux-persist';
+import AsyncStorage from '@react-native-community/async-storage';
 
 import Reactotron from '../../debugging/ReactotronConfig';
 
 import reducer from './reducers';
 import rootSaga from './sagas';
+
+// Middleware: Redux Persist Config
+const persistConfig = {
+  key: 'root',
+  storage: AsyncStorage,
+  whitelist: [
+    '',
+  ],
+  blacklist: [
+    '',
+  ],
+};
 
 // create our new saga monitor
 const sagaMonitor = Reactotron.createSagaMonitor()
@@ -1071,22 +1120,26 @@ const sagaMonitor = Reactotron.createSagaMonitor()
 // create the saga middleware
 const sagaMiddleware = createSagaMiddleware({ sagaMonitor });
 
+const persistedReducer = persistReducer(persistConfig, reducer);
+
 // mount it on the Store
-const Store = __DEV__ ?
+const store = __DEV__ ?
   createStore(
-    reducer,
+    persistedReducer,
     compose(
       applyMiddleware(sagaMiddleware),
       Reactotron.createEnhancer()
     )
   ) : createStore(
-    reducer,
+    persistedReducer,
     applyMiddleware(sagaMiddleware)
   )
 
+let persistor = persistStore(store);
+
 sagaMiddleware.run(rootSaga);
 
-export default Store;
+export default { store, persistor };
 `
 
 const initSagas = `function* loginSaga() {
@@ -1799,7 +1852,7 @@ List.propTypes = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: STYLES.heightRatio(40),
+    marginTop: STYLES.heightRatio(10),
   },
   titleListStyle: {
   },
