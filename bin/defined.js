@@ -864,7 +864,8 @@ export default class NetworkTracker {
   }
 
   stopTracking() {
-    this.unsubscribe();
+    if (this.unsubscribe)
+      this.unsubscribe();
   }
 
   _handleConnectivityChange = isConnected => {
