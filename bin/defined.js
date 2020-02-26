@@ -2111,8 +2111,9 @@ mkdir android/app/src/main/assets
 
 npm run build-ios
 cd ios
-xcrun xcodebuild -workspace test.xcworkspace -scheme test -configuration Release archive -archivePath build/test.xcarchive
-xcrun xcodebuild -exportArchive -exportPath build/testIPA -archivePath build/test.xcarchive/ -exportOptionsPlist exportOptionsDevelopment.plist
+xcrun xcodebuild -workspace ${appName}.xcworkspace -scheme ${appName} -configuration Release archive -archivePath build/${appName}.xcarchive
+xcrun xcodebuild -exportArchive -exportPath build/${appName}IPA -archivePath build/${appName}.xcarchive/ -exportOptionsPlist exportOptionsDevelopment.plist
+
 
 cd ..
 if [ "$1" = "-r" ] || [ "$1" = "-release" ] 
